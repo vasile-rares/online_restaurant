@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using OnlineRestaurant.Data;
 using OnlineRestaurant.Models;
 using OnlineRestaurant.Services;
 using System;
