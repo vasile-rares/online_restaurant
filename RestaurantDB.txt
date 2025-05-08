@@ -1,0 +1,92 @@
+USE RestaurantDB;
+
+-- 1. Categoriile de preparate
+CREATE TABLE Categorie (
+    Id INT PRIMARY KEY IDENTITY,
+    Nume NVARCHAR(100) NOT NULL
+);
+
+-- 2. Alergeni
+CREATE TABLE Alergen (
+    Id INT PRIMARY KEY IDENTITY,
+    Nume NVARCHAR(100) NOT NULL
+);
+
+-- 3. Preparate
+CREATE TABLE Preparat (
+    Id INT PRIMARY KEY IDENTITY,
+    Denumire NVARCHAR(100) NOT NULL,
+    Pret DECIMAL(10,2) NOT NULL,
+    CantitatePortie DECIMAL(10,2) NOT NULL, -- în grame sau mililitri
+    CantitateTotala DECIMAL(10,2) NOT NULL,
+    UnitateMasura NVARCHAR(10) NOT NULL, -- ex: g, ml
+    CategorieId INT NOT NULL,
+    FOREIGN KEY (CategorieId) REFERENCES Categorie(Id)
+);
+
+-- 3a. Preparate - Alergeni (many-to-many)
+CREATE TABLE PreparatAlergen (
+    PreparatId INT,
+    AlergenId INT,
+    PRIMARY KEY (PreparatId, AlergenId),
+    FOREIGN KEY (PreparatId) REFERENCES Preparat(Id),
+    FOREIGN KEY (AlergenId) REFERENCES Alergen(Id)
+);
+
+-- 3b. Fotografii de prezentare
+CREATE TABLE FotografiePreparat (
+    Id INT PRIMARY KEY IDENTITY,
+    PreparatId INT,
+    Url NVARCHAR(255) NOT NULL,
+    FOREIGN KEY (PreparatId) REFERENCES Preparat(Id)
+);
+
+-- 4. Meniuri
+CREATE TABLE Meniu (
+    Id INT PRIMARY KEY IDENTITY,
+    Denumire NVARCHAR(100) NOT NULL,
+    CategorieId INT NOT NULL,
+    FOREIGN KEY (CategorieId) REFERENCES Categorie(Id)
+);
+
+-- 4a. Preparatele din meniuri
+CREATE TABLE MeniuPreparat (
+    MeniuId INT,
+    PreparatId INT,
+    CantitateInMeniu DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (MeniuId, PreparatId),
+    FOREIGN KEY (MeniuId) REFERENCES Meniu(Id),
+    FOREIGN KEY (PreparatId) REFERENCES Preparat(Id)
+);
+
+-- 5. Utilizatori
+CREATE TABLE Utilizator (
+    Id INT PRIMARY KEY IDENTITY,
+    Nume NVARCHAR(100) NOT NULL,
+    Prenume NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(150) NOT NULL UNIQUE,
+    Telefon NVARCHAR(20),
+    AdresaLivrare NVARCHAR(255),
+    Parola NVARCHAR(255) NOT NULL,
+    TipUtilizator NVARCHAR(50) NOT NULL CHECK (TipUtilizator IN ('client', 'angajat'))
+);
+
+-- 6. Comenzi
+CREATE TABLE Comanda (
+    Id INT PRIMARY KEY IDENTITY,
+    CodUnic UNIQUEIDENTIFIER DEFAULT NEWID(),
+    UtilizatorId INT NOT NULL,
+    DataComanda DATETIME DEFAULT GETDATE(),
+    Stare NVARCHAR(50) NOT NULL CHECK (Stare IN ('inregistrata', 'se pregateste', 'a plecat la client', 'livrata', 'anulata')),
+    FOREIGN KEY (UtilizatorId) REFERENCES Utilizator(Id)
+);
+
+-- 6a. Preparatele din comenzi
+CREATE TABLE ComandaPreparat (
+    ComandaId INT,
+    PreparatId INT,
+    Cantitate INT NOT NULL,
+    PRIMARY KEY (ComandaId, PreparatId),
+    FOREIGN KEY (ComandaId) REFERENCES Comanda(Id),
+    FOREIGN KEY (PreparatId) REFERENCES Preparat(Id)
+);

@@ -10,6 +10,6 @@ namespace OnlineRestaurant.Models
 
         // Navigation properties
         public virtual Categorie Categorie { get; set; }
-        public virtual ICollection<Preparat> Preparate { get; set; }
+        public virtual ICollection<MeniuPreparat> MeniuPreparate { get; set; }
     }
 } 

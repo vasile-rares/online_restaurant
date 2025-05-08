@@ -8,6 +8,6 @@ namespace OnlineRestaurant.Models
         public string Nume { get; set; }
 
         // Navigation properties
-        public virtual ICollection<Preparat> Preparate { get; set; }
+        public virtual ICollection<PreparatAlergen> PreparateAlergeni { get; set; }
     }
 } 

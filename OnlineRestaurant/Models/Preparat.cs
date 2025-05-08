@@ -14,9 +14,9 @@ namespace OnlineRestaurant.Models
 
         // Navigation properties
         public virtual Categorie Categorie { get; set; }
-        public virtual ICollection<Alergen> Alergeni { get; set; }
+        public virtual ICollection<PreparatAlergen> PreparateAlergeni { get; set; }
         public virtual ICollection<FotografiePreparat> Fotografii { get; set; }
-        public virtual ICollection<Meniu> Meniuri { get; set; }
-        public virtual ICollection<Comanda> Comenzi { get; set; }
+        public virtual ICollection<MeniuPreparat> MeniuPreparate { get; set; }
+        public virtual ICollection<ComandaPreparat> ComandaPreparate { get; set; }
     }
 } 

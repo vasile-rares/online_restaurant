@@ -13,6 +13,6 @@ namespace OnlineRestaurant.Models
 
         // Navigation properties
         public virtual Utilizator Utilizator { get; set; }
-        public virtual ICollection<Preparat> Preparate { get; set; }
+        public virtual ICollection<ComandaPreparat> ComandaPreparate { get; set; }
     }
 } 
