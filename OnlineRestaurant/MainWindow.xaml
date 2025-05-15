@@ -4,9 +4,30 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OnlineRestaurant"
+        xmlns:views="clr-namespace:OnlineRestaurant.Views"
+        xmlns:viewmodels="clr-namespace:OnlineRestaurant.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Restaurant Online - Meniu" Height="700" Width="1000"
+        WindowStartupLocation="CenterScreen">
+    
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewmodels:MeniuRestaurantViewModel}">
+            <views:MeniuRestaurantView />
+        </DataTemplate>
+    </Window.Resources>
+    
     <Grid>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#2C3E50" Padding="15">
+            <TextBlock Text="Meniul Restaurantului" FontSize="24" FontWeight="Bold" Foreground="White"/>
+        </Border>
+        
+        <!-- Conținut -->
+        <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}"/>
     </Grid>
 </Window>

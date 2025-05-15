@@ -88,6 +88,7 @@ namespace OnlineRestaurant
                 services.AddTransient<UtilizatorService>();
 
                 // ViewModels
+                services.AddTransient<MeniuRestaurantViewModel>();
                 services.AddTransient<MainViewModel>();
 
                 // Vizualizări

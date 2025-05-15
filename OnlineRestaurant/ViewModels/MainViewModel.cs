@@ -1,66 +1,40 @@
+using OnlineRestaurant.Commands;
 using OnlineRestaurant.Models;
 using OnlineRestaurant.Services;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace OnlineRestaurant.ViewModels
 {
     public class MainViewModel : BaseVM
     {
-        private readonly PreparatService _preparatService;
-        private readonly CategorieService _categorieService;
-        private ObservableCollection<Categorie> _categorii;
-        private ObservableCollection<Preparat> _preparate;
+        private readonly IServiceProvider _serviceProvider;
+        private BaseVM _currentViewModel;
 
-        public ObservableCollection<Categorie> Categorii
+        public BaseVM CurrentViewModel
         {
-            get => _categorii;
-            set => SetProperty(ref _categorii, value);
+            get => _currentViewModel;
+            set => SetProperty(ref _currentViewModel, value);
         }
 
-        public ObservableCollection<Preparat> Preparate
-        {
-            get => _preparate;
-            set => SetProperty(ref _preparate, value);
-        }
+        public ICommand NavigateToMeniuCommand { get; }
 
-        public MainViewModel(PreparatService preparatService, CategorieService categorieService)
+        public MainViewModel(
+            IServiceProvider serviceProvider,
+            MeniuRestaurantViewModel meniuRestaurantViewModel)
         {
-            _preparatService = preparatService;
-            _categorieService = categorieService;
+            _serviceProvider = serviceProvider;
             
-            // Inițializare colecții goale
-            Categorii = new ObservableCollection<Categorie>();
-            Preparate = new ObservableCollection<Preparat>();
+            // Setăm view-ul inițial
+            CurrentViewModel = meniuRestaurantViewModel;
             
-            // Încărcare date la inițializare
-            LoadDataAsync();
-        }
-
-        private async Task LoadDataAsync()
-        {
-            await LoadCategories();
-            await LoadPreparate();
-        }
-
-        private async Task LoadCategories()
-        {
-            var categorii = await _categorieService.GetAllAsync();
-            Categorii.Clear();
-            foreach (var categorie in categorii)
-            {
-                Categorii.Add(categorie);
-            }
-        }
-
-        private async Task LoadPreparate()
-        {
-            var preparate = await _preparatService.GetAllAsync();
-            Preparate.Clear();
-            foreach (var preparat in preparate)
-            {
-                Preparate.Add(preparat);
-            }
+            // Inițializăm comenzile de navigare
+            NavigateToMeniuCommand = new RelayCommand(() => 
+                CurrentViewModel = _serviceProvider.GetRequiredService<MeniuRestaurantViewModel>());
         }
     }
 } 

@@ -17,9 +17,6 @@ namespace OnlineRestaurant.Models
         [MaxLength(100)]
         public string Nume { get; set; } = string.Empty;
 
-        [MaxLength(255)]
-        public string? Descriere { get; set; }
-
         public virtual ICollection<PreparatAlergen> PreparatAlergeni { get; set; }
     }
-} 
+}
