@@ -1,15 +1,58 @@
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineRestaurant.Models
 {
-    public class Meniu
+    public class Meniu : BaseModel
     {
-        public int Id { get; set; }
-        public string Denumire { get; set; }
-        public int CategorieId { get; set; }
+        private int _idMeniu;
+        private string _denumire = string.Empty;
+        private int _idCategorie;
+        private Categorie? _categorie;
+        private ObservableCollection<MeniuPreparat>? _meniuPreparate;
 
-        // Navigation properties
-        public virtual Categorie Categorie { get; set; }
-        public virtual ICollection<MeniuPreparat> MeniuPreparate { get; set; }
+        public Meniu()
+        {
+            _meniuPreparate = new ObservableCollection<MeniuPreparat>();
+        }
+
+        [Key]
+        public int IdMeniu
+        {
+            get => _idMeniu;
+            set => SetField(ref _idMeniu, value);
+        }
+
+        [Required]
+        [MaxLength(100)]
+        public string Denumire
+        {
+            get => _denumire;
+            set => SetField(ref _denumire, value);
+        }
+
+        [Required]
+        public int IdCategorie
+        {
+            get => _idCategorie;
+            set => SetField(ref _idCategorie, value);
+        }
+
+        [ForeignKey("IdCategorie")]
+        public virtual Categorie? Categorie
+        {
+            get => _categorie;
+            set => SetField(ref _categorie, value);
+        }
+
+        public virtual ObservableCollection<MeniuPreparat>? MeniuPreparate
+        {
+            get => _meniuPreparate;
+            set => SetField(ref _meniuPreparate, value);
+        }
+
+        [NotMapped]
+        public virtual IEnumerable<Preparat> Preparate => MeniuPreparate?.Select(mp => mp.Preparat).Where(p => p != null).Cast<Preparat>() ?? Enumerable.Empty<Preparat>();
     }
 } 
