@@ -1,49 +1,23 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineRestaurant.Models
 {
-    public class ComandaPreparat : BaseModel
+    public class ComandaPreparat
     {
-        private Guid _idComanda;
-        private int _idPreparat;
-        private int _cantitate;
-        private Comanda? _comanda;
-        private Preparat? _preparat;
-
-        [Key, Column(Order = 0)]
-        public Guid IdComanda
-        {
-            get => _idComanda;
-            set => SetField(ref _idComanda, value);
-        }
-
-        [Key, Column(Order = 1)]
-        public int IdPreparat
-        {
-            get => _idPreparat;
-            set => SetField(ref _idPreparat, value);
-        }
-
+        public Guid IdComanda { get; set; }
+        
+        public int IdPreparat { get; set; }
+        
         [Required]
-        public int Cantitate
-        {
-            get => _cantitate;
-            set => SetField(ref _cantitate, value);
-        }
+        [Range(1, int.MaxValue)]
+        public int Cantitate { get; set; }
 
         [ForeignKey("IdComanda")]
-        public virtual Comanda? Comanda
-        {
-            get => _comanda;
-            set => SetField(ref _comanda, value);
-        }
+        public virtual Comanda Comanda { get; set; }
 
         [ForeignKey("IdPreparat")]
-        public virtual Preparat? Preparat
-        {
-            get => _preparat;
-            set => SetField(ref _preparat, value);
-        }
+        public virtual Preparat Preparat { get; set; }
     }
 } 

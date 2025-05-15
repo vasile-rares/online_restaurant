@@ -1,58 +1,48 @@
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineRestaurant.Models
 {
-    public class Meniu : BaseModel
+    public class Meniu
     {
-        private int _idMeniu;
-        private string _denumire = string.Empty;
-        private int _idCategorie;
-        private Categorie? _categorie;
-        private ObservableCollection<MeniuPreparat>? _meniuPreparate;
-
         public Meniu()
         {
-            _meniuPreparate = new ObservableCollection<MeniuPreparat>();
+            MeniuPreparate = new List<MeniuPreparat>();
         }
 
         [Key]
-        public int IdMeniu
-        {
-            get => _idMeniu;
-            set => SetField(ref _idMeniu, value);
-        }
+        public int IdMeniu { get; set; }
 
         [Required]
         [MaxLength(100)]
-        public string Denumire
-        {
-            get => _denumire;
-            set => SetField(ref _denumire, value);
-        }
+        public string Denumire { get; set; } = string.Empty;
 
         [Required]
-        public int IdCategorie
-        {
-            get => _idCategorie;
-            set => SetField(ref _idCategorie, value);
-        }
+        public int IdCategorie { get; set; }
 
         [ForeignKey("IdCategorie")]
-        public virtual Categorie? Categorie
-        {
-            get => _categorie;
-            set => SetField(ref _categorie, value);
-        }
+        public virtual Categorie Categorie { get; set; }
 
-        public virtual ObservableCollection<MeniuPreparat>? MeniuPreparate
-        {
-            get => _meniuPreparate;
-            set => SetField(ref _meniuPreparate, value);
-        }
+        public virtual ICollection<MeniuPreparat> MeniuPreparate { get; set; }
 
         [NotMapped]
-        public virtual IEnumerable<Preparat> Preparate => MeniuPreparate?.Select(mp => mp.Preparat).Where(p => p != null).Cast<Preparat>() ?? Enumerable.Empty<Preparat>();
+        public decimal PretTotal => CalculeazaPretTotal();
+
+        private decimal CalculeazaPretTotal()
+        {
+            decimal total = 0;
+            if (MeniuPreparate != null)
+            {
+                foreach (var mp in MeniuPreparate)
+                {
+                    if (mp.Preparat != null)
+                    {
+                        total += mp.Preparat.Pret * mp.Cantitate;
+                    }
+                }
+            }
+            return total;
+        }
     }
 } 

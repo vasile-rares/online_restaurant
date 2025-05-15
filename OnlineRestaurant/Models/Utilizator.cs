@@ -3,90 +3,44 @@ using System.ComponentModel.DataAnnotations;
 
 namespace OnlineRestaurant.Models
 {
-    public class Utilizator : BaseModel
+    public class Utilizator
     {
-        private int _idUtilizator;
-        private string _nume = string.Empty;
-        private string _prenume = string.Empty;
-        private string _email = string.Empty;
-        private string? _telefon;
-        private string? _adresaLivrare;
-        private string _parolaHash = string.Empty;
-        private string _rol = "Client"; // "Client", "Angajat", etc.
-        private ObservableCollection<Comanda>? _comenzi;
-
         public Utilizator()
         {
-            _comenzi = new ObservableCollection<Comanda>();
+            Comenzi = new ObservableCollection<Comanda>();
         }
 
         [Key]
-        public int IdUtilizator
-        {
-            get => _idUtilizator;
-            set => SetField(ref _idUtilizator, value);
-        }
+        public int IdUtilizator { get; set; }
 
         [Required]
         [MaxLength(100)]
-        public string Nume
-        {
-            get => _nume;
-            set => SetField(ref _nume, value);
-        }
+        public string Nume { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(100)]
-        public string Prenume
-        {
-            get => _prenume;
-            set => SetField(ref _prenume, value);
-        }
+        public string Prenume { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(100)]
         [EmailAddress]
-        public string Email
-        {
-            get => _email;
-            set => SetField(ref _email, value);
-        }
+        public string Email { get; set; } = string.Empty;
 
         [MaxLength(20)]
-        public string? Telefon
-        {
-            get => _telefon;
-            set => SetField(ref _telefon, value);
-        }
+        public string? Telefon { get; set; }
 
         [MaxLength(255)]
-        public string? AdresaLivrare
-        {
-            get => _adresaLivrare;
-            set => SetField(ref _adresaLivrare, value);
-        }
+        public string? AdresaLivrare { get; set; }
 
         [Required]
         [MaxLength(255)]
-        public string ParolaHash
-        {
-            get => _parolaHash;
-            set => SetField(ref _parolaHash, value);
-        }
+        public string ParolaHash { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(20)]
-        public string Rol
-        {
-            get => _rol;
-            set => SetField(ref _rol, value);
-        }
+        public string Rol { get; set; } = "Client"; // "Client", "Angajat", etc.
 
-        public virtual ObservableCollection<Comanda>? Comenzi
-        {
-            get => _comenzi;
-            set => SetField(ref _comenzi, value);
-        }
+        public virtual ObservableCollection<Comanda> Comenzi { get; set; }
 
         public string NumeComplet => $"{Nume} {Prenume}";
     }

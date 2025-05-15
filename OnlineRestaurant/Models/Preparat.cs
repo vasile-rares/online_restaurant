@@ -1,102 +1,50 @@
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineRestaurant.Models
 {
-    public class Preparat : BaseModel
+    public class Preparat
     {
-        private int _idPreparat;
-        private string _denumire = string.Empty;
-        private decimal _pret;
-        private int _cantitatePortie;
-        private int _cantitateTotala;
-        private int _idCategorie;
-        private Categorie? _categorie;
-        private ObservableCollection<FotografiePreparat>? _fotografii;
-        private ObservableCollection<PreparatAlergen>? _preparatAlergeni;
-        private ObservableCollection<MeniuPreparat>? _meniuPreparate;
-
         public Preparat()
         {
-            _fotografii = new ObservableCollection<FotografiePreparat>();
-            _preparatAlergeni = new ObservableCollection<PreparatAlergen>();
-            _meniuPreparate = new ObservableCollection<MeniuPreparat>();
+            PreparatAlergeni = new List<PreparatAlergen>();
+            MeniuPreparate = new List<MeniuPreparat>();
+            Fotografii = new List<FotografiePreparat>();
         }
 
         [Key]
-        public int IdPreparat
-        {
-            get => _idPreparat;
-            set => SetField(ref _idPreparat, value);
-        }
+        public int IdPreparat { get; set; }
 
         [Required]
         [MaxLength(100)]
-        public string Denumire
-        {
-            get => _denumire;
-            set => SetField(ref _denumire, value);
-        }
+        public string Denumire { get; set; } = string.Empty;
+
+        [Column(TypeName = "decimal(10, 2)")]
+        public decimal Pret { get; set; }
 
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
-        public decimal Pret
-        {
-            get => _pret;
-            set => SetField(ref _pret, value);
-        }
+        public int CantitatePortie { get; set; } // în grame
 
         [Required]
-        public int CantitatePortie
-        {
-            get => _cantitatePortie;
-            set => SetField(ref _cantitatePortie, value);
-        }
+        public int CantitateTotala { get; set; } // în grame
 
         [Required]
-        public int CantitateTotala
-        {
-            get => _cantitateTotala;
-            set => SetField(ref _cantitateTotala, value);
-        }
-
-        [Required]
-        public int IdCategorie
-        {
-            get => _idCategorie;
-            set => SetField(ref _idCategorie, value);
-        }
+        public int IdCategorie { get; set; }
 
         [ForeignKey("IdCategorie")]
-        public virtual Categorie? Categorie
-        {
-            get => _categorie;
-            set => SetField(ref _categorie, value);
-        }
+        public virtual Categorie Categorie { get; set; }
 
-        public virtual ObservableCollection<FotografiePreparat>? Fotografii
-        {
-            get => _fotografii;
-            set => SetField(ref _fotografii, value);
-        }
+        public virtual ICollection<PreparatAlergen> PreparatAlergeni { get; set; }
 
-        public virtual ObservableCollection<PreparatAlergen>? PreparatAlergeni
-        {
-            get => _preparatAlergeni;
-            set => SetField(ref _preparatAlergeni, value);
-        }
+        public virtual ICollection<MeniuPreparat> MeniuPreparate { get; set; }
 
-        public virtual ObservableCollection<MeniuPreparat>? MeniuPreparate
-        {
-            get => _meniuPreparate;
-            set => SetField(ref _meniuPreparate, value);
-        }
+        public virtual ICollection<FotografiePreparat> Fotografii { get; set; }
 
         [NotMapped]
-        public virtual IEnumerable<Alergen> Alergeni => PreparatAlergeni?.Select(pa => pa.Alergen).Where(a => a != null).Cast<Alergen>() ?? Enumerable.Empty<Alergen>();
+        public bool InStoc => CantitateTotala >= CantitatePortie;
 
         [NotMapped]
-        public virtual IEnumerable<Meniu> Meniuri => MeniuPreparate?.Select(mp => mp.Meniu).Where(m => m != null).Cast<Meniu>() ?? Enumerable.Empty<Meniu>();
+        public int NumarPortiiDisponibile => CantitatePortie > 0 ? CantitateTotala / CantitatePortie : 0;
     }
 } 

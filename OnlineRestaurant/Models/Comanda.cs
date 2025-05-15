@@ -1,4 +1,5 @@
-using System.Collections.ObjectModel;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -7,70 +8,56 @@ namespace OnlineRestaurant.Models
     public enum StareComanda
     {
         inregistrata,
-        se_pregateste,
-        a_plecat_la_client,
+        sePregateste,
+        aPlecatLaClient,
         livrata,
         anulata
     }
 
-    public class Comanda : BaseModel
+    public class Comanda
     {
-        private Guid _idComanda;
-        private int _idUtilizator;
-        private DateTime _dataComanda = DateTime.Now;
-        private StareComanda _stare = StareComanda.inregistrata;
-        private Utilizator? _utilizator;
-        private ObservableCollection<ComandaPreparat>? _comandaPreparate;
-
         public Comanda()
         {
-            _idComanda = Guid.NewGuid();
-            _comandaPreparate = new ObservableCollection<ComandaPreparat>();
+            IdComanda = Guid.NewGuid();
+            DataComanda = DateTime.Now;
+            Stare = StareComanda.inregistrata;
+            ComandaPreparate = new List<ComandaPreparat>();
         }
 
         [Key]
-        public Guid IdComanda
-        {
-            get => _idComanda;
-            set => SetField(ref _idComanda, value);
-        }
+        public Guid IdComanda { get; set; }
 
         [Required]
-        public int IdUtilizator
-        {
-            get => _idUtilizator;
-            set => SetField(ref _idUtilizator, value);
-        }
+        public int IdUtilizator { get; set; }
 
         [Required]
-        public DateTime DataComanda
-        {
-            get => _dataComanda;
-            set => SetField(ref _dataComanda, value);
-        }
+        public DateTime DataComanda { get; set; }
 
         [Required]
-        [MaxLength(20)]
-        public StareComanda Stare
-        {
-            get => _stare;
-            set => SetField(ref _stare, value);
-        }
+        public StareComanda Stare { get; set; }
 
         [ForeignKey("IdUtilizator")]
-        public virtual Utilizator? Utilizator
-        {
-            get => _utilizator;
-            set => SetField(ref _utilizator, value);
-        }
+        public virtual Utilizator Utilizator { get; set; }
 
-        public virtual ObservableCollection<ComandaPreparat>? ComandaPreparate
-        {
-            get => _comandaPreparate;
-            set => SetField(ref _comandaPreparate, value);
-        }
+        public virtual ICollection<ComandaPreparat> ComandaPreparate { get; set; }
 
         [NotMapped]
-        public virtual IEnumerable<Preparat> Preparate => ComandaPreparate?.Select(cp => cp.Preparat).Where(p => p != null).Cast<Preparat>() ?? Enumerable.Empty<Preparat>();
+        public decimal TotalComanda => CalculeazaTotal();
+
+        private decimal CalculeazaTotal()
+        {
+            decimal total = 0;
+            if (ComandaPreparate != null)
+            {
+                foreach (var cp in ComandaPreparate)
+                {
+                    if (cp.Preparat != null)
+                    {
+                        total += cp.Preparat.Pret * cp.Cantitate;
+                    }
+                }
+            }
+            return total;
+        }
     }
 } 

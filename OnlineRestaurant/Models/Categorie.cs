@@ -1,46 +1,25 @@
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace OnlineRestaurant.Models
 {
-    public class Categorie : BaseModel
+    public class Categorie
     {
-        private int _idCategorie;
-        private string _nume = string.Empty;
-        private ObservableCollection<Preparat>? _preparate;
-        private ObservableCollection<Meniu>? _meniuri;
-
         public Categorie()
         {
-            _preparate = new ObservableCollection<Preparat>();
-            _meniuri = new ObservableCollection<Meniu>();
+            Preparate = new List<Preparat>();
+            Meniuri = new List<Meniu>();
         }
 
         [Key]
-        public int IdCategorie
-        {
-            get => _idCategorie;
-            set => SetField(ref _idCategorie, value);
-        }
+        public int IdCategorie { get; set; }
 
         [Required]
         [MaxLength(100)]
-        public string Nume
-        {
-            get => _nume;
-            set => SetField(ref _nume, value);
-        }
+        public string Nume { get; set; } = string.Empty;
 
-        public virtual ObservableCollection<Preparat>? Preparate
-        {
-            get => _preparate;
-            set => SetField(ref _preparate, value);
-        }
-
-        public virtual ObservableCollection<Meniu>? Meniuri
-        {
-            get => _meniuri;
-            set => SetField(ref _meniuri, value);
-        }
+        public virtual ICollection<Preparat> Preparate { get; set; }
+        
+        public virtual ICollection<Meniu> Meniuri { get; set; }
     }
 } 
