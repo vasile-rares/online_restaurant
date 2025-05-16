@@ -6,28 +6,106 @@
         xmlns:local="clr-namespace:OnlineRestaurant"
         xmlns:views="clr-namespace:OnlineRestaurant.Views"
         xmlns:viewmodels="clr-namespace:OnlineRestaurant.ViewModels"
+        xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
         mc:Ignorable="d"
         Title="Restaurant Online - Meniu" Height="700" Width="1000"
         WindowStartupLocation="CenterScreen">
-    
+
     <Window.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <DataTemplate DataType="{x:Type viewmodels:MeniuRestaurantViewModel}">
             <views:MeniuRestaurantView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
+            <views:LoginView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:RegisterViewModel}">
+            <views:RegisterView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:UserProfileViewModel}">
+            <views:UserProfileView />
+        </DataTemplate>
     </Window.Resources>
-    
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        
+
         <!-- Header -->
-        <Border Grid.Row="0" Background="#2C3E50" Padding="15">
-            <TextBlock Text="Meniul Restaurantului" FontSize="24" FontWeight="Bold" Foreground="White"/>
+        <Border Grid.Row="0" Background="#443000" Padding="15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Papa's Restaurant"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               VerticalAlignment="Center" />
+
+                    <Button Content="Meniu"
+                            Command="{Binding NavigateToMeniuCommand}"
+                            Margin="20,0,0,0"
+                            Padding="10,5"
+                            Background="#C16F00"
+                            Foreground="White"
+                            BorderThickness="0">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4" />
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+
+                <!-- Utilizator -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <TextBlock Text="{Binding UserViewModel.DisplayName}"
+                               Foreground="White"
+                               VerticalAlignment="Center"
+                               Margin="0,0,15,0" />
+
+                    <!-- Buton Profil - vizibil doar dacă utilizatorul este autentificat -->
+                    <Button Content="Profil"
+                            Command="{Binding NavigateToProfileCommand}"
+                            Padding="10,5"
+                            Margin="0,0,10,0"
+                            Background="#2ECC71"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Visibility="{Binding UserViewModel.IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4" />
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+
+                    <!-- Buton Autentificare - vizibil doar dacă utilizatorul NU este autentificat -->
+                    <Button Content="Autentificare"
+                            Command="{Binding NavigateToLoginCommand}"
+                            Padding="10,5"
+                            Background="#775B00"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Visibility="{Binding UserViewModel.IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4" />
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Border>
-        
+
         <!-- Conținut -->
-        <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}"/>
+        <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}" />
     </Grid>
 </Window>

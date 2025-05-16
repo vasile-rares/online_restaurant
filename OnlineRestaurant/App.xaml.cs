@@ -11,28 +11,28 @@ using OnlineRestaurant.ViewModels;
 
 namespace OnlineRestaurant
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
-    {
+/// <summary>
+/// Interaction logic for App.xaml
+/// </summary>
+public partial class App : Application
+{
         private ServiceProvider serviceProvider;
-        public static IConfiguration Configuration { get; private set; }
+    public static IConfiguration Configuration { get; private set; }
 
-        public App()
-        {
+    public App()
+    {
             DispatcherUnhandledException += App_DispatcherUnhandledException;
             
             // Încărcăm configurația
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            
-            Configuration = builder.Build();
-            
+        var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+        Configuration = builder.Build();
+
             // Configurare servicii
             ServiceCollection services = new ServiceCollection();
-            ConfigureServices(services);
+        ConfigureServices(services);
             serviceProvider = services.BuildServiceProvider();
         }
 
@@ -44,15 +44,15 @@ namespace OnlineRestaurant
             
             // Marcăm excepția ca tratată pentru a preveni închiderea aplicației
             e.Handled = true;
-        }
+    }
 
-        private void ConfigureServices(ServiceCollection services)
-        {
+    private void ConfigureServices(ServiceCollection services)
+    {
             try
             {
                 // Adăugăm configurația
-                services.AddSingleton<IConfiguration>(Configuration);
-                
+        services.AddSingleton<IConfiguration>(Configuration);
+
                 // Înregistrare servicii pentru aplicație
                 services.AddSingleton<AppSettingsService>();
                 
@@ -61,7 +61,7 @@ namespace OnlineRestaurant
                 var appSettingsService = serviceProvider.GetRequiredService<AppSettingsService>();
                 
                 // Configurare DbContext cu setări pentru a permite operațiuni concurente
-                services.AddDbContext<RestaurantDbContext>(options =>
+        services.AddDbContext<RestaurantDbContext>(options =>
                 {
                     options.UseSqlServer(appSettingsService.ConnectionString);
                     
@@ -88,31 +88,35 @@ namespace OnlineRestaurant
                 services.AddTransient<UtilizatorService>();
 
                 // ViewModels
+                services.AddSingleton<UserViewModel>();
                 services.AddTransient<MeniuRestaurantViewModel>();
+                services.AddTransient<LoginViewModel>();
+                services.AddTransient<RegisterViewModel>();
+                services.AddTransient<UserProfileViewModel>();
                 services.AddTransient<MainViewModel>();
 
                 // Vizualizări
-                services.AddSingleton<MainWindow>();
+        services.AddSingleton<MainWindow>();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Eroare la configurarea serviciilor: {ex.Message}", "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-        }
+    }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             try
-            {
-                base.OnStartup(e);
-                
+    {
+        base.OnStartup(e);
+
                 // Asigurăm că baza de date există
                 using (var scope = serviceProvider.CreateScope())
-                {
+        {
                     var context = scope.ServiceProvider.GetRequiredService<RestaurantDbContext>();
                     context.Database.EnsureCreated();
-                }
-                
+        }
+
                 var mainWindow = serviceProvider.GetService<MainWindow>();
                 mainWindow?.Show();
                 

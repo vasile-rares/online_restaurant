@@ -1,0 +1,151 @@
+<UserControl x:Class="OnlineRestaurant.Views.RegisterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:OnlineRestaurant.Views"
+             xmlns:vm="clr-namespace:OnlineRestaurant.ViewModels"
+             xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    
+    <UserControl.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    </UserControl.Resources>
+    
+    <Grid Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Titlu -->
+        <TextBlock Text="Creare cont nou" 
+                   FontSize="24" 
+                   FontWeight="Bold" 
+                   Margin="0,20,0,20" 
+                   HorizontalAlignment="Center"
+                   Foreground="#2C3E50"/>
+        
+        <!-- Formular de înregistrare -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Width="400" 
+                        Margin="0,10,0,30" 
+                        HorizontalAlignment="Center">
+                
+                <!-- Nume -->
+                <TextBlock Text="Nume:" 
+                           Margin="0,0,0,5" 
+                           Foreground="#34495E"/>
+                <TextBox Text="{Binding Nume, UpdateSourceTrigger=PropertyChanged}" 
+                         Padding="8" 
+                         Margin="0,0,0,15"/>
+                
+                <!-- Prenume -->
+                <TextBlock Text="Prenume:" 
+                           Margin="0,0,0,5" 
+                           Foreground="#34495E"/>
+                <TextBox Text="{Binding Prenume, UpdateSourceTrigger=PropertyChanged}" 
+                         Padding="8" 
+                         Margin="0,0,0,15"/>
+                
+                <!-- Email -->
+                <TextBlock Text="Email:" 
+                           Margin="0,0,0,5" 
+                           Foreground="#34495E"/>
+                <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" 
+                         Padding="8" 
+                         Margin="0,0,0,15"/>
+                
+                <!-- Telefon -->
+                <TextBlock Text="Telefon (opțional):" 
+                           Margin="0,0,0,5" 
+                           Foreground="#34495E"/>
+                <TextBox Text="{Binding Telefon, UpdateSourceTrigger=PropertyChanged}" 
+                         Padding="8" 
+                         Margin="0,0,0,15"/>
+                
+                <!-- Adresa de livrare -->
+                <TextBlock Text="Adresă de livrare (opțional):" 
+                           Margin="0,0,0,5" 
+                           Foreground="#34495E"/>
+                <TextBox Text="{Binding AdresaLivrare, UpdateSourceTrigger=PropertyChanged}" 
+                         Padding="8" 
+                         Margin="0,0,0,15"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         Height="70"
+                         VerticalScrollBarVisibility="Auto"/>
+                
+                <!-- Parolă -->
+                <TextBlock Text="Parolă:" 
+                           Margin="0,0,0,5" 
+                           Foreground="#34495E"/>
+                <PasswordBox x:Name="PasswordBox" 
+                            Padding="8" 
+                            Margin="0,0,0,15"/>
+                
+                <!-- Confirmare parolă -->
+                <TextBlock Text="Confirmă parola:" 
+                           Margin="0,0,0,5" 
+                           Foreground="#34495E"/>
+                <PasswordBox x:Name="ConfirmPasswordBox" 
+                            Padding="8" 
+                            Margin="0,0,0,15"/>
+                
+                <!-- Rol -->
+                <TextBlock Text="Tip cont:" 
+                           Margin="0,0,0,5" 
+                           Foreground="#34495E"/>
+                <ComboBox ItemsSource="{Binding AvailableRoles}" 
+                          SelectedItem="{Binding SelectedRole}" 
+                          Padding="8" 
+                          Margin="0,0,0,15"/>
+                
+                <!-- Mesaj eroare -->
+                <TextBlock Text="{Binding ErrorMessage}" 
+                           Foreground="Red" 
+                           TextWrapping="Wrap" 
+                           Margin="0,0,0,15" 
+                           Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                
+                <!-- Butoane -->
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Content="Înapoi" 
+                            Command="{Binding CancelCommand}" 
+                            Padding="15,8" 
+                            Margin="0,0,5,0" 
+                            Background="#7F8C8D" 
+                            Foreground="White" 
+                            BorderThickness="0">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    
+                    <Button Grid.Column="1" 
+                            Content="Creare cont" 
+                            Command="{Binding RegisterCommand}" 
+                            Padding="15,8" 
+                            Margin="5,0,0,0" 
+                            Background="#2ECC71" 
+                            Foreground="White" 
+                            BorderThickness="0">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl> 

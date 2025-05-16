@@ -6,10 +6,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:local="clr-namespace:OnlineRestaurant.Views"
     xmlns:vm="clr-namespace:OnlineRestaurant.ViewModels"
+    xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
     mc:Ignorable="d" 
     d:DesignHeight="600" d:DesignWidth="800">
     
     <UserControl.Resources>
+        <converters:DefaultImageConverter x:Key="DefaultImageConverter" DefaultImagePath="/Images/Preparate/piept-de-pui.jpg" />
+        
         <Style x:Key="TitluCategorie" TargetType="TextBlock">
             <Setter Property="FontSize" Value="22"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -58,7 +61,7 @@
                     <!-- Imagine preparat/meniu -->
                     <Border Width="100" Height="100" BorderBrush="#DDDDDD" BorderThickness="1" 
                             CornerRadius="5" Margin="0,0,10,0" ClipToBounds="True">
-                        <Image Source="{Binding Imagini[0]}" Stretch="UniformToFill"/>
+                        <Image Source="{Binding Imagini, Converter={StaticResource DefaultImageConverter}}" Stretch="UniformToFill"/>
                     </Border>
                     
                     <!-- Informații despre preparat/meniu -->

@@ -1,5 +1,5 @@
-﻿using OnlineRestaurant.ViewModels;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using OnlineRestaurant.ViewModels;
 using System;
 using System.Windows;
 

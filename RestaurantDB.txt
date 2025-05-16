@@ -17,8 +17,8 @@ CREATE TABLE Preparate (
     IdPreparat INT PRIMARY KEY IDENTITY(1,1),
     Denumire VARCHAR(100) NOT NULL,
     Pret DECIMAL(10,2) NOT NULL,
-    CantitatePortie INT NOT NULL,
-    CantitateTotala INT NOT NULL,
+    CantitatePortie INT NOT NULL, -- in grame
+    CantitateTotala INT NOT NULL, -- in grame
     IdCategorie INT NOT NULL,
     FOREIGN KEY (IdCategorie) REFERENCES Categorii(IdCategorie)
 );
@@ -52,7 +52,7 @@ CREATE TABLE Meniuri (
 CREATE TABLE MeniuPreparat (
     IdMeniu INT NOT NULL,
     IdPreparat INT NOT NULL,
-    Cantitate INT NOT NULL,
+    Cantitate INT NOT NULL, -- in grame
     PRIMARY KEY (IdMeniu, IdPreparat),
     FOREIGN KEY (IdMeniu) REFERENCES Meniuri(IdMeniu),
     FOREIGN KEY (IdPreparat) REFERENCES Preparate(IdPreparat)

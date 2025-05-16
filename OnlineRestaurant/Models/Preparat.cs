@@ -47,4 +47,4 @@ namespace OnlineRestaurant.Models
         [NotMapped]
         public int NumarPortiiDisponibile => CantitatePortie > 0 ? CantitateTotala / CantitatePortie : 0;
     }
-} 
+}
