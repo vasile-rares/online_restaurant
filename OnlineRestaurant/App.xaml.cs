@@ -74,22 +74,22 @@ public partial class App : Application
                 }, ServiceLifetime.Transient); // Folosim Transient în loc de Scoped pentru a evita refolosirea aceluiași context
 
                 // Servicii pentru entități
-                services.AddTransient<IRestaurantDataService<Preparat>, PreparatService>();
-                services.AddTransient<IRestaurantDataService<Categorie>, CategorieService>();
-                services.AddTransient<IRestaurantDataService<Alergen>, RestaurantDataService<Alergen>>();
-                services.AddTransient<IRestaurantDataService<Meniu>, RestaurantDataService<Meniu>>();
-                services.AddTransient<IRestaurantDataService<Utilizator>, UtilizatorService>();
-                services.AddTransient<IRestaurantDataService<Comanda>, ComandaService>();
+                services.AddTransient<IRestaurantDataService<Dish>, DishService>();
+                services.AddTransient<IRestaurantDataService<Category>, CategoryService>();
+                services.AddTransient<IRestaurantDataService<Allergen>, RestaurantDataService<Allergen>>();
+                services.AddTransient<IRestaurantDataService<Menu>, RestaurantDataService<Menu>>();
+                services.AddTransient<IRestaurantDataService<User>, UserService>();
+                services.AddTransient<IRestaurantDataService<Order>, OrderService>();
 
                 // Servicii specializate
-                services.AddTransient<PreparatService>();
-                services.AddTransient<CategorieService>();
-                services.AddTransient<ComandaService>();
-                services.AddTransient<UtilizatorService>();
+                services.AddTransient<DishService>();
+                services.AddTransient<CategoryService>();
+                services.AddTransient<OrderService>();
+                services.AddTransient<UserService>();
 
                 // ViewModels
                 services.AddSingleton<UserViewModel>();
-                services.AddTransient<MeniuRestaurantViewModel>();
+                services.AddTransient<MenuRestaurantViewModel>();
                 services.AddTransient<LoginViewModel>();
                 services.AddTransient<RegisterViewModel>();
                 services.AddTransient<UserProfileViewModel>();

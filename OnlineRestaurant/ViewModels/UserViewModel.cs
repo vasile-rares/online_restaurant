@@ -8,15 +8,15 @@ namespace OnlineRestaurant.ViewModels
 {
     public class UserViewModel : BaseVM
     {
-        private readonly UtilizatorService _utilizatorService;
-        private Utilizator _currentUser;
+        private readonly UserService _userService;
+        private User _currentUser;
         private bool _isLoggedIn;
         private string _displayName = "Guest";
 
         // Eveniment pentru a notifica delogarea
         public event EventHandler LogoutEvent;
 
-        public Utilizator CurrentUser
+        public User CurrentUser
         {
             get => _currentUser;
             set
@@ -24,7 +24,7 @@ namespace OnlineRestaurant.ViewModels
                 if (SetProperty(ref _currentUser, value))
                 {
                     IsLoggedIn = value != null;
-                    DisplayName = value != null ? value.NumeComplet : "Guest";
+                    DisplayName = value != null ? value.FullName : "Guest";
                 }
             }
         }
@@ -43,9 +43,9 @@ namespace OnlineRestaurant.ViewModels
 
         public ICommand LogoutCommand { get; }
 
-        public UserViewModel(UtilizatorService utilizatorService)
+        public UserViewModel(UserService userService)
         {
-            _utilizatorService = utilizatorService;
+            _userService = userService;
             LogoutCommand = new RelayCommand(Logout);
         }
 

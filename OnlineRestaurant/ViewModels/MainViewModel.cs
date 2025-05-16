@@ -24,27 +24,27 @@ namespace OnlineRestaurant.ViewModels
 
         public UserViewModel UserViewModel => _userViewModel;
 
-        public ICommand NavigateToMeniuCommand { get; }
+        public ICommand NavigateToMenuCommand { get; }
         public ICommand NavigateToLoginCommand { get; }
         public ICommand NavigateToProfileCommand { get; }
 
         public MainViewModel(
             IServiceProvider serviceProvider,
-            MeniuRestaurantViewModel meniuRestaurantViewModel,
+            MenuRestaurantViewModel menuRestaurantViewModel,
             UserViewModel userViewModel)
         {
             _serviceProvider = serviceProvider;
             _userViewModel = userViewModel;
             
-            // Setăm view-ul inițial
-            CurrentViewModel = meniuRestaurantViewModel;
+            // Set initial view
+            CurrentViewModel = menuRestaurantViewModel;
             
-            // Inițializăm comenzile de navigare
-            NavigateToMeniuCommand = new RelayCommand(NavigateToMeniu);
+            // Initialize navigation commands
+            NavigateToMenuCommand = new RelayCommand(NavigateToMenu);
             NavigateToLoginCommand = new RelayCommand(NavigateToLogin);
             NavigateToProfileCommand = new RelayCommand(NavigateToProfile, CanNavigateToProfile);
             
-            // Abonăm-ne la evenimentul de schimbare a proprietăților pentru a actualiza comenzile
+            // Subscribe to property changed event to update commands
             _userViewModel.PropertyChanged += (sender, args) => 
             {
                 if (args.PropertyName == nameof(UserViewModel.IsLoggedIn))
@@ -53,13 +53,13 @@ namespace OnlineRestaurant.ViewModels
                 }
             };
             
-            // Abonăm-ne la evenimentul de delogare pentru a naviga către pagina de login
+            // Subscribe to logout event to navigate to login page
             _userViewModel.LogoutEvent += (sender, args) => NavigateToLogin();
         }
 
-        private void NavigateToMeniu()
+        private void NavigateToMenu()
         {
-            CurrentViewModel = _serviceProvider.GetRequiredService<MeniuRestaurantViewModel>();
+            CurrentViewModel = _serviceProvider.GetRequiredService<MenuRestaurantViewModel>();
         }
         
         private void NavigateToLogin()
@@ -67,13 +67,13 @@ namespace OnlineRestaurant.ViewModels
             var loginViewModel = _serviceProvider.GetRequiredService<LoginViewModel>();
             CurrentViewModel = loginViewModel;
             
-            // Abonăm-ne la evenimentul de succes pentru autentificare
+            // Subscribe to login success event
             loginViewModel.LoginSuccessful += (sender, args) => NavigateToProfile();
             
-            // Setăm handler pentru navigarea la înregistrare
+            // Set handler for navigation to registration
             if (loginViewModel is LoginViewModel login)
             {
-                // Folosim reflecția pentru a accesa metoda privată NavigateToCreateAccount
+                // Use reflection to access private NavigateToCreateAccount method
                 var navigateMethod = login.GetType().GetMethod("NavigateToCreateAccount", 
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 
@@ -81,14 +81,14 @@ namespace OnlineRestaurant.ViewModels
                 {
                     var originalAction = navigateMethod.CreateDelegate(typeof(Action), login) as Action;
                     
-                    // Redefinim acțiunea pentru a include navigarea către RegisterViewModel
+                    // Redefine action to include navigation to RegisterViewModel
                     Action newAction = () =>
                     {
                         originalAction?.Invoke();
                         NavigateToRegister();
                     };
                     
-                    // Setăm noul delegat pentru comanda CreateAccountCommand
+                    // Set new delegate for CreateAccountCommand
                     var command = login.CreateAccountCommand as RelayCommand;
                     var field = typeof(RelayCommand).GetField("_execute", 
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -106,10 +106,13 @@ namespace OnlineRestaurant.ViewModels
             var registerViewModel = _serviceProvider.GetRequiredService<RegisterViewModel>();
             CurrentViewModel = registerViewModel;
             
-            // Setăm handler pentru navigarea înapoi la login
+            // Subscribe to register success event
+            registerViewModel.RegisterSuccessful += (sender, args) => NavigateToProfile();
+            
+            // Set handler for back navigation to login
             if (registerViewModel is RegisterViewModel register)
             {
-                // Folosim reflecția pentru a accesa metoda privată NavigateBack
+                // Use reflection to access private NavigateBack method
                 var navigateMethod = register.GetType().GetMethod("NavigateBack", 
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 
@@ -117,14 +120,14 @@ namespace OnlineRestaurant.ViewModels
                 {
                     var originalAction = navigateMethod.CreateDelegate(typeof(Action), register) as Action;
                     
-                    // Redefinim acțiunea pentru a include navigarea către LoginViewModel
+                    // Redefine action to include navigation to LoginViewModel
                     Action newAction = () =>
                     {
                         originalAction?.Invoke();
                         NavigateToLogin();
                     };
                     
-                    // Setăm noul delegat pentru comanda CancelCommand
+                    // Set new delegate for CancelCommand
                     var command = register.CancelCommand as RelayCommand;
                     var field = typeof(RelayCommand).GetField("_execute", 
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -140,7 +143,7 @@ namespace OnlineRestaurant.ViewModels
         private void NavigateToProfile()
         {
             var profileViewModel = _serviceProvider.GetRequiredService<UserProfileViewModel>();
-            profileViewModel.UpdateProfileFromUser(); // Actualizăm datele din profilul de utilizator
+            profileViewModel.UpdateProfileFromUser(); // Update data from user profile
             CurrentViewModel = profileViewModel;
         }
         

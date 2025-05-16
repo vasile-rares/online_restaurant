@@ -43,8 +43,8 @@
                                Foreground="#34495E">
                         <TextBlock.Text>
                             <MultiBinding StringFormat="{}{0} {1}">
-                                <Binding Path="Nume" />
-                                <Binding Path="Prenume" />
+                                <Binding Path="LastName" />
+                                <Binding Path="FirstName" />
                             </MultiBinding>
                         </TextBlock.Text>
                     </TextBlock>
@@ -78,7 +78,7 @@
                                Foreground="#34495E" 
                                FontWeight="SemiBold"/>
                     <TextBlock Grid.Column="1" 
-                               Text="{Binding Telefon}" 
+                               Text="{Binding Phone}" 
                                Foreground="#34495E"/>
                 </Grid>
             </Border>
@@ -94,7 +94,7 @@
                                Foreground="#34495E" 
                                FontWeight="SemiBold"/>
                     <TextBlock Grid.Column="1" 
-                               Text="{Binding AdresaLivrare}" 
+                               Text="{Binding DeliveryAddress}" 
                                Foreground="#34495E"
                                TextWrapping="Wrap"/>
                 </Grid>
@@ -111,7 +111,7 @@
                                Foreground="#34495E" 
                                FontWeight="SemiBold"/>
                     <TextBlock Grid.Column="1" 
-                               Text="{Binding Rol}" 
+                               Text="{Binding Role}" 
                                Foreground="#34495E"/>
                 </Grid>
             </Border>

@@ -8,27 +8,27 @@ namespace OnlineRestaurant.ViewModels
 {
     public class UserProfileViewModel : BaseVM
     {
-        private readonly UtilizatorService _utilizatorService;
+        private readonly UserService _userService;
         private readonly UserViewModel _userViewModel;
         
-        private string _nume;
-        private string _prenume;
+        private string _lastName;
+        private string _firstName;
         private string _email;
-        private string _telefon;
-        private string _adresaLivrare;
-        private string _rol;
+        private string _phone;
+        private string _deliveryAddress;
+        private string _role;
         private string _errorMessage = string.Empty;
         
-        public string Nume
+        public string LastName
         {
-            get => _nume;
-            set => SetProperty(ref _nume, value);
+            get => _lastName;
+            set => SetProperty(ref _lastName, value);
         }
         
-        public string Prenume
+        public string FirstName
         {
-            get => _prenume;
-            set => SetProperty(ref _prenume, value);
+            get => _firstName;
+            set => SetProperty(ref _firstName, value);
         }
         
         public string Email
@@ -37,22 +37,22 @@ namespace OnlineRestaurant.ViewModels
             set => SetProperty(ref _email, value);
         }
         
-        public string Telefon
+        public string Phone
         {
-            get => _telefon;
-            set => SetProperty(ref _telefon, value);
+            get => _phone;
+            set => SetProperty(ref _phone, value);
         }
         
-        public string AdresaLivrare
+        public string DeliveryAddress
         {
-            get => _adresaLivrare;
-            set => SetProperty(ref _adresaLivrare, value);
+            get => _deliveryAddress;
+            set => SetProperty(ref _deliveryAddress, value);
         }
         
-        public string Rol
+        public string Role
         {
-            get => _rol;
-            set => SetProperty(ref _rol, value);
+            get => _role;
+            set => SetProperty(ref _role, value);
         }
         
         public string ErrorMessage
@@ -63,9 +63,9 @@ namespace OnlineRestaurant.ViewModels
         
         public ICommand LogoutCommand { get; }
         
-        public UserProfileViewModel(UtilizatorService utilizatorService, UserViewModel userViewModel)
+        public UserProfileViewModel(UserService userService, UserViewModel userViewModel)
         {
-            _utilizatorService = utilizatorService;
+            _userService = userService;
             _userViewModel = userViewModel;
             
             LogoutCommand = new RelayCommand(Logout);
@@ -78,12 +78,12 @@ namespace OnlineRestaurant.ViewModels
         {
             if (_userViewModel.CurrentUser != null)
             {
-                Nume = _userViewModel.CurrentUser.Nume;
-                Prenume = _userViewModel.CurrentUser.Prenume;
+                LastName = _userViewModel.CurrentUser.LastName;
+                FirstName = _userViewModel.CurrentUser.FirstName;
                 Email = _userViewModel.CurrentUser.Email;
-                Telefon = _userViewModel.CurrentUser.Telefon ?? "";
-                AdresaLivrare = _userViewModel.CurrentUser.AdresaLivrare ?? "";
-                Rol = _userViewModel.CurrentUser.Rol;
+                Phone = _userViewModel.CurrentUser.Phone ?? "";
+                DeliveryAddress = _userViewModel.CurrentUser.DeliveryAddress ?? "";
+                Role = _userViewModel.CurrentUser.Role;
             }
         }
         

@@ -4,16 +4,16 @@ using System.Windows.Controls;
 namespace OnlineRestaurant.Views
 {
     /// <summary>
-    /// Interaction logic for MeniuRestaurantView.xaml
+    /// Interaction logic for MenuRestaurantView.xaml
     /// </summary>
-    public partial class MeniuRestaurantView : UserControl
+    public partial class MenuRestaurantView : UserControl
     {
-        public MeniuRestaurantView()
+        public MenuRestaurantView()
         {
             InitializeComponent();
         }
 
-        public MeniuRestaurantView(MeniuRestaurantViewModel viewModel) : this()
+        public MenuRestaurantView(MenuRestaurantViewModel viewModel) : this()
         {
             DataContext = viewModel;
         }

@@ -9,7 +9,7 @@ namespace OnlineRestaurant.ViewModels
 {
     public class LoginViewModel : BaseVM
     {
-        private readonly UtilizatorService _utilizatorService;
+        private readonly UserService _userService;
         private readonly UserViewModel _userViewModel;
         
         private string _email = string.Empty;
@@ -55,9 +55,9 @@ namespace OnlineRestaurant.ViewModels
         public ICommand LoginCommand { get; }
         public ICommand CreateAccountCommand { get; }
 
-        public LoginViewModel(UtilizatorService utilizatorService, UserViewModel userViewModel)
+        public LoginViewModel(UserService userService, UserViewModel userViewModel)
         {
-            _utilizatorService = utilizatorService;
+            _userService = userService;
             _userViewModel = userViewModel;
             
             LoginCommand = new RelayCommand(Login, CanLogin);
@@ -76,7 +76,7 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = true;
                 ClearErrorMessage();
                 
-                var user = await _utilizatorService.Autentificare(Email, Password);
+                var user = await _userService.Authenticate(Email, Password);
                 
                 if (user != null)
                 {

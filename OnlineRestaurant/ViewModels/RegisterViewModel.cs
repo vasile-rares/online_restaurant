@@ -10,14 +10,14 @@ namespace OnlineRestaurant.ViewModels
 {
     public class RegisterViewModel : BaseVM
     {
-        private readonly UtilizatorService _utilizatorService;
+        private readonly UserService _userService;
         private readonly UserViewModel _userViewModel;
         
-        private string _nume = string.Empty;
-        private string _prenume = string.Empty;
+        private string _lastName = string.Empty;
+        private string _firstName = string.Empty;
         private string _email = string.Empty;
-        private string _telefon = string.Empty;
-        private string _adresaLivrare = string.Empty;
+        private string _phone = string.Empty;
+        private string _deliveryAddress = string.Empty;
         private string _password = string.Empty;
         private string _confirmPassword = string.Empty;
         private string _selectedRole = "Client";
@@ -27,22 +27,22 @@ namespace OnlineRestaurant.ViewModels
         // Eveniment pentru a notifica înregistrarea reușită
         public event EventHandler RegisterSuccessful;
 
-        public string Nume
+        public string LastName
         {
-            get => _nume;
+            get => _lastName;
             set
             {
-                SetProperty(ref _nume, value);
+                SetProperty(ref _lastName, value);
                 ClearErrorMessage();
             }
         }
 
-        public string Prenume
+        public string FirstName
         {
-            get => _prenume;
+            get => _firstName;
             set
             {
-                SetProperty(ref _prenume, value);
+                SetProperty(ref _firstName, value);
                 ClearErrorMessage();
             }
         }
@@ -57,22 +57,22 @@ namespace OnlineRestaurant.ViewModels
             }
         }
 
-        public string Telefon
+        public string Phone
         {
-            get => _telefon;
+            get => _phone;
             set
             {
-                SetProperty(ref _telefon, value);
+                SetProperty(ref _phone, value);
                 ClearErrorMessage();
             }
         }
 
-        public string AdresaLivrare
+        public string DeliveryAddress
         {
-            get => _adresaLivrare;
+            get => _deliveryAddress;
             set
             {
-                SetProperty(ref _adresaLivrare, value);
+                SetProperty(ref _deliveryAddress, value);
                 ClearErrorMessage();
             }
         }
@@ -103,7 +103,7 @@ namespace OnlineRestaurant.ViewModels
             set => SetProperty(ref _selectedRole, value);
         }
 
-        public ObservableCollection<string> AvailableRoles { get; } = new ObservableCollection<string> { "Client", "Angajat" };
+        public ObservableCollection<string> AvailableRoles { get; } = new ObservableCollection<string> { "Client", "Employee" };
 
         public string ErrorMessage
         {
@@ -120,9 +120,9 @@ namespace OnlineRestaurant.ViewModels
         public ICommand RegisterCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public RegisterViewModel(UtilizatorService utilizatorService, UserViewModel userViewModel)
+        public RegisterViewModel(UserService userService, UserViewModel userViewModel)
         {
-            _utilizatorService = utilizatorService;
+            _userService = userService;
             _userViewModel = userViewModel;
             
             RegisterCommand = new RelayCommand(Register, CanRegister);
@@ -131,8 +131,8 @@ namespace OnlineRestaurant.ViewModels
 
         private bool CanRegister()
         {
-            return !string.IsNullOrWhiteSpace(Nume) && 
-                   !string.IsNullOrWhiteSpace(Prenume) && 
+            return !string.IsNullOrWhiteSpace(LastName) && 
+                   !string.IsNullOrWhiteSpace(FirstName) && 
                    !string.IsNullOrWhiteSpace(Email) && 
                    !string.IsNullOrWhiteSpace(Password) && 
                    !string.IsNullOrWhiteSpace(ConfirmPassword) && 
@@ -149,17 +149,17 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = true;
                 ClearErrorMessage();
 
-                var utilizator = new Utilizator
+                var user = new User
                 {
-                    Nume = Nume,
-                    Prenume = Prenume,
+                    LastName = LastName,
+                    FirstName = FirstName,
                     Email = Email,
-                    Telefon = string.IsNullOrWhiteSpace(Telefon) ? null : Telefon,
-                    AdresaLivrare = string.IsNullOrWhiteSpace(AdresaLivrare) ? null : AdresaLivrare,
-                    Rol = SelectedRole
+                    Phone = string.IsNullOrWhiteSpace(Phone) ? null : Phone,
+                    DeliveryAddress = string.IsNullOrWhiteSpace(DeliveryAddress) ? null : DeliveryAddress,
+                    Role = SelectedRole
                 };
 
-                var createdUser = await _utilizatorService.Inregistrare(utilizator, Password);
+                var createdUser = await _userService.Register(user, Password);
                 
                 if (createdUser != null)
                 {
@@ -169,7 +169,8 @@ namespace OnlineRestaurant.ViewModels
                     // Declanșăm evenimentul de succes
                     RegisterSuccessful?.Invoke(this, EventArgs.Empty);
                     
-                    NavigateBack();
+                    // Nu mai navigăm înapoi deoarece vom naviga la profil
+                    // NavigateBack();
                 }
                 else
                 {

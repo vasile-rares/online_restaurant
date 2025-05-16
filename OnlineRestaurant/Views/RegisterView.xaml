@@ -37,7 +37,7 @@
                 <TextBlock Text="Nume:" 
                            Margin="0,0,0,5" 
                            Foreground="#34495E"/>
-                <TextBox Text="{Binding Nume, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}" 
                          Padding="8" 
                          Margin="0,0,0,15"/>
                 
@@ -45,7 +45,7 @@
                 <TextBlock Text="Prenume:" 
                            Margin="0,0,0,5" 
                            Foreground="#34495E"/>
-                <TextBox Text="{Binding Prenume, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}" 
                          Padding="8" 
                          Margin="0,0,0,15"/>
                 
@@ -61,7 +61,7 @@
                 <TextBlock Text="Telefon (opțional):" 
                            Margin="0,0,0,5" 
                            Foreground="#34495E"/>
-                <TextBox Text="{Binding Telefon, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" 
                          Padding="8" 
                          Margin="0,0,0,15"/>
                 
@@ -69,7 +69,7 @@
                 <TextBlock Text="Adresă de livrare (opțional):" 
                            Margin="0,0,0,5" 
                            Foreground="#34495E"/>
-                <TextBox Text="{Binding AdresaLivrare, UpdateSourceTrigger=PropertyChanged}" 
+                <TextBox Text="{Binding DeliveryAddress, UpdateSourceTrigger=PropertyChanged}" 
                          Padding="8" 
                          Margin="0,0,0,15"
                          TextWrapping="Wrap"

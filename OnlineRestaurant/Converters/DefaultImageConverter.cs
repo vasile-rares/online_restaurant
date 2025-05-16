@@ -10,7 +10,7 @@ namespace OnlineRestaurant.Converters
 {
     public class DefaultImageConverter : IValueConverter
     {
-        public string DefaultImagePath { get; set; } = "/Images/Preparate/piept-de-pui.jpg";
+        public string DefaultImagePath { get; set; } = "/Images/default.jpg";
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

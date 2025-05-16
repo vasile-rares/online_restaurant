@@ -8,14 +8,14 @@
         xmlns:viewmodels="clr-namespace:OnlineRestaurant.ViewModels"
         xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
         mc:Ignorable="d"
-        Title="Restaurant Online - Meniu" Height="700" Width="1000"
+        Title="Online Restaurant - Menu" Height="700" Width="1000"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <DataTemplate DataType="{x:Type viewmodels:MeniuRestaurantViewModel}">
-            <views:MeniuRestaurantView />
+        <DataTemplate DataType="{x:Type viewmodels:MenuRestaurantViewModel}">
+            <views:MenuRestaurantView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type viewmodels:LoginViewModel}">
             <views:LoginView />
@@ -49,8 +49,8 @@
                                Foreground="White"
                                VerticalAlignment="Center" />
 
-                    <Button Content="Meniu"
-                            Command="{Binding NavigateToMeniuCommand}"
+                    <Button Content="Menu"
+                            Command="{Binding NavigateToMenuCommand}"
                             Margin="20,0,0,0"
                             Padding="10,5"
                             Background="#C16F00"
@@ -64,15 +64,15 @@
                     </Button>
                 </StackPanel>
 
-                <!-- Utilizator -->
+                <!-- User -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <TextBlock Text="{Binding UserViewModel.DisplayName}"
                                Foreground="White"
                                VerticalAlignment="Center"
                                Margin="0,0,15,0" />
 
-                    <!-- Buton Profil - vizibil doar dacă utilizatorul este autentificat -->
-                    <Button Content="Profil"
+                    <!-- Profile button - visible only when user is logged in -->
+                    <Button Content="Profile"
                             Command="{Binding NavigateToProfileCommand}"
                             Padding="10,5"
                             Margin="0,0,10,0"
@@ -87,8 +87,8 @@
                         </Button.Resources>
                     </Button>
 
-                    <!-- Buton Autentificare - vizibil doar dacă utilizatorul NU este autentificat -->
-                    <Button Content="Autentificare"
+                    <!-- Login button - visible only when user is NOT logged in -->
+                    <Button Content="Login"
                             Command="{Binding NavigateToLoginCommand}"
                             Padding="10,5"
                             Background="#775B00"
@@ -105,7 +105,7 @@
             </Grid>
         </Border>
 
-        <!-- Conținut -->
+        <!-- Content -->
         <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}" />
     </Grid>
 </Window>

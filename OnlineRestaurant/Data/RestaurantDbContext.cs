@@ -10,118 +10,118 @@ namespace OnlineRestaurant.Data
         {
         }
 
-        public DbSet<Categorie> Categorii { get; set; }
-        public DbSet<Alergen> Alergeni { get; set; }
-        public DbSet<Preparat> Preparate { get; set; }
-        public DbSet<FotografiePreparat> FotografiiPreparate { get; set; }
-        public DbSet<Meniu> Meniuri { get; set; }
-        public DbSet<Utilizator> Utilizatori { get; set; }
-        public DbSet<Comanda> Comenzi { get; set; }
-        public DbSet<PreparatAlergen> PreparateAlergeni { get; set; }
-        public DbSet<MeniuPreparat> MeniuPreparate { get; set; }
-        public DbSet<ComandaPreparat> ComandaPreparate { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Allergen> Allergens { get; set; }
+        public DbSet<Dish> Dishes { get; set; }
+        public DbSet<DishPhoto> DishPhotos { get; set; }
+        public DbSet<Menu> Menus { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<DishAllergen> DishAllergens { get; set; }
+        public DbSet<MenuDish> MenuDishes { get; set; }
+        public DbSet<OrderDish> OrderDishes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             // Configurare pentru chei primare compuse
-            modelBuilder.Entity<PreparatAlergen>()
-                .HasKey(pa => new { pa.IdPreparat, pa.IdAlergen });
+            modelBuilder.Entity<DishAllergen>()
+                .HasKey(pa => new { pa.IdDish, pa.IdAllergen });
 
-            modelBuilder.Entity<MeniuPreparat>()
-                .HasKey(mp => new { mp.IdMeniu, mp.IdPreparat });
+            modelBuilder.Entity<MenuDish>()
+                .HasKey(mp => new { mp.IdMenu, mp.IdDish });
 
-            modelBuilder.Entity<ComandaPreparat>()
-                .HasKey(cp => new { cp.IdComanda, cp.IdPreparat });
+            modelBuilder.Entity<OrderDish>()
+                .HasKey(cp => new { cp.IdOrder, cp.IdDish });
 
             // Configurare relații many-to-many
-            modelBuilder.Entity<PreparatAlergen>()
-                .HasOne(pa => pa.Preparat)
-                .WithMany(p => p.PreparatAlergeni)
-                .HasForeignKey(pa => pa.IdPreparat)
+            modelBuilder.Entity<DishAllergen>()
+                .HasOne(pa => pa.Dish)
+                .WithMany(p => p.DishAllergens)
+                .HasForeignKey(pa => pa.IdDish)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<PreparatAlergen>()
-                .HasOne(pa => pa.Alergen)
-                .WithMany(a => a.PreparatAlergeni)
-                .HasForeignKey(pa => pa.IdAlergen)
+            modelBuilder.Entity<DishAllergen>()
+                .HasOne(pa => pa.Allergen)
+                .WithMany(a => a.DishAllergens)
+                .HasForeignKey(pa => pa.IdAllergen)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<MeniuPreparat>()
-                .HasOne(mp => mp.Meniu)
-                .WithMany(m => m.MeniuPreparate)
-                .HasForeignKey(mp => mp.IdMeniu)
+            modelBuilder.Entity<MenuDish>()
+                .HasOne(mp => mp.Menu)
+                .WithMany(m => m.MenuDishes)
+                .HasForeignKey(mp => mp.IdMenu)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<MeniuPreparat>()
-                .HasOne(mp => mp.Preparat)
-                .WithMany(p => p.MeniuPreparate)
-                .HasForeignKey(mp => mp.IdPreparat)
+            modelBuilder.Entity<MenuDish>()
+                .HasOne(mp => mp.Dish)
+                .WithMany(p => p.MenuDishes)
+                .HasForeignKey(mp => mp.IdDish)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ComandaPreparat>()
-                .HasOne(cp => cp.Comanda)
-                .WithMany(c => c.ComandaPreparate)
-                .HasForeignKey(cp => cp.IdComanda)
+            modelBuilder.Entity<OrderDish>()
+                .HasOne(cp => cp.Order)
+                .WithMany(c => c.OrderDishes)
+                .HasForeignKey(cp => cp.IdOrder)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ComandaPreparat>()
-                .HasOne(cp => cp.Preparat)
+            modelBuilder.Entity<OrderDish>()
+                .HasOne(cp => cp.Dish)
                 .WithMany()
-                .HasForeignKey(cp => cp.IdPreparat)
+                .HasForeignKey(cp => cp.IdDish)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Tabele
-            modelBuilder.Entity<Preparat>()
-                .HasOne(p => p.Categorie)
-                .WithMany(c => c.Preparate)
-                .HasForeignKey(p => p.IdCategorie)
+            modelBuilder.Entity<Dish>()
+                .HasOne(p => p.Category)
+                .WithMany(c => c.Dishes)
+                .HasForeignKey(p => p.IdCategory)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Meniu>()
-                .HasOne(m => m.Categorie)
-                .WithMany(c => c.Meniuri)
-                .HasForeignKey(m => m.IdCategorie)
+            modelBuilder.Entity<Menu>()
+                .HasOne(m => m.Category)
+                .WithMany(c => c.Menus)
+                .HasForeignKey(m => m.IdCategory)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<FotografiePreparat>()
-                .HasOne(f => f.Preparat)
-                .WithMany(p => p.Fotografii)
-                .HasForeignKey(f => f.IdPreparat)
+            modelBuilder.Entity<DishPhoto>()
+                .HasOne(f => f.Dish)
+                .WithMany(p => p.Photos)
+                .HasForeignKey(f => f.IdDish)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Comanda>()
-                .HasOne(c => c.Utilizator)
-                .WithMany(u => u.Comenzi)
-                .HasForeignKey(c => c.IdUtilizator)
+            modelBuilder.Entity<Order>()
+                .HasOne(c => c.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(c => c.IdUser)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Convertirea enum-ului StareComanda la string
-            modelBuilder.Entity<Comanda>()
-                .Property(c => c.Stare)
+            modelBuilder.Entity<Order>()
+                .Property(c => c.Status)
                 .HasConversion<string>();
 
             // Configurarea preciziei pentru valorile monetare
-            modelBuilder.Entity<Preparat>()
-                .Property(p => p.Pret)
+            modelBuilder.Entity<Dish>()
+                .Property(p => p.Price)
                 .HasColumnType("decimal(10,2)");
 
             // Email unic pentru utilizatori
-            modelBuilder.Entity<Utilizator>()
+            modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
-            modelBuilder.Entity<Categorie>().ToTable("Categorii");
-            modelBuilder.Entity<Alergen>().ToTable("Alergeni");
-            modelBuilder.Entity<Preparat>().ToTable("Preparate");
-            modelBuilder.Entity<FotografiePreparat>().ToTable("FotografiiPreparate");
-            modelBuilder.Entity<PreparatAlergen>().ToTable("PreparatAlergen");
-            modelBuilder.Entity<Meniu>().ToTable("Meniuri");
-            modelBuilder.Entity<MeniuPreparat>().ToTable("MeniuPreparat");
-            modelBuilder.Entity<Utilizator>().ToTable("Utilizatori");
-            modelBuilder.Entity<Comanda>().ToTable("Comenzi");
-            modelBuilder.Entity<ComandaPreparat>().ToTable("ComandaPreparat");
+            modelBuilder.Entity<Category>().ToTable("Categories");
+            modelBuilder.Entity<Allergen>().ToTable("Allergens");
+            modelBuilder.Entity<Dish>().ToTable("Dishes");
+            modelBuilder.Entity<DishPhoto>().ToTable("DishPhotos");
+            modelBuilder.Entity<DishAllergen>().ToTable("DishAllergen");
+            modelBuilder.Entity<Menu>().ToTable("Menus");
+            modelBuilder.Entity<MenuDish>().ToTable("MenuDish");
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Order>().ToTable("Orders");
+            modelBuilder.Entity<OrderDish>().ToTable("OrderDish");
         }
     }
 } 

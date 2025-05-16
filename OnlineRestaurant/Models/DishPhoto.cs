@@ -3,19 +3,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OnlineRestaurant.Models
 {
-    public class FotografiePreparat
+    public class DishPhoto
     {
         [Key]
-        public int IdFotografie { get; set; }
+        public int IdPhoto { get; set; }
 
         [Required]
-        public int IdPreparat { get; set; }
+        public int IdDish { get; set; }
 
         [Required]
         [MaxLength(255)]
         public string Url { get; set; } = string.Empty;
 
-        [ForeignKey("IdPreparat")]
-        public virtual Preparat Preparat { get; set; }
+        [ForeignKey("IdDish")]
+        public virtual Dish Dish { get; set; }
     }
 } 

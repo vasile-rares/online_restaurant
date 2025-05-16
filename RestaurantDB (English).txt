@@ -1,0 +1,90 @@
+USE RestaurantDB;
+
+-- Table: Categories
+CREATE TABLE Categories (
+    IdCategory INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(100) NOT NULL
+);
+
+-- Table: Allergens
+CREATE TABLE Allergens (
+    IdAllergen INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(100) NOT NULL
+);
+
+-- Table: Dishes
+CREATE TABLE Dishes (
+    IdDish INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(100) NOT NULL,
+    Price DECIMAL(10,2) NOT NULL,
+    PortionSize INT NOT NULL, -- in grams
+    TotalQuantity INT NOT NULL, -- in grams
+    IdCategory INT NOT NULL,
+    FOREIGN KEY (IdCategory) REFERENCES Categories(IdCategory)
+);
+
+-- Table: DishPhotos
+CREATE TABLE DishPhotos (
+    IdPhoto INT PRIMARY KEY IDENTITY(1,1),
+    IdDish INT NOT NULL,
+    Url VARCHAR(255) NOT NULL,
+    FOREIGN KEY (IdDish) REFERENCES Dishes(IdDish)
+);
+
+-- Table: DishAllergen (many-to-many)
+CREATE TABLE DishAllergen (
+    IdDish INT,
+    IdAllergen INT,
+    PRIMARY KEY (IdDish, IdAllergen),
+    FOREIGN KEY (IdDish) REFERENCES Dishes(IdDish),
+    FOREIGN KEY (IdAllergen) REFERENCES Allergens(IdAllergen)
+);
+
+-- Table: Menus
+CREATE TABLE Menus (
+    IdMenu INT PRIMARY KEY IDENTITY(1,1),
+    Name VARCHAR(100) NOT NULL,
+    IdCategory INT NOT NULL,
+    FOREIGN KEY (IdCategory) REFERENCES Categories(IdCategory)
+);
+
+-- Table: MenuDish
+CREATE TABLE MenuDish (
+    IdMenu INT NOT NULL,
+    IdDish INT NOT NULL,
+    Quantity INT NOT NULL, -- in grams
+    PRIMARY KEY (IdMenu, IdDish),
+    FOREIGN KEY (IdMenu) REFERENCES Menus(IdMenu),
+    FOREIGN KEY (IdDish) REFERENCES Dishes(IdDish)
+);
+
+-- Table: Users
+CREATE TABLE Users (
+    IdUser INT PRIMARY KEY IDENTITY(1,1),
+    LastName VARCHAR(100) NOT NULL,
+    FirstName VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) NOT NULL UNIQUE,
+    Phone VARCHAR(20),
+    DeliveryAddress VARCHAR(255),
+    Password VARCHAR(255) NOT NULL,
+    Role VARCHAR(20) NOT NULL DEFAULT 'Client'
+);
+
+-- Table: Orders
+CREATE TABLE Orders (
+    IdOrder UNIQUEIDENTIFIER PRIMARY KEY,
+    IdUser INT NOT NULL,
+    OrderDate DATETIME NOT NULL DEFAULT GETDATE(),
+    Status NVARCHAR(50) NOT NULL CHECK (Status IN ('registered', 'preparing', 'out for delivery', 'delivered', 'canceled')),
+    FOREIGN KEY (IdUser) REFERENCES Users(IdUser)
+);
+
+-- Table: OrderDish
+CREATE TABLE OrderDish (
+    IdOrder UNIQUEIDENTIFIER NOT NULL,
+    IdDish INT NOT NULL,
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    PRIMARY KEY (IdOrder, IdDish),
+    FOREIGN KEY (IdOrder) REFERENCES Orders(IdOrder),
+    FOREIGN KEY (IdDish) REFERENCES Dishes(IdDish)
+);
