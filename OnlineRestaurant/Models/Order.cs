@@ -22,6 +22,7 @@ namespace OnlineRestaurant.Models
             OrderDate = DateTime.Now;
             Status = OrderStatus.registered;
             OrderDishes = new List<OrderDish>();
+            OrderMenus = new List<OrderMenu>();
         }
 
         [Key]
@@ -41,12 +42,16 @@ namespace OnlineRestaurant.Models
 
         public virtual ICollection<OrderDish> OrderDishes { get; set; }
 
+        public virtual ICollection<OrderMenu> OrderMenus { get; set; }
+
         [NotMapped]
         public decimal TotalOrder => CalculateTotal();
 
         private decimal CalculateTotal()
         {
             decimal total = 0;
+            
+            // Calculate total for individual dishes
             if (OrderDishes != null)
             {
                 foreach (var orderDish in OrderDishes)
@@ -57,6 +62,19 @@ namespace OnlineRestaurant.Models
                     }
                 }
             }
+            
+            // Calculate total for menus
+            if (OrderMenus != null)
+            {
+                foreach (var orderMenu in OrderMenus)
+                {
+                    if (orderMenu.Menu != null)
+                    {
+                        total += orderMenu.Menu.TotalPrice * orderMenu.Quantity;
+                    }
+                }
+            }
+            
             return total;
         }
     }

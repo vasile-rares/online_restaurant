@@ -2,6 +2,7 @@ using OnlineRestaurant.Commands;
 using OnlineRestaurant.Models;
 using OnlineRestaurant.Services;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace OnlineRestaurant.ViewModels
@@ -9,12 +10,16 @@ namespace OnlineRestaurant.ViewModels
     public class UserViewModel : BaseVM
     {
         private readonly UserService _userService;
+        private readonly UserCredentialsService _credentialsService;
         private User _currentUser;
         private bool _isLoggedIn;
         private string _displayName = "Guest";
 
         // Eveniment pentru a notifica delogarea
         public event EventHandler LogoutEvent;
+        
+        // Eveniment pentru a notifica ca autentificarea automată a avut loc
+        public event EventHandler AutoLoginCompleted;
 
         public User CurrentUser
         {
@@ -43,14 +48,43 @@ namespace OnlineRestaurant.ViewModels
 
         public ICommand LogoutCommand { get; }
 
-        public UserViewModel(UserService userService)
+        public UserViewModel(UserService userService, UserCredentialsService credentialsService)
         {
             _userService = userService;
+            _credentialsService = credentialsService;
             LogoutCommand = new RelayCommand(Logout);
+            
+            // Try auto-login on startup
+            Task.Run(async () => await TryAutoLoginAsync());
+        }
+        
+        private async Task TryAutoLoginAsync()
+        {
+            try
+            {
+                var credentials = _credentialsService.LoadCredentials();
+                if (credentials != null)
+                {
+                    var user = await _userService.Authenticate(credentials.Email, credentials.Password);
+                    if (user != null)
+                    {
+                        CurrentUser = user;
+                        AutoLoginCompleted?.Invoke(this, EventArgs.Empty);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Auto-login failed: {ex.Message}");
+            }
         }
 
         public void Logout()
         {
+            // Clear stored credentials
+            _credentialsService.ClearCredentials();
+            
+            // Reset user state
             CurrentUser = null;
             IsLoggedIn = false;
             DisplayName = "Guest";

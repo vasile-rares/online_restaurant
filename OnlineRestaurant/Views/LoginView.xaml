@@ -56,6 +56,12 @@
                        Margin="0,0,0,15"
                        Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}" />
 
+            <!-- Remember Me -->
+            <CheckBox Content="Ține-mă minte" 
+                      IsChecked="{Binding RememberMe}"
+                      Margin="0,0,0,15"
+                      Foreground="#34495E" />
+
             <!-- Butoane -->
             <Grid Margin="0,10,0,0">
                 <Grid.ColumnDefinitions>

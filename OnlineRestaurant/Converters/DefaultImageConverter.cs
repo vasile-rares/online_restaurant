@@ -22,7 +22,13 @@ namespace OnlineRestaurant.Converters
                 {
                     // Returnează prima imagine din colecție
                     imagePath = images[0];
-                    Debug.WriteLine($"Încercăm să încărcăm imaginea: {imagePath}");
+                    Debug.WriteLine($"Încercăm să încărcăm imaginea din colecție: {imagePath}");
+                }
+                else if (value is string path && !string.IsNullOrEmpty(path))
+                {
+                    // Dacă valoarea este deja un string (ImageUrl), o folosim direct
+                    imagePath = path;
+                    Debug.WriteLine($"Încercăm să încărcăm imaginea din string: {imagePath}");
                 }
                 else
                 {

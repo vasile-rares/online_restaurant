@@ -1,0 +1,53 @@
+INSERT INTO Categories (Name) VALUES 
+('Supe'),
+('Fel principal'),
+('Deserturi'),
+('Salate'),
+('Băuturi');
+
+INSERT INTO Allergens (Name) VALUES 
+('Lapte'),
+('Oua'),
+('Gluten'),
+('Nuci'),
+('Peste'),
+('Soia');
+
+INSERT INTO Dishes (Name, Price, PortionSize, TotalQuantity, IdCategory) VALUES 
+('Ciorba de burta', 18.50, 400, 8000, 1),
+('Sarmale cu mamaliguta', 28.00, 350, 7000, 2),
+('Papanasi cu smantana si dulceata', 16.00, 250, 5000, 3),
+('Salata Caesar', 22.00, 300, 6000, 4),
+('Limonada cu menta', 10.00, 250, 5000, 5);
+
+INSERT INTO DishPhotos (IdDish, Url) VALUES 
+(1, '/Images/Dishes/ciorba_de_burta.jpg'),
+(2, '/Images/Dishes/sarmale.jpg'),
+(3, '/Images/Dishes/papanasi.jpg'),
+(4, '/Images/Dishes/salata_caesar.jpg'),
+(5, '/Images/Dishes/limonada.jpg');
+
+INSERT INTO DishAllergen (IdDish, IdAllergen) VALUES 
+(1, 1), -- Ciorbă de burtă conține lapte
+(1, 3), -- și gluten
+(2, 3), -- Sarmale - gluten
+(3, 1), (3, 2), (3, 3), -- Papanași - lapte, ouă, gluten
+(4, 2), (4, 3), -- Caesar - ouă și gluten (dressing + crutoane)
+
+
+
+
+
+
+
+
+INSERT INTO Menus (Name, IdCategory) VALUES 
+('Meniu Prânz Tradițional', 2),
+('Meniu Ușor de Vară', 4);
+
+INSERT INTO MenuDish (IdMenu, IdDish, Quantity) VALUES 
+(1, 1, 400), -- Ciorbă în meniu tradițional
+(1, 2, 350),
+(1, 3, 250),
+(2, 4, 300),
+(2, 5, 250);

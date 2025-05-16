@@ -10,39 +10,63 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace OnlineRestaurant.ViewModels
 {
-    public class MainViewModel : BaseVM
+    public class MainViewModel : BaseVM, IDisposable
     {
         private readonly IServiceProvider _serviceProvider;
         private BaseVM _currentViewModel;
         private readonly UserViewModel _userViewModel;
+        private readonly ShoppingCartViewModel _shoppingCart;
+        private bool _isDisposed;
 
         public BaseVM CurrentViewModel
         {
             get => _currentViewModel;
-            set => SetProperty(ref _currentViewModel, value);
+            set 
+            {
+                // Dispose of previous view model if it's disposable
+                if (_currentViewModel is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+
+                SetProperty(ref _currentViewModel, value);
+            }
         }
 
         public UserViewModel UserViewModel => _userViewModel;
+        
+        public ShoppingCartViewModel ShoppingCart => _shoppingCart;
 
         public ICommand NavigateToMenuCommand { get; }
         public ICommand NavigateToLoginCommand { get; }
         public ICommand NavigateToProfileCommand { get; }
+        public ICommand NavigateToCartCommand { get; }
 
         public MainViewModel(
             IServiceProvider serviceProvider,
             MenuRestaurantViewModel menuRestaurantViewModel,
-            UserViewModel userViewModel)
+            UserViewModel userViewModel,
+            ShoppingCartViewModel shoppingCartViewModel)
         {
             _serviceProvider = serviceProvider;
             _userViewModel = userViewModel;
+            _shoppingCart = shoppingCartViewModel;
             
             // Set initial view
             CurrentViewModel = menuRestaurantViewModel;
+            
+            // Make sure the menu view has access to the shopping cart and user info
+            if (menuRestaurantViewModel is MenuRestaurantViewModel menuVM)
+            {
+                menuVM.ShoppingCart = _shoppingCart;
+                menuVM.UserViewModel = _userViewModel;
+            }
             
             // Initialize navigation commands
             NavigateToMenuCommand = new RelayCommand(NavigateToMenu);
             NavigateToLoginCommand = new RelayCommand(NavigateToLogin);
             NavigateToProfileCommand = new RelayCommand(NavigateToProfile, CanNavigateToProfile);
+            NavigateToCartCommand = new RelayCommand(NavigateToCart, CanNavigateToCart);
             
             // Subscribe to property changed event to update commands
             _userViewModel.PropertyChanged += (sender, args) => 
@@ -50,16 +74,58 @@ namespace OnlineRestaurant.ViewModels
                 if (args.PropertyName == nameof(UserViewModel.IsLoggedIn))
                 {
                     ((RelayCommand)NavigateToProfileCommand).RaiseCanExecuteChanged();
+                    ((RelayCommand)NavigateToCartCommand).RaiseCanExecuteChanged();
                 }
             };
             
-            // Subscribe to logout event to navigate to login page
-            _userViewModel.LogoutEvent += (sender, args) => NavigateToLogin();
+            // Subscribe to shopping cart changes
+            _shoppingCart.PropertyChanged += (sender, args) =>
+            {
+                if (args.PropertyName == nameof(ShoppingCartViewModel.ItemCount))
+                {
+                    // Update any UI that shows cart items count
+                    OnPropertyChanged(nameof(ShoppingCart));
+                }
+            };
+            
+            // Subscribe to logout event to navigate to login page and reset cart
+            _userViewModel.LogoutEvent += (sender, args) => 
+            {
+                // Reset shopping cart when user logs out
+                _shoppingCart.ClearCart();
+                NavigateToLogin();
+            };
+            
+            // Subscribe to auto-login event to update UI when auto-login completes
+            _userViewModel.AutoLoginCompleted += (sender, args) =>
+            {
+                // We don't need to navigate anywhere - just update commands
+                ((RelayCommand)NavigateToProfileCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)NavigateToCartCommand).RaiseCanExecuteChanged();
+            };
         }
 
         private void NavigateToMenu()
         {
-            CurrentViewModel = _serviceProvider.GetRequiredService<MenuRestaurantViewModel>();
+            var menuViewModel = _serviceProvider.GetRequiredService<MenuRestaurantViewModel>();
+            // Ensure the menu has access to the shopping cart and user info
+            menuViewModel.ShoppingCart = _shoppingCart;
+            menuViewModel.UserViewModel = _userViewModel;
+            CurrentViewModel = menuViewModel;
+        }
+        
+        private void NavigateToCart()
+        {
+            // Creating a CartViewModel that's a wrapper around the ShoppingCart
+            // This is a simplified pattern - in a larger app you might want to create a dedicated CartViewModel
+            CurrentViewModel = _shoppingCart;
+        }
+        
+        private bool CanNavigateToCart()
+        {
+            // Pentru a naviga în coș, utilizatorul trebuie să fie autentificat
+            // și să aibă produse în coș
+            return UserViewModel.IsLoggedIn && ShoppingCart.ItemCount > 0;
         }
         
         private void NavigateToLogin()
@@ -68,7 +134,12 @@ namespace OnlineRestaurant.ViewModels
             CurrentViewModel = loginViewModel;
             
             // Subscribe to login success event
-            loginViewModel.LoginSuccessful += (sender, args) => NavigateToProfile();
+            loginViewModel.LoginSuccessful += (sender, args) => 
+            {
+                // Reset shopping cart when user logs in
+                _shoppingCart.ClearCart();
+                NavigateToProfile();
+            };
             
             // Set handler for navigation to registration
             if (loginViewModel is LoginViewModel login)
@@ -150,6 +221,37 @@ namespace OnlineRestaurant.ViewModels
         private bool CanNavigateToProfile()
         {
             return UserViewModel.IsLoggedIn;
+        }
+
+        // Implement IDisposable pattern correctly
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_isDisposed)
+            {
+                if (disposing)
+                {
+                    // Clean up managed resources
+                    if (_currentViewModel is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
+                }
+                
+                // Clean up unmanaged resources
+                
+                _isDisposed = true;
+            }
+        }
+        
+        ~MainViewModel()
+        {
+            Dispose(false);
         }
     }
 } 

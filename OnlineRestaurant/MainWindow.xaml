@@ -26,6 +26,9 @@
         <DataTemplate DataType="{x:Type viewmodels:UserProfileViewModel}">
             <views:UserProfileView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:ShoppingCartViewModel}">
+            <views:ShoppingCartView />
+        </DataTemplate>
     </Window.Resources>
 
     <Grid>
@@ -70,6 +73,25 @@
                                Foreground="White"
                                VerticalAlignment="Center"
                                Margin="0,0,15,0" />
+
+                    <!-- Cart button - visible when user is logged in and has items -->
+                    <Button Padding="10,5"
+                            Margin="0,0,10,0"
+                            Background="#E67E22"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Command="{Binding NavigateToCartCommand}"
+                            Visibility="{Binding UserViewModel.IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4" />
+                            </Style>
+                        </Button.Resources>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🛒" FontSize="14" Margin="0,0,5,0" />
+                            <TextBlock Text="{Binding ShoppingCart.ItemCount, StringFormat='Coș ({0})'}" />
+                        </StackPanel>
+                    </Button>
 
                     <!-- Profile button - visible only when user is logged in -->
                     <Button Content="Profile"

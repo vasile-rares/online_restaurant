@@ -88,3 +88,12 @@ CREATE TABLE OrderDish (
     FOREIGN KEY (IdOrder) REFERENCES Orders(IdOrder),
     FOREIGN KEY (IdDish) REFERENCES Dishes(IdDish)
 );
+
+CREATE TABLE OrderMenu (
+    IdOrder UNIQUEIDENTIFIER NOT NULL,
+    IdMenu INT NOT NULL,
+    Quantity INT NOT NULL CHECK (Quantity > 0),
+    PRIMARY KEY (IdOrder, IdMenu),
+    FOREIGN KEY (IdOrder) REFERENCES Orders(IdOrder),
+    FOREIGN KEY (IdMenu) REFERENCES Menus(IdMenu)
+);

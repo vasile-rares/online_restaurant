@@ -1,0 +1,278 @@
+using OnlineRestaurant.Commands;
+using OnlineRestaurant.Models;
+using OnlineRestaurant.Services;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
+
+namespace OnlineRestaurant.ViewModels
+{
+    public class CartItemViewModel : BaseVM
+    {
+        private int _id;
+        private ItemMenuType _type;
+        private string _name;
+        private decimal _price;
+        private int _quantity;
+        private string _imageUrl;
+
+        public int Id
+        {
+            get => _id;
+            set => SetProperty(ref _id, value);
+        }
+
+        public ItemMenuType Type
+        {
+            get => _type;
+            set => SetProperty(ref _type, value);
+        }
+
+        public string Name
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
+
+        public decimal Price
+        {
+            get => _price;
+            set => SetProperty(ref _price, value);
+        }
+
+        public int Quantity
+        {
+            get => _quantity;
+            set => SetProperty(ref _quantity, value);
+        }
+
+        public string ImageUrl
+        {
+            get => _imageUrl;
+            set => SetProperty(ref _imageUrl, value);
+        }
+
+        public decimal TotalPrice => Price * Quantity;
+
+        public ICommand IncreaseQuantityCommand { get; set; }
+        public ICommand DecreaseQuantityCommand { get; set; }
+        public ICommand RemoveCommand { get; set; }
+    }
+
+    public class ShoppingCartViewModel : BaseVM
+    {
+        private ObservableCollection<CartItemViewModel> _items;
+        private decimal _totalPrice;
+        private int _itemCount;
+        private readonly OrderService _orderService;
+        private readonly UserViewModel _userViewModel;
+        private string _message;
+        private bool _isProcessing;
+
+        public ObservableCollection<CartItemViewModel> Items
+        {
+            get => _items;
+            set => SetProperty(ref _items, value);
+        }
+
+        public decimal TotalPrice
+        {
+            get => _totalPrice;
+            set => SetProperty(ref _totalPrice, value);
+        }
+
+        public int ItemCount
+        {
+            get => _itemCount;
+            set => SetProperty(ref _itemCount, value);
+        }
+
+        public bool HasItems => Items.Count > 0;
+
+        public string Message
+        {
+            get => _message;
+            set => SetProperty(ref _message, value);
+        }
+
+        public bool IsProcessing
+        {
+            get => _isProcessing;
+            set => SetProperty(ref _isProcessing, value);
+        }
+
+        public ICommand ClearCartCommand { get; }
+        public ICommand CheckoutCommand { get; }
+
+        public ShoppingCartViewModel(OrderService orderService, UserViewModel userViewModel)
+        {
+            _orderService = orderService;
+            _userViewModel = userViewModel;
+            
+            Items = new ObservableCollection<CartItemViewModel>();
+            ClearCartCommand = new RelayCommand(ClearCart);
+            CheckoutCommand = new RelayCommand(async () => await CheckoutAsync(), CanCheckout);
+            
+            UpdateCartSummary();
+        }
+
+        public void AddToCart(ItemMenuViewModel item)
+        {
+            if (item == null || !item.Available)
+                return;
+
+            var existingItem = Items.FirstOrDefault(i => 
+                i.Id == item.Id && i.Type == item.Type);
+
+            if (existingItem != null)
+            {
+                // Incrementează cantitatea dacă produsul există deja în coș
+                existingItem.Quantity++;
+            }
+            else
+            {
+                // Adaugă un nou produs în coș
+                string imagePath = "/Images/default.jpg";
+                
+                if (item.Images != null && item.Images.Count > 0)
+                {
+                    // Asigură-te că avem calea relativă corectă către imagine
+                    imagePath = item.Images[0];
+                    if (!imagePath.StartsWith("/"))
+                    {
+                        imagePath = "/" + imagePath;
+                    }
+                }
+                
+                var cartItem = new CartItemViewModel
+                {
+                    Id = item.Id,
+                    Type = item.Type,
+                    Name = item.Name,
+                    Price = item.Price,
+                    Quantity = 1,
+                    ImageUrl = imagePath
+                };
+
+                // Inițializează comenzile pentru acest item
+                cartItem.IncreaseQuantityCommand = new RelayCommand(() => IncreaseQuantity(cartItem));
+                cartItem.DecreaseQuantityCommand = new RelayCommand(() => DecreaseQuantity(cartItem));
+                cartItem.RemoveCommand = new RelayCommand(() => RemoveFromCart(cartItem));
+
+                Items.Add(cartItem);
+            }
+
+            UpdateCartSummary();
+        }
+
+        private void IncreaseQuantity(CartItemViewModel item)
+        {
+            item.Quantity++;
+            UpdateCartSummary();
+        }
+
+        private void DecreaseQuantity(CartItemViewModel item)
+        {
+            if (item.Quantity > 1)
+            {
+                item.Quantity--;
+                UpdateCartSummary();
+            }
+            else
+            {
+                RemoveFromCart(item);
+            }
+        }
+
+        public void RemoveFromCart(CartItemViewModel item)
+        {
+            Items.Remove(item);
+            UpdateCartSummary();
+        }
+
+        public void ClearCart()
+        {
+            Items.Clear();
+            UpdateCartSummary();
+        }
+
+        private void UpdateCartSummary()
+        {
+            TotalPrice = Items.Sum(i => i.TotalPrice);
+            ItemCount = Items.Sum(i => i.Quantity);
+            
+            // Notifică schimbarea proprietății HasItems
+            OnPropertyChanged(nameof(HasItems));
+            
+            // Actualizează starea comenzii de Checkout
+            ((RelayCommand)CheckoutCommand).RaiseCanExecuteChanged();
+        }
+        
+        private bool CanCheckout()
+        {
+            return Items.Count > 0 && !IsProcessing && _userViewModel.IsLoggedIn;
+        }
+        
+        private async Task CheckoutAsync()
+        {
+            try
+            {
+                IsProcessing = true;
+                
+                if (!_userViewModel.IsLoggedIn)
+                {
+                    Message = "Trebuie să fiți autentificat pentru a finaliza comanda.";
+                    return;
+                }
+                
+                // Create a new order
+                var order = new Order
+                {
+                    IdUser = _userViewModel.CurrentUser.IdUser,
+                    OrderDate = DateTime.Now,
+                    Status = OrderStatus.registered
+                };
+                
+                // Add dishes to the order
+                foreach (var item in Items)
+                {
+                    if (item.Type == ItemMenuType.Dish)
+                    {
+                        order.OrderDishes.Add(new OrderDish
+                        {
+                            IdDish = item.Id,
+                            Quantity = item.Quantity
+                        });
+                    }
+                    else if (item.Type == ItemMenuType.Menu)
+                    {
+                        order.OrderMenus.Add(new OrderMenu
+                        {
+                            IdMenu = item.Id,
+                            Quantity = item.Quantity
+                        });
+                    }
+                }
+                
+                // Save the order to database
+                await _orderService.AddAsync(order);
+                await _orderService.SaveChangesAsync();
+                
+                // Clear the cart after successful checkout
+                ClearCart();
+                Message = "Comanda a fost plasată cu succes!";
+            }
+            catch (Exception ex)
+            {
+                Message = $"Eroare la plasarea comenzii: {ex.Message}";
+            }
+            finally
+            {
+                IsProcessing = false;
+                ((RelayCommand)CheckoutCommand).RaiseCanExecuteChanged();
+            }
+        }
+    }
+} 

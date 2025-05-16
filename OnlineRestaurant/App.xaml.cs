@@ -38,13 +38,43 @@ public partial class App : Application
 
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            // Afișăm un mesaj de eroare utilizatorului
-            MessageBox.Show($"A apărut o eroare neașteptată: {e.Exception.Message}\n\nDetalii: {e.Exception.StackTrace}", 
-                "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
-            
-            // Marcăm excepția ca tratată pentru a preveni închiderea aplicației
-            e.Handled = true;
-    }
+            try
+            {
+                string errorMessage = $"A apărut o eroare neașteptată: {e.Exception.Message}";
+                string detailsMessage = $"Detalii: {e.Exception.StackTrace}";
+                
+                // Log error to debug output
+                System.Diagnostics.Debug.WriteLine($"[ERROR] {errorMessage}");
+                System.Diagnostics.Debug.WriteLine($"[ERROR] {detailsMessage}");
+                
+                // If there's an inner exception, show that too
+                if (e.Exception.InnerException != null)
+                {
+                    string innerErrorMessage = $"Eroare internă: {e.Exception.InnerException.Message}";
+                    string innerDetailsMessage = $"Detalii: {e.Exception.InnerException.StackTrace}";
+                    
+                    System.Diagnostics.Debug.WriteLine($"[ERROR INNER] {innerErrorMessage}");
+                    System.Diagnostics.Debug.WriteLine($"[ERROR INNER] {innerDetailsMessage}");
+                    
+                    detailsMessage += $"\n\n{innerErrorMessage}\n{innerDetailsMessage}";
+                }
+                
+                // Afișăm un mesaj de eroare utilizatorului
+                MessageBox.Show($"{errorMessage}\n\n{detailsMessage}", 
+                    "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch
+            {
+                // If an error occurs in our error handler, show a simpler message
+                MessageBox.Show("A apărut o eroare neașteptată în aplicație.",
+                    "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                // Marcăm excepția ca tratată pentru a preveni închiderea aplicației
+                e.Handled = true;
+            }
+        }
 
     private void ConfigureServices(ServiceCollection services)
     {
@@ -55,6 +85,7 @@ public partial class App : Application
 
                 // Înregistrare servicii pentru aplicație
                 services.AddSingleton<AppSettingsService>();
+                services.AddSingleton<UserCredentialsService>();
                 
                 // Obținem o instanță a AppSettingsService pentru a accesa ConnectionString
                 var serviceProvider = services.BuildServiceProvider();
@@ -89,6 +120,7 @@ public partial class App : Application
 
                 // ViewModels
                 services.AddSingleton<UserViewModel>();
+                services.AddTransient<ShoppingCartViewModel>();
                 services.AddTransient<MenuRestaurantViewModel>();
                 services.AddTransient<LoginViewModel>();
                 services.AddTransient<RegisterViewModel>();

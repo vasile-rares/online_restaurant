@@ -20,6 +20,7 @@ namespace OnlineRestaurant.Data
         public DbSet<DishAllergen> DishAllergens { get; set; }
         public DbSet<MenuDish> MenuDishes { get; set; }
         public DbSet<OrderDish> OrderDishes { get; set; }
+        public DbSet<OrderMenu> OrderMenus { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,6 +35,9 @@ namespace OnlineRestaurant.Data
 
             modelBuilder.Entity<OrderDish>()
                 .HasKey(cp => new { cp.IdOrder, cp.IdDish });
+                
+            modelBuilder.Entity<OrderMenu>()
+                .HasKey(om => new { om.IdOrder, om.IdMenu });
 
             // Configurare relații many-to-many
             modelBuilder.Entity<DishAllergen>()
@@ -70,6 +74,18 @@ namespace OnlineRestaurant.Data
                 .HasOne(cp => cp.Dish)
                 .WithMany()
                 .HasForeignKey(cp => cp.IdDish)
+                .OnDelete(DeleteBehavior.Restrict);
+                
+            modelBuilder.Entity<OrderMenu>()
+                .HasOne(om => om.Order)
+                .WithMany(o => o.OrderMenus)
+                .HasForeignKey(om => om.IdOrder)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OrderMenu>()
+                .HasOne(om => om.Menu)
+                .WithMany()
+                .HasForeignKey(om => om.IdMenu)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Tabele
@@ -122,6 +138,7 @@ namespace OnlineRestaurant.Data
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<Order>().ToTable("Orders");
             modelBuilder.Entity<OrderDish>().ToTable("OrderDish");
+            modelBuilder.Entity<OrderMenu>().ToTable("OrderMenu");
         }
     }
 } 

@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Windows.Input;
+using OnlineRestaurant.Commands;
 
 namespace OnlineRestaurant.ViewModels
 {
@@ -19,6 +21,7 @@ namespace OnlineRestaurant.ViewModels
         private string _contentDetails = string.Empty;
         private ObservableCollection<string> _images;
         private ObservableCollection<string> _allergens;
+        private bool _canAddToCart;
 
         public int Id
         {
@@ -53,7 +56,18 @@ namespace OnlineRestaurant.ViewModels
         public bool Available
         {
             get => _available;
-            set => SetProperty(ref _available, value);
+            set
+            {
+                if (_available != value)
+                {
+                    _available = value;
+                    OnPropertyChanged(nameof(Available));
+                    
+                    OnPropertyChanged(nameof(AddToCartMessage));
+                    
+                    OnPropertyChanged(nameof(AvailabilityStatus));
+                }
+            }
         }
 
         public string ContentDetails
@@ -74,11 +88,40 @@ namespace OnlineRestaurant.ViewModels
             set => SetProperty(ref _allergens, value);
         }
 
+        public bool CanAddToCart
+        {
+            get => _canAddToCart;
+            set
+            {
+                if (_canAddToCart != value)
+                {
+                    _canAddToCart = value;
+                    OnPropertyChanged(nameof(CanAddToCart));
+                    
+                    OnPropertyChanged(nameof(AddToCartMessage));
+                }
+            }
+        }
+
         public string AvailabilityStatus => Available ? "" : "Indisponibil";
 
         public string AllergenDisplay => Allergens?.Count > 0 
             ? $"Alergeni: {string.Join(", ", Allergens)}" 
             : "Fără alergeni";
+
+        // Mesaj pentru utilizator privind adăugarea în coș
+        public string AddToCartMessage
+        {
+            get
+            {
+                if (!Available) 
+                    return "Indisponibil";
+                    
+                return (!CanAddToCart) ? "Conectați-vă pentru a adăuga în coș" : "";
+            }
+        }
+
+        public ICommand AddToCartCommand { get; set; }
 
         public ItemMenuViewModel()
         {
