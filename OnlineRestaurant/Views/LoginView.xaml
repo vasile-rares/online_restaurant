@@ -23,8 +23,8 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Background="White" Padding="25,15" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
-            <TextBlock Text="Autentificare"
-                       FontSize="24"
+        <TextBlock Text="Autentificare"
+                   FontSize="24"
                        FontWeight="SemiBold"
                        Foreground="#333333" />
         </Border>
@@ -54,8 +54,8 @@
                     
                     <!-- Form content -->
                     <StackPanel Margin="25,20">
-                        <!-- Email -->
-                        <TextBlock Text="Email:"
+            <!-- Email -->
+            <TextBlock Text="Email:"
                                    Margin="0,0,0,8"
                                    Foreground="#757575"
                                    FontWeight="SemiBold" />
@@ -64,14 +64,14 @@
                                 BorderBrush="#E0E0E0"
                                 CornerRadius="4"
                                 Margin="0,0,0,15">
-                            <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+            <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
                                      Padding="12,10"
                                      Background="Transparent"
                                      BorderThickness="0" />
                         </Border>
 
-                        <!-- Parolă -->
-                        <TextBlock Text="Parolă:"
+            <!-- Parolă -->
+            <TextBlock Text="Parolă:"
                                    Margin="0,0,0,8"
                                    Foreground="#757575"
                                    FontWeight="SemiBold" />
@@ -80,27 +80,27 @@
                                 BorderBrush="#E0E0E0"
                                 CornerRadius="4"
                                 Margin="0,0,0,15">
-                            <PasswordBox x:Name="PasswordBox"
+            <PasswordBox x:Name="PasswordBox"
                                          Padding="12,10"
                                          Background="Transparent"
                                          BorderThickness="0" />
                         </Border>
 
-                        <!-- Mesaj eroare -->
-                        <TextBlock Text="{Binding ErrorMessage}"
+            <!-- Mesaj eroare -->
+            <TextBlock Text="{Binding ErrorMessage}"
                                    Foreground="#E53935"
-                                   TextWrapping="Wrap"
-                                   Margin="0,0,0,15"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,15"
                                    FontWeight="SemiBold"
-                                   Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}" />
+                       Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}" />
 
-                        <!-- Remember Me -->
-                        <CheckBox Content="Ține-mă minte" 
-                                  IsChecked="{Binding RememberMe}"
+            <!-- Remember Me -->
+            <CheckBox Content="Ține-mă minte" 
+                      IsChecked="{Binding RememberMe}"
                                   Margin="0,0,0,20"
                                   Foreground="#757575" />
                     </StackPanel>
-                    
+
                     <!-- Form footer with buttons -->
                     <Border Background="#FAFAFA" 
                             BorderThickness="0,1,0,0" 
@@ -108,42 +108,42 @@
                             Padding="25,15"
                             CornerRadius="0,0,8,8">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                </Grid.ColumnDefinitions>
 
                             <Button Grid.Column="0"
                                     Content="Creeaza cont nou"
-                                    Command="{Binding CreateAccountCommand}"
+                        Command="{Binding CreateAccountCommand}"
                                     Padding="15,10"
                                     HorizontalAlignment="Left"
                                     Background="#757575"
-                                    Foreground="White"
-                                    BorderThickness="0">
-                                <Button.Resources>
-                                    <Style TargetType="Border">
-                                        <Setter Property="CornerRadius" Value="4" />
-                                    </Style>
-                                </Button.Resources>
-                            </Button>
+                        Foreground="White"
+                        BorderThickness="0">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="4" />
+                        </Style>
+                    </Button.Resources>
+                </Button>
 
-                            <Button Grid.Column="1"
-                                    Content="Autentificare"
-                                    Command="{Binding LoginCommand}"
+                <Button Grid.Column="1"
+                        Content="Autentificare"
+                        Command="{Binding LoginCommand}"
                                     Padding="20,10"
                                     Background="#4CAF50"
-                                    Foreground="White"
-                                    BorderThickness="0">
-                                <Button.Resources>
-                                    <Style TargetType="Border">
-                                        <Setter Property="CornerRadius" Value="4" />
-                                    </Style>
-                                </Button.Resources>
-                            </Button>
-                        </Grid>
+                        Foreground="White"
+                        BorderThickness="0">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="4" />
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </Grid>
                     </Border>
-                </StackPanel>
+        </StackPanel>
             </Border>
         </Grid>
     </Grid>

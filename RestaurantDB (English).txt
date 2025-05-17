@@ -74,7 +74,7 @@ CREATE TABLE Users (
 CREATE TABLE Orders (
     IdOrder UNIQUEIDENTIFIER PRIMARY KEY,
     IdUser INT NOT NULL,
-    OrderDate DATETIME NOT NULL DEFAULT GETDATE(),
+    OrderDate DATETIME2(0) NOT NULL DEFAULT GETDATE(),
     Status NVARCHAR(50) NOT NULL CHECK (Status IN ('registered', 'preparing', 'out for delivery', 'delivered', 'canceled')),
     TotalAmount DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     FOREIGN KEY (IdUser) REFERENCES Users(IdUser)

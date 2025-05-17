@@ -25,8 +25,8 @@
         <!-- Header -->
         <Border Grid.Row="0" Background="White" Padding="25,15" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
             <Grid>
-                <TextBlock Text="Profilul meu" 
-                           FontSize="24" 
+        <TextBlock Text="Profilul meu" 
+                   FontSize="24" 
                            FontWeight="SemiBold" 
                            Foreground="#333333"/>
                 
@@ -61,13 +61,13 @@
                     
                     <!-- Detalii profil -->
                     <StackPanel Margin="20,15">
-                        <!-- Nume și Prenume -->
+            <!-- Nume și Prenume -->
                         <Grid Margin="0,0,0,15">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Nume complet:" 
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Nume complet:" 
                                        Foreground="#757575" 
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center"/>
@@ -76,23 +76,23 @@
                                     CornerRadius="4" 
                                     Padding="12,10">
                                 <TextBlock Foreground="#333333">
-                                    <TextBlock.Text>
-                                        <MultiBinding StringFormat="{}{0} {1}">
-                                            <Binding Path="LastName" />
-                                            <Binding Path="FirstName" />
-                                        </MultiBinding>
-                                    </TextBlock.Text>
-                                </TextBlock>
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="{}{0} {1}">
+                                <Binding Path="LastName" />
+                                <Binding Path="FirstName" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
                             </Border>
-                        </Grid>
-                        
-                        <!-- Email -->
+                </Grid>
+            
+            <!-- Email -->
                         <Grid Margin="0,0,0,15">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Email:" 
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Email:" 
                                        Foreground="#757575" 
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center"/>
@@ -103,15 +103,15 @@
                                 <TextBlock Text="{Binding Email}" 
                                            Foreground="#333333"/>
                             </Border>
-                        </Grid>
-                        
-                        <!-- Telefon -->
+                </Grid>
+            
+            <!-- Telefon -->
                         <Grid Margin="0,0,0,15">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Telefon:" 
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Telefon:" 
                                        Foreground="#757575" 
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center"/>
@@ -122,15 +122,15 @@
                                 <TextBlock Text="{Binding Phone}" 
                                            Foreground="#333333"/>
                             </Border>
-                        </Grid>
-                        
-                        <!-- Adresa de livrare -->
+                </Grid>
+            
+            <!-- Adresa de livrare -->
                         <Grid Margin="0,0,0,15">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Adresă livrare:" 
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Adresă livrare:" 
                                        Foreground="#757575" 
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Top"
@@ -141,17 +141,17 @@
                                     Padding="12,10">
                                 <TextBlock Text="{Binding DeliveryAddress}" 
                                            Foreground="#333333"
-                                           TextWrapping="Wrap"/>
+                               TextWrapping="Wrap"/>
                             </Border>
-                        </Grid>
-                        
-                        <!-- Rol -->
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Tip cont:" 
+                </Grid>
+            
+            <!-- Rol -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Tip cont:" 
                                        Foreground="#757575" 
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center"/>
@@ -162,7 +162,7 @@
                                 <TextBlock Text="{Binding Role}" 
                                            Foreground="#333333"/>
                             </Border>
-                        </Grid>
+                </Grid>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -171,18 +171,18 @@
         <!-- Footer cu buton de ieșire -->
         <Border Grid.Row="2" Background="White" Padding="25,15" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0">
             <Button Content="Ieșire din cont" 
-                    Command="{Binding LogoutCommand}" 
+                Command="{Binding LogoutCommand}" 
                     HorizontalAlignment="Right" 
                     Padding="20,10" 
-                    Background="#E74C3C" 
-                    Foreground="White" 
-                    BorderThickness="0">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="4"/>
-                    </Style>
-                </Button.Resources>
-            </Button>
+                Background="#E74C3C" 
+                Foreground="White" 
+                BorderThickness="0">
+            <Button.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="4"/>
+                </Style>
+            </Button.Resources>
+        </Button>
         </Border>
     </Grid>
 </UserControl> 

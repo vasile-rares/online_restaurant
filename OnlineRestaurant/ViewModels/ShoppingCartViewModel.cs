@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace OnlineRestaurant.ViewModels
 {
@@ -70,6 +71,7 @@ namespace OnlineRestaurant.ViewModels
         private readonly UserViewModel _userViewModel;
         private string _message;
         private bool _isProcessing;
+        private DispatcherTimer _messageTimer;
 
         public ObservableCollection<CartItemViewModel> Items
         {
@@ -114,6 +116,17 @@ namespace OnlineRestaurant.ViewModels
             Items = new ObservableCollection<CartItemViewModel>();
             ClearCartCommand = new RelayCommand(ClearCart);
             CheckoutCommand = new RelayCommand(async () => await CheckoutAsync(), CanCheckout);
+            
+            // Inițializăm timer-ul pentru mesaje
+            _messageTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(3)
+            };
+            _messageTimer.Tick += (s, e) =>
+            {
+                Message = string.Empty;
+                _messageTimer.Stop();
+            };
             
             UpdateCartSummary();
         }
@@ -223,7 +236,7 @@ namespace OnlineRestaurant.ViewModels
                 
                 if (!_userViewModel.IsLoggedIn)
                 {
-                    Message = "Trebuie să fiți autentificat pentru a finaliza comanda.";
+                    ShowTimedMessage("Trebuie să fiți autentificat pentru a finaliza comanda.");
                     return;
                 }
                 
@@ -266,17 +279,24 @@ namespace OnlineRestaurant.ViewModels
                 
                 // Clear the cart after successful checkout
                 ClearCart();
-                Message = "Comanda a fost plasată cu succes!";
+                ShowTimedMessage("Comanda a fost plasată cu succes!");
             }
             catch (Exception ex)
             {
-                Message = $"Eroare la plasarea comenzii: {ex.Message}";
+                ShowTimedMessage($"Eroare la plasarea comenzii: {ex.Message}");
             }
             finally
             {
                 IsProcessing = false;
                 ((RelayCommand)CheckoutCommand).RaiseCanExecuteChanged();
             }
+        }
+        
+        private void ShowTimedMessage(string message)
+        {
+            Message = message;
+            _messageTimer.Stop();
+            _messageTimer.Start();
         }
     }
 } 

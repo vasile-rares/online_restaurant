@@ -36,6 +36,7 @@ namespace OnlineRestaurant.Models
         public int IdUser { get; set; }
 
         [Required]
+        [Column(TypeName = "datetime2(0)")]
         public DateTime OrderDate { get; set; }
 
         [Required]

@@ -17,6 +17,7 @@ namespace OnlineRestaurant.ViewModels
         private ObservableCollection<Order> _orders;
         private bool _isLoading;
         private string _errorMessage;
+        private DispatcherTimer _messageTimer;
         
         public ObservableCollection<Order> Orders
         {
@@ -38,6 +39,7 @@ namespace OnlineRestaurant.ViewModels
         
         public ICommand RefreshCommand { get; }
         public ICommand BackCommand { get; }
+        public ICommand CancelOrderCommand { get; }
         
         public OrdersViewModel(OrderService orderService, UserViewModel userViewModel)
         {
@@ -47,10 +49,76 @@ namespace OnlineRestaurant.ViewModels
             
             RefreshCommand = new RelayCommand(async () => await LoadOrdersAsync());
             BackCommand = new RelayCommand(NavigateBack);
+            CancelOrderCommand = new RelayCommand<Order>(async (order) => await CancelOrderAsync(order), CanCancelOrder);
+            
+            // Inițializăm timer-ul pentru mesaje
+            _messageTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(3)
+            };
+            _messageTimer.Tick += (s, e) =>
+            {
+                ErrorMessage = string.Empty;
+                _messageTimer.Stop();
+            };
             
             // Încărcăm comenzile utilizatorului curent - utilizăm Dispatcher.InvokeAsync
             // în loc de Task.Run pentru a evita eroarea de thread
             Application.Current.Dispatcher.InvokeAsync(async () => await LoadOrdersAsync());
+        }
+        
+        private bool CanCancelOrder(Order order)
+        {
+            // O comandă poate fi anulată doar dacă este în starea "registered" sau "preparing"
+            return order != null && 
+                   (order.Status == OrderStatus.registered || 
+                    order.Status == OrderStatus.preparing);
+        }
+        
+        private async Task CancelOrderAsync(Order order)
+        {
+            if (order == null)
+                return;
+                
+            try
+            {
+                IsLoading = true;
+                ErrorMessage = string.Empty;
+                
+                // Setăm starea comenzii la "canceled"
+                order.Status = OrderStatus.canceled;
+                
+                // Actualizăm comanda în baza de date
+                await _orderService.UpdateAsync(order);
+                await _orderService.SaveChangesAsync();
+                
+                // Reîncărcăm lista de comenzi
+                await LoadOrdersAsync();
+                
+                // Afișăm un mesaj de succes temporar
+                ShowTimedMessage("Comanda a fost anulată cu succes.");
+            }
+            catch (Exception ex)
+            {
+                ShowTimedMessage($"Eroare la anularea comenzii: {ex.Message}");
+            }
+            finally
+            {
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    IsLoading = false;
+                });
+            }
+        }
+        
+        private void ShowTimedMessage(string message)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                ErrorMessage = message;
+                _messageTimer.Stop();
+                _messageTimer.Start();
+            });
         }
         
         private async Task LoadOrdersAsync()
@@ -85,10 +153,7 @@ namespace OnlineRestaurant.ViewModels
             }
             catch (Exception ex)
             {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    ErrorMessage = $"Eroare la încărcarea comenzilor: {ex.Message}";
-                });
+                ShowTimedMessage($"Eroare la încărcarea comenzilor: {ex.Message}");
             }
             finally
             {

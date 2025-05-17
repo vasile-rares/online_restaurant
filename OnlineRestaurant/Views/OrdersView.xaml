@@ -6,17 +6,34 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:OnlineRestaurant.Views"
     xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
+    xmlns:models="clr-namespace:OnlineRestaurant.Models"
     mc:Ignorable="d"
     d:DesignHeight="450" d:DesignWidth="800"
     Background="#F5F5F5"
-    RenderOptions.EdgeMode="Aliased">
+    RenderOptions.EdgeMode="Aliased"
+    x:Name="OrdersUserControl">
 
     <UserControl.Resources>
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:OrderStatusToColorConverter x:Key="OrderStatusToColorConverter" />
         <converters:OrderStatusToStringConverter x:Key="OrderStatusToStringConverter" />
+        <converters:OrderStatusToVisibilityConverter x:Key="OrderStatusToVisibilityConverter" />
         <converters:IdTruncateConverter x:Key="IdTruncateConverter" />
+        
+        <Style x:Key="CancelOrderButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#E74C3C" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="15,8" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="Margin" Value="0,10,0,0" />
+            <Style.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="4" />
+                </Style>
+            </Style.Resources>
+        </Style>
     </UserControl.Resources>
 
     <Grid>
@@ -28,7 +45,7 @@
 
         <!-- Header -->
         <Border Grid.Row="0" Background="White" Padding="25,15" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
-            <Grid>
+            <StackPanel>
                 <TextBlock Text="Istoricul comenzilor"
                           FontSize="24"
                           FontWeight="SemiBold"
@@ -37,10 +54,9 @@
                 <TextBlock Text="{Binding ErrorMessage}"
                           Foreground="#E53935"
                           Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
-                          VerticalAlignment="Bottom"
                           Margin="0,5,0,0"
                           FontSize="14" />
-            </Grid>
+            </StackPanel>
         </Border>
 
         <!-- Content -->
@@ -74,7 +90,7 @@
                                                 <Run Text="Comandă #" />
                                                 <Run Text="{Binding IdOrder, Converter={StaticResource IdTruncateConverter}}" />
                                             </TextBlock>
-                                            <TextBlock Margin="10,0,0,5" Foreground="#757575" VerticalAlignment="Center">
+                                            <TextBlock Margin="10,0,0,0" Foreground="#757575" VerticalAlignment="Center">
                                                 <Run Text="•" />
                                                 <Run Text="{Binding OrderDate, StringFormat='{}{0:dd MMMM yyyy, HH:mm}'}" />
                                             </TextBlock>
@@ -166,6 +182,13 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
+                                    
+                                    <!-- Buton de anulare comandă - vizibil doar pentru comenzile care pot fi anulate -->
+                                    <Button Content="Anulează comanda"
+                                            Command="{Binding ElementName=OrdersUserControl, Path=DataContext.CancelOrderCommand}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource CancelOrderButtonStyle}"
+                                            Visibility="{Binding Status, Converter={StaticResource OrderStatusToVisibilityConverter}}"/>
                                 </StackPanel>
                             </DockPanel>
                         </Border>
