@@ -5,133 +5,184 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:OnlineRestaurant.Views"
              xmlns:vm="clr-namespace:OnlineRestaurant.ViewModels"
+             xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="550" d:DesignWidth="800"
+             Background="#F5F5F5"
+             RenderOptions.EdgeMode="Aliased">
     
-    <Grid Background="White">
+    <UserControl.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+    </UserControl.Resources>
+    
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <!-- Titlu -->
-        <TextBlock Text="Profilul meu" 
-                   FontSize="24" 
-                   FontWeight="Bold" 
-                   Margin="0,20,0,20" 
-                   HorizontalAlignment="Center"
-                   Foreground="#2C3E50"/>
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" Padding="25,15" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
+            <Grid>
+                <TextBlock Text="Profilul meu" 
+                           FontSize="24" 
+                           FontWeight="SemiBold" 
+                           Foreground="#333333"/>
+                
+                <TextBlock Text="{Binding ErrorMessage}"
+                          Foreground="#E53935"
+                          Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
+                          VerticalAlignment="Bottom"
+                          Margin="0,5,0,0"
+                          FontSize="14" />
+            </Grid>
+        </Border>
         
-        <!-- Detalii profil -->
-        <StackPanel Grid.Row="1" 
-                    Width="400" 
-                    Margin="0,10,0,0" 
+        <!-- Conținut profil -->
+        <ScrollViewer Grid.Row="1" Padding="25,20">
+            <Border Background="White" 
+                    BorderThickness="1" 
+                    BorderBrush="#E0E0E0" 
+                    CornerRadius="8"
+                    Width="500"
                     HorizontalAlignment="Center">
-            
-            <!-- Nume și Prenume -->
-            <Border Background="#F8F9FA" Padding="15" Margin="0,0,0,10" CornerRadius="4">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="140"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Nume complet:" 
-                               Foreground="#34495E" 
-                               FontWeight="SemiBold"/>
-                    <TextBlock Grid.Column="1" 
-                               Foreground="#34495E">
-                        <TextBlock.Text>
-                            <MultiBinding StringFormat="{}{0} {1}">
-                                <Binding Path="LastName" />
-                                <Binding Path="FirstName" />
-                            </MultiBinding>
-                        </TextBlock.Text>
-                    </TextBlock>
-                </Grid>
+                <StackPanel Margin="0,15,0,15">
+                    <!-- Info header -->
+                    <Border Background="#FAFAFA" 
+                            BorderThickness="0,0,0,1" 
+                            BorderBrush="#E0E0E0" 
+                            Padding="20,15">
+                        <TextBlock Text="Informații personale" 
+                                   FontSize="18" 
+                                   FontWeight="SemiBold" 
+                                   Foreground="#424242"/>
+                    </Border>
+                    
+                    <!-- Detalii profil -->
+                    <StackPanel Margin="20,15">
+                        <!-- Nume și Prenume -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Nume complet:" 
+                                       Foreground="#757575" 
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+                            <Border Grid.Column="1" 
+                                    Background="#F5F5F5" 
+                                    CornerRadius="4" 
+                                    Padding="12,10">
+                                <TextBlock Foreground="#333333">
+                                    <TextBlock.Text>
+                                        <MultiBinding StringFormat="{}{0} {1}">
+                                            <Binding Path="LastName" />
+                                            <Binding Path="FirstName" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </Border>
+                        </Grid>
+                        
+                        <!-- Email -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Email:" 
+                                       Foreground="#757575" 
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+                            <Border Grid.Column="1" 
+                                    Background="#F5F5F5" 
+                                    CornerRadius="4" 
+                                    Padding="12,10">
+                                <TextBlock Text="{Binding Email}" 
+                                           Foreground="#333333"/>
+                            </Border>
+                        </Grid>
+                        
+                        <!-- Telefon -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Telefon:" 
+                                       Foreground="#757575" 
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+                            <Border Grid.Column="1" 
+                                    Background="#F5F5F5" 
+                                    CornerRadius="4" 
+                                    Padding="12,10">
+                                <TextBlock Text="{Binding Phone}" 
+                                           Foreground="#333333"/>
+                            </Border>
+                        </Grid>
+                        
+                        <!-- Adresa de livrare -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Adresă livrare:" 
+                                       Foreground="#757575" 
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Top"
+                                       Margin="0,10,0,0"/>
+                            <Border Grid.Column="1" 
+                                    Background="#F5F5F5" 
+                                    CornerRadius="4" 
+                                    Padding="12,10">
+                                <TextBlock Text="{Binding DeliveryAddress}" 
+                                           Foreground="#333333"
+                                           TextWrapping="Wrap"/>
+                            </Border>
+                        </Grid>
+                        
+                        <!-- Rol -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Tip cont:" 
+                                       Foreground="#757575" 
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+                            <Border Grid.Column="1" 
+                                    Background="#F5F5F5" 
+                                    CornerRadius="4" 
+                                    Padding="12,10">
+                                <TextBlock Text="{Binding Role}" 
+                                           Foreground="#333333"/>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
             </Border>
-            
-            <!-- Email -->
-            <Border Background="#F8F9FA" Padding="15" Margin="0,0,0,10" CornerRadius="4">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="140"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Email:" 
-                               Foreground="#34495E" 
-                               FontWeight="SemiBold"/>
-                    <TextBlock Grid.Column="1" 
-                               Text="{Binding Email}" 
-                               Foreground="#34495E"/>
-                </Grid>
-            </Border>
-            
-            <!-- Telefon -->
-            <Border Background="#F8F9FA" Padding="15" Margin="0,0,0,10" CornerRadius="4">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="140"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Telefon:" 
-                               Foreground="#34495E" 
-                               FontWeight="SemiBold"/>
-                    <TextBlock Grid.Column="1" 
-                               Text="{Binding Phone}" 
-                               Foreground="#34495E"/>
-                </Grid>
-            </Border>
-            
-            <!-- Adresa de livrare -->
-            <Border Background="#F8F9FA" Padding="15" Margin="0,0,0,10" CornerRadius="4">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="140"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Adresă livrare:" 
-                               Foreground="#34495E" 
-                               FontWeight="SemiBold"/>
-                    <TextBlock Grid.Column="1" 
-                               Text="{Binding DeliveryAddress}" 
-                               Foreground="#34495E"
-                               TextWrapping="Wrap"/>
-                </Grid>
-            </Border>
-            
-            <!-- Rol -->
-            <Border Background="#F8F9FA" Padding="15" Margin="0,0,0,10" CornerRadius="4">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="140"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="Tip cont:" 
-                               Foreground="#34495E" 
-                               FontWeight="SemiBold"/>
-                    <TextBlock Grid.Column="1" 
-                               Text="{Binding Role}" 
-                               Foreground="#34495E"/>
-                </Grid>
-            </Border>
-        </StackPanel>
+        </ScrollViewer>
         
-        <!-- Buton de ieșire -->
-        <Button Grid.Row="2" 
-                Content="Ieșire din cont" 
-                Command="{Binding LogoutCommand}" 
-                HorizontalAlignment="Center" 
-                Margin="0,20,0,30" 
-                Padding="15,8" 
-                Background="#E74C3C" 
-                Foreground="White" 
-                BorderThickness="0">
-            <Button.Resources>
-                <Style TargetType="Border">
-                    <Setter Property="CornerRadius" Value="4"/>
-                </Style>
-            </Button.Resources>
-        </Button>
+        <!-- Footer cu buton de ieșire -->
+        <Border Grid.Row="2" Background="White" Padding="25,15" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0">
+            <Button Content="Ieșire din cont" 
+                    Command="{Binding LogoutCommand}" 
+                    HorizontalAlignment="Right" 
+                    Padding="20,10" 
+                    Background="#E74C3C" 
+                    Foreground="White" 
+                    BorderThickness="0">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="4"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </Border>
     </Grid>
 </UserControl> 

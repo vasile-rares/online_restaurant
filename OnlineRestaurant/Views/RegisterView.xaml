@@ -7,145 +7,238 @@
              xmlns:vm="clr-namespace:OnlineRestaurant.ViewModels"
              xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="#F5F5F5"
+             RenderOptions.EdgeMode="Aliased">
     
     <UserControl.Resources>
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
     </UserControl.Resources>
     
-    <Grid Background="White">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Titlu -->
-        <TextBlock Text="Creare cont nou" 
-                   FontSize="24" 
-                   FontWeight="Bold" 
-                   Margin="0,20,0,20" 
-                   HorizontalAlignment="Center"
-                   Foreground="#2C3E50"/>
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" Padding="25,15" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
+            <TextBlock Text="Creare cont nou" 
+                       FontSize="24" 
+                       FontWeight="SemiBold" 
+                       Foreground="#333333"/>
+        </Border>
         
         <!-- Formular de înregistrare -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Width="400" 
-                        Margin="0,10,0,30" 
-                        HorizontalAlignment="Center">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="25,20">
+            <Border Background="White" 
+                    BorderThickness="1" 
+                    BorderBrush="#E0E0E0" 
+                    CornerRadius="8"
+                    Width="500"
+                    HorizontalAlignment="Center">
                 
-                <!-- Nume -->
-                <TextBlock Text="Nume:" 
-                           Margin="0,0,0,5" 
-                           Foreground="#34495E"/>
-                <TextBox Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}" 
-                         Padding="8" 
-                         Margin="0,0,0,15"/>
-                
-                <!-- Prenume -->
-                <TextBlock Text="Prenume:" 
-                           Margin="0,0,0,5" 
-                           Foreground="#34495E"/>
-                <TextBox Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}" 
-                         Padding="8" 
-                         Margin="0,0,0,15"/>
-                
-                <!-- Email -->
-                <TextBlock Text="Email:" 
-                           Margin="0,0,0,5" 
-                           Foreground="#34495E"/>
-                <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" 
-                         Padding="8" 
-                         Margin="0,0,0,15"/>
-                
-                <!-- Telefon -->
-                <TextBlock Text="Telefon (opțional):" 
-                           Margin="0,0,0,5" 
-                           Foreground="#34495E"/>
-                <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" 
-                         Padding="8" 
-                         Margin="0,0,0,15"/>
-                
-                <!-- Adresa de livrare -->
-                <TextBlock Text="Adresă de livrare (opțional):" 
-                           Margin="0,0,0,5" 
-                           Foreground="#34495E"/>
-                <TextBox Text="{Binding DeliveryAddress, UpdateSourceTrigger=PropertyChanged}" 
-                         Padding="8" 
-                         Margin="0,0,0,15"
-                         TextWrapping="Wrap"
-                         AcceptsReturn="True"
-                         Height="70"
-                         VerticalScrollBarVisibility="Auto"/>
-                
-                <!-- Parolă -->
-                <TextBlock Text="Parolă:" 
-                           Margin="0,0,0,5" 
-                           Foreground="#34495E"/>
-                <PasswordBox x:Name="PasswordBox" 
-                            Padding="8" 
-                            Margin="0,0,0,15"/>
-                
-                <!-- Confirmare parolă -->
-                <TextBlock Text="Confirmă parola:" 
-                           Margin="0,0,0,5" 
-                           Foreground="#34495E"/>
-                <PasswordBox x:Name="ConfirmPasswordBox" 
-                            Padding="8" 
-                            Margin="0,0,0,15"/>
-                
-                <!-- Rol -->
-                <TextBlock Text="Tip cont:" 
-                           Margin="0,0,0,5" 
-                           Foreground="#34495E"/>
-                <ComboBox ItemsSource="{Binding AvailableRoles}" 
-                          SelectedItem="{Binding SelectedRole}" 
-                          Padding="8" 
-                          Margin="0,0,0,15"/>
-                
-                <!-- Mesaj eroare -->
-                <TextBlock Text="{Binding ErrorMessage}" 
-                           Foreground="Red" 
-                           TextWrapping="Wrap" 
-                           Margin="0,0,0,15" 
-                           Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
-                
-                <!-- Butoane -->
-                <Grid Margin="0,10,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <StackPanel Margin="0,0,0,0">
+                    <!-- Form header -->
+                    <Border Background="#FAFAFA" 
+                            BorderThickness="0,0,0,1" 
+                            BorderBrush="#E0E0E0" 
+                            Padding="25,15"
+                            CornerRadius="8,8,0,0">
+                        <TextBlock Text="Introduceți datele pentru noul cont" 
+                                   FontSize="16" 
+                                   FontWeight="SemiBold" 
+                                   Foreground="#424242"/>
+                    </Border>
                     
-                    <Button Content="Înapoi" 
-                            Command="{Binding CancelCommand}" 
-                            Padding="15,8" 
-                            Margin="0,0,5,0" 
-                            Background="#7F8C8D" 
-                            Foreground="White" 
-                            BorderThickness="0">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="4"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
+                    <!-- Form content -->
+                    <StackPanel Margin="25,20">
+                        <!-- Nume -->
+                        <TextBlock Text="Nume:" 
+                                   Margin="0,0,0,8" 
+                                   Foreground="#757575"
+                                   FontWeight="SemiBold"/>
+                        <Border Background="#F5F5F5"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0"
+                                CornerRadius="4"
+                                Margin="0,0,0,15">
+                            <TextBox Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}" 
+                                     Padding="12,10"
+                                     Background="Transparent"
+                                     BorderThickness="0" />
+                        </Border>
+                        
+                        <!-- Prenume -->
+                        <TextBlock Text="Prenume:" 
+                                   Margin="0,0,0,8" 
+                                   Foreground="#757575"
+                                   FontWeight="SemiBold"/>
+                        <Border Background="#F5F5F5"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0"
+                                CornerRadius="4"
+                                Margin="0,0,0,15">
+                            <TextBox Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}" 
+                                     Padding="12,10"
+                                     Background="Transparent"
+                                     BorderThickness="0" />
+                        </Border>
+                        
+                        <!-- Email -->
+                        <TextBlock Text="Email:" 
+                                   Margin="0,0,0,8" 
+                                   Foreground="#757575"
+                                   FontWeight="SemiBold"/>
+                        <Border Background="#F5F5F5"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0"
+                                CornerRadius="4"
+                                Margin="0,0,0,15">
+                            <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}" 
+                                     Padding="12,10"
+                                     Background="Transparent"
+                                     BorderThickness="0" />
+                        </Border>
+                        
+                        <!-- Telefon -->
+                        <TextBlock Text="Telefon (opțional):" 
+                                   Margin="0,0,0,8" 
+                                   Foreground="#757575"
+                                   FontWeight="SemiBold"/>
+                        <Border Background="#F5F5F5"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0"
+                                CornerRadius="4"
+                                Margin="0,0,0,15">
+                            <TextBox Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}" 
+                                     Padding="12,10"
+                                     Background="Transparent"
+                                     BorderThickness="0" />
+                        </Border>
+                        
+                        <!-- Adresa de livrare -->
+                        <TextBlock Text="Adresă de livrare (opțional):" 
+                                   Margin="0,0,0,8" 
+                                   Foreground="#757575"
+                                   FontWeight="SemiBold"/>
+                        <Border Background="#F5F5F5"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0"
+                                CornerRadius="4"
+                                Margin="0,0,0,15">
+                            <TextBox Text="{Binding DeliveryAddress, UpdateSourceTrigger=PropertyChanged}" 
+                                     Padding="12,10"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     Height="70"
+                                     VerticalScrollBarVisibility="Auto"/>
+                        </Border>
+                        
+                        <!-- Parolă -->
+                        <TextBlock Text="Parolă:" 
+                                   Margin="0,0,0,8" 
+                                   Foreground="#757575"
+                                   FontWeight="SemiBold"/>
+                        <Border Background="#F5F5F5"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0"
+                                CornerRadius="4"
+                                Margin="0,0,0,15">
+                            <PasswordBox x:Name="PasswordBox" 
+                                         Padding="12,10"
+                                         Background="Transparent"
+                                         BorderThickness="0"/>
+                        </Border>
+                        
+                        <!-- Confirmare parolă -->
+                        <TextBlock Text="Confirmă parola:" 
+                                   Margin="0,0,0,8" 
+                                   Foreground="#757575"
+                                   FontWeight="SemiBold"/>
+                        <Border Background="#F5F5F5"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0"
+                                CornerRadius="4"
+                                Margin="0,0,0,15">
+                            <PasswordBox x:Name="ConfirmPasswordBox" 
+                                         Padding="12,10"
+                                         Background="Transparent"
+                                         BorderThickness="0"/>
+                        </Border>
+                        
+                        <!-- Rol -->
+                        <TextBlock Text="Tip cont:" 
+                                   Margin="0,0,0,8" 
+                                   Foreground="#757575"
+                                   FontWeight="SemiBold"/>
+                        <Border Background="#F5F5F5"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0"
+                                CornerRadius="4"
+                                Margin="0,0,0,15">
+                            <ComboBox ItemsSource="{Binding AvailableRoles}" 
+                                      SelectedItem="{Binding SelectedRole}" 
+                                      Padding="8,10"
+                                      Background="Transparent"
+                                      BorderThickness="0"/>
+                        </Border>
+                        
+                        <!-- Mesaj eroare -->
+                        <TextBlock Text="{Binding ErrorMessage}" 
+                                   Foreground="#E53935" 
+                                   TextWrapping="Wrap" 
+                                   Margin="0,0,0,5"
+                                   FontWeight="SemiBold"
+                                   Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
+                    </StackPanel>
                     
-                    <Button Grid.Column="1" 
-                            Content="Creare cont" 
-                            Command="{Binding RegisterCommand}" 
-                            Padding="15,8" 
-                            Margin="5,0,0,0" 
-                            Background="#2ECC71" 
-                            Foreground="White" 
-                            BorderThickness="0">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="4"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
-                </Grid>
-            </StackPanel>
+                    <!-- Form footer with buttons -->
+                    <Border Background="#FAFAFA" 
+                            BorderThickness="0,1,0,0" 
+                            BorderBrush="#E0E0E0" 
+                            Padding="25,15"
+                            CornerRadius="0,0,8,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Button Content="Înapoi" 
+                                    Command="{Binding CancelCommand}" 
+                                    Padding="20,10"
+                                    Background="#757575" 
+                                    Foreground="White" 
+                                    BorderThickness="0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                            
+                            <Button Grid.Column="1" 
+                                    Content="Creare cont" 
+                                    Command="{Binding RegisterCommand}" 
+                                    Padding="20,10"
+                                    Margin="10,0,0,0" 
+                                    Background="#4CAF50" 
+                                    Foreground="White" 
+                                    BorderThickness="0"
+                                    HorizontalAlignment="Right">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4"/>
+                                    </Style>
+                                </Button.Resources>
+                            </Button>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
         </ScrollViewer>
     </Grid>
 </UserControl> 

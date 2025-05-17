@@ -8,7 +8,9 @@
     xmlns:vm="clr-namespace:OnlineRestaurant.ViewModels"
     xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
     mc:Ignorable="d"
-    d:DesignHeight="600" d:DesignWidth="800">
+    d:DesignHeight="600" d:DesignWidth="800"
+    Background="#F5F5F5"
+    RenderOptions.EdgeMode="Aliased">
 
     <UserControl.Resources>
         <converters:DefaultImageConverter x:Key="DefaultImageConverter" DefaultImagePath="/Images/default.jpg" />
@@ -16,49 +18,54 @@
 
         <Style x:Key="CategoryTitle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="22" />
-            <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Margin" Value="0,15,0,5" />
-            <Setter Property="Foreground" Value="#2C3E50" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,20,0,10" />
+            <Setter Property="Foreground" Value="#333333" />
         </Style>
 
         <Style x:Key="ItemTitle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Margin" Value="0,5,0,2" />
-            <Setter Property="Foreground" Value="#34495E" />
+            <Setter Property="Margin" Value="0,0,0,2" />
+            <Setter Property="Foreground" Value="#333333" />
         </Style>
 
         <Style x:Key="ItemDetails" TargetType="TextBlock">
             <Setter Property="FontSize" Value="14" />
             <Setter Property="Margin" Value="0,2,0,2" />
             <Setter Property="TextWrapping" Value="Wrap" />
-            <Setter Property="Foreground" Value="#7F8C8D" />
+            <Setter Property="Foreground" Value="#757575" />
         </Style>
 
         <Style x:Key="ItemPrice" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16" />
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Margin" Value="0,2,0,2" />
-            <Setter Property="Foreground" Value="#16A085" />
+            <Setter Property="Foreground" Value="#4CAF50" />
         </Style>
 
         <Style x:Key="UnavailableItem" TargetType="TextBlock">
             <Setter Property="FontSize" Value="14" />
-            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Margin" Value="10,2,0,2" />
             <Setter Property="Foreground" Value="#E74C3C" />
         </Style>
 
         <DataTemplate x:Key="ItemMenuTemplate">
-            <Border Margin="5" Padding="10" Background="#FAFAFA" CornerRadius="5"
-                    BorderBrush="#DDDDDD" BorderThickness="1">
+            <Border Margin="0,0,0,15"
+                    Background="White"
+                    CornerRadius="8"
+                    BorderThickness="1"
+                    BorderBrush="#E0E0E0"
+                    ClipToBounds="True"
+                    SnapsToDevicePixels="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    
-                    <Grid Grid.Row="0">
+
+                    <Grid Grid.Row="0" Margin="20,15">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -66,13 +73,19 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Dish/menu image -->
-                        <Border Width="100" Height="100" BorderBrush="#DDDDDD" BorderThickness="1"
-                                CornerRadius="5" Margin="0,0,10,0" ClipToBounds="True">
-                            <Image Source="{Binding Images, Converter={StaticResource DefaultImageConverter}}" Stretch="UniformToFill" />
+                        <Border Grid.Column="0"
+                                Width="100"
+                                Height="100"
+                                Background="#F5F5F5"
+                                CornerRadius="6"
+                                Margin="0,0,15,0"
+                                ClipToBounds="True">
+                            <Image Source="{Binding Images, Converter={StaticResource DefaultImageConverter}}"
+                                   Stretch="UniformToFill" />
                         </Border>
 
                         <!-- Dish/menu information -->
-                        <StackPanel Grid.Column="1">
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Name}" Style="{StaticResource ItemTitle}" />
                             <TextBlock Text="{Binding ContentDetails}" Style="{StaticResource ItemDetails}" />
                             <TextBlock Text="{Binding PortionSize, StringFormat='{}{0} g'}" Style="{StaticResource ItemDetails}" />
@@ -81,53 +94,61 @@
 
                         <!-- Price and availability -->
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
-                            <TextBlock Text="{Binding Price, StringFormat='{}{0:F2} lei'}" Style="{StaticResource ItemPrice}" />
+                            <TextBlock Text="{Binding Price, StringFormat='{}{0:F2} Lei'}" Style="{StaticResource ItemPrice}" />
                             <TextBlock Text="{Binding AvailabilityStatus}" Style="{StaticResource UnavailableItem}" />
                         </StackPanel>
                     </Grid>
-                    
+
                     <!-- Add to cart button -->
-                    <Grid Grid.Row="1" HorizontalAlignment="Right" Margin="0,10,0,0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        
-                        <Button Grid.Row="0" 
-                                Content="Adaugă în coș" 
-                                Command="{Binding AddToCartCommand}"
-                                IsEnabled="{Binding CanAddToCart}"
-                                HorizontalAlignment="Right"
-                                Padding="10,5"
-                                Background="#27AE60"
-                                Foreground="White"
-                                BorderThickness="0">
-                            <Button.Resources>
-                                <Style TargetType="Border">
-                                    <Setter Property="CornerRadius" Value="3" />
-                                </Style>
-                            </Button.Resources>
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Style.Triggers>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter Property="Opacity" Value="0.5" />
-                                            <Setter Property="Background" Value="#95A5A6" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                        
-                        <!-- Login message -->
-                        <TextBlock Grid.Row="1" 
-                                   Text="{Binding AddToCartMessage}" 
-                                   Foreground="#E74C3C" 
-                                   FontSize="12" 
-                                   HorizontalAlignment="Right"
-                                   Margin="0,3,0,0"
-                                   Visibility="{Binding AddToCartMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
-                    </Grid>
+                    <Border Grid.Row="1"
+                            Background="#FAFAFA"
+                            BorderThickness="0,1,0,0"
+                            BorderBrush="#E0E0E0"
+                            CornerRadius="0,0,8,8"
+                            Padding="20,12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Button Grid.Row="0"
+                                    Content="Adaugă în coș"
+                                    Command="{Binding AddToCartCommand}"
+                                    IsEnabled="{Binding CanAddToCart}"
+                                    HorizontalAlignment="Right"
+                                    Padding="15,8"
+                                    Background="#4CAF50"
+                                    Foreground="White"
+                                    BorderThickness="0">
+                                <Button.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="4" />
+                                    </Style>
+                                </Button.Resources>
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Opacity" Value="0.5" />
+                                                <Setter Property="Background" Value="#9E9E9E" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
+                            <!-- Login message - redesign to be under button but closer -->
+                            <TextBlock Grid.Row="1"
+                                       Text="{Binding AddToCartMessage}"
+                                       Foreground="#E74C3C"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,-15,0,0"
+                                       Visibility="{Binding AddToCartMessage, Converter={StaticResource StringToVisibilityConverter}}" />
+                        </Grid>
+                    </Border>
                 </Grid>
             </Border>
         </DataTemplate>
@@ -135,8 +156,7 @@
         <DataTemplate x:Key="CategoryTemplate">
             <StackPanel>
                 <TextBlock Text="{Binding Name}" Style="{StaticResource CategoryTitle}" />
-                <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource ItemMenuTemplate}"
-                              Margin="0,0,0,20" />
+                <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource ItemMenuTemplate}" />
             </StackPanel>
         </DataTemplate>
     </UserControl.Resources>
@@ -148,8 +168,11 @@
         </Grid.RowDefinitions>
 
         <!-- Search section -->
-        <Border Grid.Row="0" Background="#ECF0F1" Padding="15" BorderBrush="#BDC3C7"
-                BorderThickness="0,0,0,1">
+        <Border Grid.Row="0"
+                Background="White"
+                Padding="25,15"
+                BorderThickness="0,0,0,1"
+                BorderBrush="#E0E0E0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -157,8 +180,11 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel>
-                    <TextBlock Text="Caută în meniu" FontSize="18" FontWeight="Bold"
-                               Margin="0,0,0,10" Foreground="#2C3E50" />
+                    <TextBlock Text="Caută în meniu"
+                               FontSize="20"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,15"
+                               Foreground="#333333" />
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -167,48 +193,68 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBox Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
-                                 Padding="5" FontSize="14" />
+                        <Border Grid.Column="0"
+                                CornerRadius="4"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0">
+                            <TextBox Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="10,8"
+                                     FontSize="14"
+                                     BorderThickness="0" />
+                        </Border>
 
-                        <Button Grid.Column="1" Content="Clear" Command="{Binding ResetSearchCommand}"
-                                Padding="10,5" Margin="5,0,5,0" Background="#3498DB" Foreground="White" />
+                        <Button Grid.Column="1"
+                                Content="Șterge"
+                                Command="{Binding ResetSearchCommand}"
+                                Padding="15,8"
+                                Margin="10,0"
+                                Background="#757575"
+                                Foreground="White"
+                                BorderThickness="0">
+                            <Button.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="CornerRadius" Value="4" />
+                                </Style>
+                            </Button.Resources>
+                        </Button>
 
-                        <ComboBox Grid.Column="2"
-                                    Margin="0,0,0,0"
-                                    Width="120"
-                                    ItemsSource="{Binding CategoryFilter}"
-                                    SelectedItem="{Binding SelectedCategory}"
-                                    DisplayMemberPath="Name"
-                                    SelectedValuePath="IdCategory"
-                                    HorizontalContentAlignment="Center"
-                                    VerticalContentAlignment="Center">
-                            <ComboBox.ItemContainerStyle>
-                                <Style TargetType="ComboBoxItem">
-                                    <Setter Property="Padding" Value="5" />
-                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                </Style>
-                            </ComboBox.ItemContainerStyle>
-                            <ComboBox.Style>
-                                <Style TargetType="ComboBox">
-                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                    <Setter Property="VerticalContentAlignment" Value="Center" />
-                                </Style>
-                            </ComboBox.Style>
-                            <ComboBox.Resources>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="TextAlignment" Value="Center" />
-                                    <Setter Property="HorizontalAlignment" Value="Center" />
-                                </Style>
-                            </ComboBox.Resources>
-                        </ComboBox>
+                        <Border Grid.Column="2"
+                                CornerRadius="4"
+                                BorderThickness="1"
+                                BorderBrush="#E0E0E0">
+                            <ComboBox ItemsSource="{Binding CategoryFilter}"
+                                      SelectedItem="{Binding SelectedCategory}"
+                                      DisplayMemberPath="Name"
+                                      SelectedValuePath="IdCategory"
+                                      Width="130"
+                                      Padding="10"
+                                      BorderThickness="0"
+                                      HorizontalContentAlignment="Center">
+                                <ComboBox.ItemContainerStyle>
+                                    <Style TargetType="ComboBoxItem">
+                                        <Setter Property="Padding" Value="10,6" />
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    </Style>
+                                </ComboBox.ItemContainerStyle>
+                                <ComboBox.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextAlignment" Value="Center" />
+                                        <Setter Property="HorizontalAlignment" Value="Center" />
+                                    </Style>
+                                </ComboBox.Resources>
+                            </ComboBox>
+                        </Border>
                     </Grid>
                 </StackPanel>
             </Grid>
         </Border>
 
         <!-- Categories list with dishes and menus -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="15">
-            <ItemsControl ItemsSource="{Binding Categories}" ItemTemplate="{StaticResource CategoryTemplate}" />
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      Padding="25,0,25,25">
+            <ItemsControl ItemsSource="{Binding Categories}"
+                          ItemTemplate="{StaticResource CategoryTemplate}" />
         </ScrollViewer>
     </Grid>
 </UserControl> 

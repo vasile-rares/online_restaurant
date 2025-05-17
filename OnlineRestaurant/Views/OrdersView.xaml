@@ -7,7 +7,9 @@
     xmlns:local="clr-namespace:OnlineRestaurant.Views"
     xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
     mc:Ignorable="d"
-    d:DesignHeight="450" d:DesignWidth="800">
+    d:DesignHeight="450" d:DesignWidth="800"
+    Background="#F5F5F5"
+    RenderOptions.EdgeMode="Aliased">
 
     <UserControl.Resources>
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
@@ -17,7 +19,7 @@
         <converters:IdTruncateConverter x:Key="IdTruncateConverter" />
     </UserControl.Resources>
 
-    <Grid Margin="20">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -25,127 +27,183 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,20">
-            <TextBlock Text="Istoricul comenzilor dvs."
-                       FontSize="24"
-                       FontWeight="Bold"
-                       Margin="0,0,0,10" />
+        <Border Grid.Row="0" Background="White" Padding="25,15" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
+            <Grid>
+                <TextBlock Text="Istoricul comenzilor"
+                          FontSize="24"
+                          FontWeight="SemiBold"
+                          Foreground="#333333" />
 
-            <TextBlock Text="{Binding ErrorMessage}"
-                       Foreground="Red"
-                       Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
-                       Margin="0,5" />
-        </StackPanel>
+                <TextBlock Text="{Binding ErrorMessage}"
+                          Foreground="#E53935"
+                          Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
+                          VerticalAlignment="Bottom"
+                          Margin="0,5,0,0"
+                          FontSize="14" />
+            </Grid>
+        </Border>
 
         <!-- Content -->
-        <ScrollViewer Grid.Row="1">
-            <ListView ItemsSource="{Binding Orders}"
-                      BorderThickness="0"
-                      Background="Transparent">
-                <ListView.ItemTemplate>
+        <ScrollViewer Grid.Row="1" Margin="0" Padding="20">
+            <ItemsControl ItemsSource="{Binding Orders}" Margin="0">
+                <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="#DDDDDD"
+                        <Border Margin="0,0,0,20"
+                                Background="White"
+                                CornerRadius="8"
                                 BorderThickness="1"
-                                CornerRadius="5"
-                                Padding="15"
-                                Margin="0,0,0,10"
-                                Background="White">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                                BorderBrush="#E0E0E0"
+                                ClipToBounds="True"
+                                SnapsToDevicePixels="True">
+                            <DockPanel>
+                                <!-- Header -->
+                                <Border Background="#FAFAFA"
+                                        BorderThickness="0,0,0,1"
+                                        BorderBrush="#E0E0E0"
+                                        CornerRadius="8,8,0,0"
+                                        Padding="20,15"
+                                        DockPanel.Dock="Top">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Row="0" Grid.Column="0">
-                                    <TextBlock>
-                                        <Run Text="Comandă #" />
-                                        <Run Text="{Binding IdOrder, Converter={StaticResource IdTruncateConverter}}" />
-                                    </TextBlock>
-                                    <TextBlock>
-                                        <Run Text="Data: " />
-                                        <Run Text="{Binding OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
-                                    </TextBlock>
-                                </StackPanel>
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                            <TextBlock FontWeight="SemiBold" FontSize="16">
+                                                <Run Text="Comandă #" />
+                                                <Run Text="{Binding IdOrder, Converter={StaticResource IdTruncateConverter}}" />
+                                            </TextBlock>
+                                            <TextBlock Margin="10,0,0,5" Foreground="#757575" VerticalAlignment="Center">
+                                                <Run Text="•" />
+                                                <Run Text="{Binding OrderDate, StringFormat='{}{0:dd MMMM yyyy, HH:mm}'}" />
+                                            </TextBlock>
+                                        </StackPanel>
 
-                                <Border Grid.Row="0" Grid.Column="1"
-                                        Background="{Binding Status, Converter={StaticResource OrderStatusToColorConverter}}"
-                                        Padding="7,3"
-                                        CornerRadius="3"
-                                        VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Status, Converter={StaticResource OrderStatusToStringConverter}}"
-                                               Foreground="White"
-                                               FontWeight="SemiBold"
-                                               VerticalAlignment="Center"
-                                               HorizontalAlignment="Center"
-                                               TextAlignment="Center"
-                                               Margin="3,0" />
+                                        <Border Grid.Column="1"
+                                                Background="{Binding Status, Converter={StaticResource OrderStatusToColorConverter}}"
+                                                CornerRadius="4"
+                                                Padding="10,5">
+                                            <TextBlock Text="{Binding Status, Converter={StaticResource OrderStatusToStringConverter}}"
+                                                     Foreground="White"
+                                                     FontWeight="SemiBold" />
+                                        </Border>
+                                    </Grid>
                                 </Border>
 
-                                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,10,0,0">
-                                    <TextBlock Text="Produse comandate:" FontWeight="SemiBold" Margin="0,0,0,5" />
+                                <!-- Total -->
+                                <Border Background="#FAFAFA"
+                                        BorderThickness="0,1,0,0"
+                                        BorderBrush="#E0E0E0"
+                                        CornerRadius="0,0,8,8"
+                                        Padding="20,15"
+                                        SnapsToDevicePixels="True"
+                                        UseLayoutRounding="True"
+                                        DockPanel.Dock="Bottom">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <ItemsControl ItemsSource="{Binding OrderDishes}">
+                                        <TextBlock Grid.Column="0"
+                                                 Text="Total comandă"
+                                                 FontSize="16"
+                                                 FontWeight="SemiBold"
+                                                 Foreground="#424242"
+                                                 VerticalAlignment="Center" />
+
+                                        <TextBlock Grid.Column="1"
+                                                 Text="{Binding TotalAmount, StringFormat='{}{0:0.00} Lei'}"
+                                                 FontSize="18"
+                                                 FontWeight="Bold"
+                                                 Foreground="#4CAF50"
+                                                 VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+
+                                <!-- Products -->
+                                <StackPanel Margin="20,15,20,15">
+                                    <TextBlock Text="Produse comandate"
+                                             FontWeight="SemiBold"
+                                             Margin="0,0,0,10"
+                                             Foreground="#424242" />
+
+                                    <ItemsControl ItemsSource="{Binding OrderDishes}" Margin="0,5,0,0">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" Margin="0,3">
-                                                    <TextBlock Text="{Binding Quantity}" Width="10" />
-                                                    <TextBlock Text="x" Margin="0,0,5,0" />
-                                                    <TextBlock Text="{Binding Dish.Name}" />
-                                                    <TextBlock Text=" - " />
-                                                    <TextBlock Text="{Binding Dish.Price, StringFormat='{}{0:0.00} Lei'}" />
-                                                </StackPanel>
+                                                <Grid Margin="0,5,0,5">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Border Grid.Column="0"
+                                                            Background="#F0F0F0"
+                                                            CornerRadius="4"
+                                                            Width="30"
+                                                            Height="30">
+                                                        <TextBlock Text="{Binding Quantity}"
+                                                                 VerticalAlignment="Center"
+                                                                 HorizontalAlignment="Center"
+                                                                 FontWeight="SemiBold"
+                                                                 Foreground="#424242" />
+                                                    </Border>
+
+                                                    <TextBlock Grid.Column="1"
+                                                             Text="{Binding Dish.Name}"
+                                                             VerticalAlignment="Center"
+                                                             Margin="10,0,0,0"
+                                                             TextTrimming="CharacterEllipsis" />
+
+                                                    <TextBlock Grid.Column="2"
+                                                             Text="{Binding Dish.Price, StringFormat='{}{0:0.00} Lei'}"
+                                                             VerticalAlignment="Center"
+                                                             FontWeight="SemiBold"
+                                                             Foreground="#424242" />
+                                                </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                 </StackPanel>
-
-                                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-                                            Orientation="Horizontal"
-                                            HorizontalAlignment="Right"
-                                            Margin="0,10,0,0">
-                                    <TextBlock Text="Total:" FontWeight="Bold" Margin="0,0,5,0" />
-                                    <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:0.00} Lei'}" FontWeight="Bold" />
-                                </StackPanel>
-                            </Grid>
+                            </DockPanel>
                         </Border>
                     </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </ScrollViewer>
 
         <!-- Buttons -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
-            <Button Content="Reîmprospătează"
-                    Command="{Binding RefreshCommand}"
-                    Padding="15,5"
-                    Margin="0,0,10,0"
-                    Background="#2ECC71"
-                    Foreground="White"
-                    BorderThickness="0">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="4" />
-                    </Style>
-                </Button.Resources>
-            </Button>
+        <Border Grid.Row="2" Background="White" Padding="20,15" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Reîmprospătează"
+                        Command="{Binding RefreshCommand}"
+                        Padding="20,10"
+                        Margin="0,0,10,0"
+                        Background="#4CAF50"
+                        Foreground="White"
+                        BorderThickness="0">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="4" />
+                        </Style>
+                    </Button.Resources>
+                </Button>
 
-            <Button Content="Înapoi"
-                    Command="{Binding BackCommand}"
-                    Padding="15,5"
-                    Background="#775B00"
-                    Foreground="White"
-                    BorderThickness="0">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="4" />
-                    </Style>
-                </Button.Resources>
-            </Button>
-        </StackPanel>
+                <Button Content="Înapoi"
+                        Command="{Binding BackCommand}"
+                        Padding="20,10"
+                        Background="#757575"
+                        Foreground="White"
+                        BorderThickness="0">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="4" />
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl> 

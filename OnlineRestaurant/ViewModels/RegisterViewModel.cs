@@ -12,7 +12,7 @@ namespace OnlineRestaurant.ViewModels
     {
         private readonly UserService _userService;
         private readonly UserViewModel _userViewModel;
-        
+
         private string _lastName = string.Empty;
         private string _firstName = string.Empty;
         private string _email = string.Empty;
@@ -103,7 +103,7 @@ namespace OnlineRestaurant.ViewModels
             set => SetProperty(ref _selectedRole, value);
         }
 
-        public ObservableCollection<string> AvailableRoles { get; } = new ObservableCollection<string> { "Client", "Employee" };
+        public ObservableCollection<string> AvailableRoles { get; } = new ObservableCollection<string> { "Client", "Angajat" };
 
         public string ErrorMessage
         {
@@ -124,18 +124,18 @@ namespace OnlineRestaurant.ViewModels
         {
             _userService = userService;
             _userViewModel = userViewModel;
-            
+
             RegisterCommand = new RelayCommand(Register, CanRegister);
             CancelCommand = new RelayCommand(NavigateBack);
         }
 
         private bool CanRegister()
         {
-            return !string.IsNullOrWhiteSpace(LastName) && 
-                   !string.IsNullOrWhiteSpace(FirstName) && 
-                   !string.IsNullOrWhiteSpace(Email) && 
-                   !string.IsNullOrWhiteSpace(Password) && 
-                   !string.IsNullOrWhiteSpace(ConfirmPassword) && 
+            return !string.IsNullOrWhiteSpace(LastName) &&
+                   !string.IsNullOrWhiteSpace(FirstName) &&
+                   !string.IsNullOrWhiteSpace(Email) &&
+                   !string.IsNullOrWhiteSpace(Password) &&
+                   !string.IsNullOrWhiteSpace(ConfirmPassword) &&
                    !IsLoading;
         }
 
@@ -160,15 +160,15 @@ namespace OnlineRestaurant.ViewModels
                 };
 
                 var createdUser = await _userService.Register(user, Password);
-                
+
                 if (createdUser != null)
                 {
                     // Înregistrare reușită și logare automată
                     _userViewModel.CurrentUser = createdUser;
-                    
+
                     // Declanșăm evenimentul de succes
                     RegisterSuccessful?.Invoke(this, EventArgs.Empty);
-                    
+
                     // Nu mai navigăm înapoi deoarece vom naviga la profil
                     // NavigateBack();
                 }
@@ -216,4 +216,4 @@ namespace OnlineRestaurant.ViewModels
             ErrorMessage = string.Empty;
         }
     }
-} 
+}
