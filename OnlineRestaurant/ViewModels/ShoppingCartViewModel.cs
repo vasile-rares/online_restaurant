@@ -66,9 +66,15 @@ namespace OnlineRestaurant.ViewModels
     {
         private ObservableCollection<CartItemViewModel> _items;
         private decimal _totalPrice;
+        private decimal _originalPrice;
+        private decimal _discountAmount;
+        private decimal _shippingCost;
+        private bool _isEligibleForValueDiscount;
+        private bool _isEligibleForLoyaltyDiscount;
         private int _itemCount;
         private readonly OrderService _orderService;
         private readonly UserViewModel _userViewModel;
+        private readonly AppSettingsService _appSettings;
         private string _message;
         private bool _isProcessing;
         private DispatcherTimer _messageTimer;
@@ -83,6 +89,36 @@ namespace OnlineRestaurant.ViewModels
         {
             get => _totalPrice;
             set => SetProperty(ref _totalPrice, value);
+        }
+
+        public decimal OriginalPrice
+        {
+            get => _originalPrice;
+            set => SetProperty(ref _originalPrice, value);
+        }
+
+        public decimal DiscountAmount
+        {
+            get => _discountAmount;
+            set => SetProperty(ref _discountAmount, value);
+        }
+
+        public decimal ShippingCost
+        {
+            get => _shippingCost;
+            set => SetProperty(ref _shippingCost, value);
+        }
+
+        public bool IsEligibleForValueDiscount
+        {
+            get => _isEligibleForValueDiscount;
+            set => SetProperty(ref _isEligibleForValueDiscount, value);
+        }
+
+        public bool IsEligibleForLoyaltyDiscount
+        {
+            get => _isEligibleForLoyaltyDiscount;
+            set => SetProperty(ref _isEligibleForLoyaltyDiscount, value);
         }
 
         public int ItemCount
@@ -108,10 +144,11 @@ namespace OnlineRestaurant.ViewModels
         public ICommand ClearCartCommand { get; }
         public ICommand CheckoutCommand { get; }
 
-        public ShoppingCartViewModel(OrderService orderService, UserViewModel userViewModel)
+        public ShoppingCartViewModel(OrderService orderService, UserViewModel userViewModel, AppSettingsService appSettings)
         {
             _orderService = orderService;
             _userViewModel = userViewModel;
+            _appSettings = appSettings;
             
             Items = new ObservableCollection<CartItemViewModel>();
             ClearCartCommand = new RelayCommand(ClearCart);
@@ -128,7 +165,8 @@ namespace OnlineRestaurant.ViewModels
                 _messageTimer.Stop();
             };
             
-            UpdateCartSummary();
+            // Initialize cart summary
+            _ = UpdateCartSummary();
         }
 
         public void AddToCart(ItemMenuViewModel item)
@@ -177,13 +215,13 @@ namespace OnlineRestaurant.ViewModels
                 Items.Add(cartItem);
             }
 
-            UpdateCartSummary();
+            _ = UpdateCartSummary();
         }
 
         private void IncreaseQuantity(CartItemViewModel item)
         {
             item.Quantity++;
-            UpdateCartSummary();
+            _ = UpdateCartSummary();
         }
 
         private void DecreaseQuantity(CartItemViewModel item)
@@ -191,7 +229,7 @@ namespace OnlineRestaurant.ViewModels
             if (item.Quantity > 1)
             {
                 item.Quantity--;
-                UpdateCartSummary();
+                _ = UpdateCartSummary();
             }
             else
             {
@@ -202,18 +240,75 @@ namespace OnlineRestaurant.ViewModels
         public void RemoveFromCart(CartItemViewModel item)
         {
             Items.Remove(item);
-            UpdateCartSummary();
+            _ = UpdateCartSummary();
         }
 
         public void ClearCart()
         {
             Items.Clear();
-            UpdateCartSummary();
+            _ = UpdateCartSummary();
         }
 
-        private void UpdateCartSummary()
+        private async Task UpdateCartSummary()
         {
-            TotalPrice = Items.Sum(i => i.TotalPrice);
+            OriginalPrice = Items.Sum(i => i.TotalPrice);
+            DiscountAmount = 0;
+            ShippingCost = 0;
+
+            if (_userViewModel.IsLoggedIn)
+            {
+                // Verificăm dacă utilizatorul este eligibil pentru discount pe baza comenzilor anterioare
+                try
+                {
+                    var userOrders = await _orderService.GetByUserAsync(_userViewModel.CurrentUser.IdUser);
+                    
+                    // Calculează numărul de comenzi din perioada specificată
+                    var timeInterval = _appSettings.GetTimeIntervalDays();
+                    var orderThreshold = _appSettings.GetOrderCountThreshold();
+                    
+                    var orderCount = userOrders
+                        .Count(o => o.OrderDate >= DateTime.Now.AddDays(-timeInterval) && 
+                               o.Status != OrderStatus.canceled);
+                    
+                    IsEligibleForLoyaltyDiscount = orderCount >= orderThreshold;
+                    
+                    // Verificăm dacă valoarea comenzii depășește pragul pentru discount
+                    var valueThreshold = _appSettings.GetValueThreshold();
+                    IsEligibleForValueDiscount = OriginalPrice >= valueThreshold;
+                    
+                    // Aplicăm discount doar dacă utilizatorul este eligibil pentru cel puțin unul din discounturi
+                    if (IsEligibleForValueDiscount || IsEligibleForLoyaltyDiscount)
+                    {
+                        var discountPercentage = _appSettings.GetDiscountPercentage();
+                        DiscountAmount = Math.Round(OriginalPrice * discountPercentage / 100, 2);
+                    }
+                    
+                    // Determinăm costul de livrare
+                    var freeShippingThreshold = _appSettings.GetFreeShippingThreshold();
+                    if (OriginalPrice < freeShippingThreshold)
+                    {
+                        ShippingCost = _appSettings.GetShippingCost();
+                    }
+                }
+                catch (Exception)
+                {
+                    // În caz de eroare, nu aplicăm niciun discount
+                    IsEligibleForValueDiscount = false;
+                    IsEligibleForLoyaltyDiscount = false;
+                }
+            }
+            else
+            {
+                // Determinăm doar costul de livrare pentru utilizatori neautentificați
+                var freeShippingThreshold = _appSettings.GetFreeShippingThreshold();
+                if (OriginalPrice < freeShippingThreshold)
+                {
+                    ShippingCost = _appSettings.GetShippingCost();
+                }
+            }
+            
+            // Calculăm prețul total inclusiv discount și livrare
+            TotalPrice = OriginalPrice - DiscountAmount + ShippingCost;
             ItemCount = Items.Sum(i => i.Quantity);
             
             // Notifică schimbarea proprietății HasItems
@@ -269,8 +364,7 @@ namespace OnlineRestaurant.ViewModels
                     }
                 }
                 
-                // Setăm suma totală a comenzii DUPĂ ce am adăugat toate produsele
-                // Această sumă va fi direct preluată din UI
+                // Setăm suma totală a comenzii cu discount și taxe aplicate
                 order.TotalAmount = TotalPrice;
                 
                 // Save the order to database

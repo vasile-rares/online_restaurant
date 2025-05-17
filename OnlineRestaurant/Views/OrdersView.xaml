@@ -20,7 +20,7 @@
         <converters:OrderStatusToStringConverter x:Key="OrderStatusToStringConverter" />
         <converters:OrderStatusToVisibilityConverter x:Key="OrderStatusToVisibilityConverter" />
         <converters:IdTruncateConverter x:Key="IdTruncateConverter" />
-        
+
         <Style x:Key="CancelOrderButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#E74C3C" />
             <Setter Property="Foreground" Value="White" />
@@ -51,9 +51,9 @@
                           FontWeight="SemiBold"
                           Foreground="#333333" />
 
-                <TextBlock Text="{Binding ErrorMessage}"
-                          Foreground="#E53935"
-                          Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
+                <TextBlock Text="{Binding StatusMessage}"
+                          Foreground="#27AE60"
+                          Visibility="{Binding StatusMessage, Converter={StaticResource StringToVisibilityConverter}}"
                           Margin="0,5,0,0"
                           FontSize="14" />
             </StackPanel>
@@ -182,13 +182,13 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
-                                    
+
                                     <!-- Buton de anulare comandă - vizibil doar pentru comenzile care pot fi anulate -->
                                     <Button Content="Anulează comanda"
                                             Command="{Binding ElementName=OrdersUserControl, Path=DataContext.CancelOrderCommand}"
                                             CommandParameter="{Binding}"
                                             Style="{StaticResource CancelOrderButtonStyle}"
-                                            Visibility="{Binding Status, Converter={StaticResource OrderStatusToVisibilityConverter}}"/>
+                                            Visibility="{Binding Status, Converter={StaticResource OrderStatusToVisibilityConverter}}" />
                                 </StackPanel>
                             </DockPanel>
                         </Border>

@@ -9,10 +9,15 @@ namespace OnlineRestaurant.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is string text && !string.IsNullOrWhiteSpace(text))
-            {
-                return Visibility.Visible;
-            }
+            if (value == null)
+                return Visibility.Collapsed;
+                
+            if (value is string stringValue)
+                return string.IsNullOrWhiteSpace(stringValue) ? Visibility.Collapsed : Visibility.Visible;
+                
+            if (value is decimal decimalValue)
+                return decimalValue > 0 ? Visibility.Visible : Visibility.Collapsed;
+                
             return Visibility.Collapsed;
         }
 

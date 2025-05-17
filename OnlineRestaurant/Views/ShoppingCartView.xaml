@@ -237,10 +237,67 @@
                 <TextBlock Text="Total comandă:" 
                            FontSize="16" 
                                Foreground="#757575"/>
-                    <TextBlock Text="{Binding TotalPrice, StringFormat='{}{0:F2} Lei'}" 
+                
+                <!-- Original Price -->
+                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                    <TextBlock Text="Preț inițial:" 
+                               FontSize="14" 
+                               Foreground="#757575"/>
+                    <TextBlock Text="{Binding OriginalPrice, StringFormat='{}{0:F2} Lei'}" 
+                               FontSize="14"
+                               Foreground="#757575"
+                               Margin="5,0,0,0"/>
+                </StackPanel>
+                
+                <!-- Discount Section -->
+                <StackPanel Visibility="{Binding DiscountAmount, Converter={StaticResource StringVisibilityConverter}}">
+                    <!-- Value-based Discount -->
+                    <TextBlock Text="Reducere comandă mare:" 
+                               FontSize="14" 
+                               Foreground="#757575"
+                               Visibility="{Binding IsEligibleForValueDiscount, Converter={StaticResource BooleanToVisibilityConverter}}"
+                               Margin="0,2,0,0"/>
+                    
+                    <!-- Loyalty Discount -->
+                    <TextBlock Text="Reducere client fidel:" 
+                               FontSize="14" 
+                               Foreground="#757575"
+                               Visibility="{Binding IsEligibleForLoyaltyDiscount, Converter={StaticResource BooleanToVisibilityConverter}}"
+                               Margin="0,2,0,0"/>
+                    
+                    <!-- Total Discount -->
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                        <TextBlock Text="Total reducere:" 
+                                   FontSize="14" 
+                                   Foreground="#E74C3C"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding DiscountAmount, StringFormat='-{0:F2} Lei'}" 
+                                   FontSize="14"
+                                   Foreground="#E74C3C"
+                                   FontWeight="SemiBold"
+                                   Margin="5,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+                
+                <!-- Shipping Cost -->
+                <StackPanel Orientation="Horizontal" 
+                            Margin="0,2,0,0" 
+                            Visibility="{Binding ShippingCost, Converter={StaticResource StringVisibilityConverter}}">
+                    <TextBlock Text="Cost livrare:" 
+                               FontSize="14" 
+                               Foreground="#757575"/>
+                    <TextBlock Text="{Binding ShippingCost, StringFormat='+{0:F2} Lei'}" 
+                               FontSize="14"
+                               Foreground="#757575"
+                               Margin="5,0,0,0"/>
+                </StackPanel>
+                
+                <!-- Final Price -->
+                <TextBlock Text="{Binding TotalPrice, StringFormat='{}{0:F2} Lei'}" 
                            FontSize="22" 
                            FontWeight="Bold" 
-                               Foreground="#4CAF50"/>
+                           Foreground="#4CAF50"
+                           Margin="0,5,0,0"/>
             </StackPanel>
             
             <Button Grid.Column="1" 

@@ -16,41 +16,41 @@ namespace OnlineRestaurant.ViewModels
         private readonly UserViewModel _userViewModel;
         private ObservableCollection<Order> _orders;
         private bool _isLoading;
-        private string _errorMessage;
+        private string _statusMessage;
         private DispatcherTimer _messageTimer;
-        
+
         public ObservableCollection<Order> Orders
         {
             get => _orders;
             set => SetProperty(ref _orders, value);
         }
-        
+
         public bool IsLoading
         {
             get => _isLoading;
             set => SetProperty(ref _isLoading, value);
         }
-        
-        public string ErrorMessage
+
+        public string StatusMessage
         {
-            get => _errorMessage;
-            set => SetProperty(ref _errorMessage, value);
+            get => _statusMessage;
+            set => SetProperty(ref _statusMessage, value);
         }
-        
+
         public ICommand RefreshCommand { get; }
         public ICommand BackCommand { get; }
         public ICommand CancelOrderCommand { get; }
-        
+
         public OrdersViewModel(OrderService orderService, UserViewModel userViewModel)
         {
             _orderService = orderService;
             _userViewModel = userViewModel;
             _orders = new ObservableCollection<Order>();
-            
+
             RefreshCommand = new RelayCommand(async () => await LoadOrdersAsync());
             BackCommand = new RelayCommand(NavigateBack);
             CancelOrderCommand = new RelayCommand<Order>(async (order) => await CancelOrderAsync(order), CanCancelOrder);
-            
+
             // Inițializăm timer-ul pentru mesaje
             _messageTimer = new DispatcherTimer
             {
@@ -58,43 +58,43 @@ namespace OnlineRestaurant.ViewModels
             };
             _messageTimer.Tick += (s, e) =>
             {
-                ErrorMessage = string.Empty;
+                StatusMessage = string.Empty;
                 _messageTimer.Stop();
             };
-            
+
             // Încărcăm comenzile utilizatorului curent - utilizăm Dispatcher.InvokeAsync
             // în loc de Task.Run pentru a evita eroarea de thread
             Application.Current.Dispatcher.InvokeAsync(async () => await LoadOrdersAsync());
         }
-        
+
         private bool CanCancelOrder(Order order)
         {
             // O comandă poate fi anulată doar dacă este în starea "registered" sau "preparing"
-            return order != null && 
-                   (order.Status == OrderStatus.registered || 
+            return order != null &&
+                   (order.Status == OrderStatus.registered ||
                     order.Status == OrderStatus.preparing);
         }
-        
+
         private async Task CancelOrderAsync(Order order)
         {
             if (order == null)
                 return;
-                
+
             try
             {
                 IsLoading = true;
-                ErrorMessage = string.Empty;
-                
+                StatusMessage = string.Empty;
+
                 // Setăm starea comenzii la "canceled"
                 order.Status = OrderStatus.canceled;
-                
+
                 // Actualizăm comanda în baza de date
                 await _orderService.UpdateAsync(order);
                 await _orderService.SaveChangesAsync();
-                
+
                 // Reîncărcăm lista de comenzi
                 await LoadOrdersAsync();
-                
+
                 // Afișăm un mesaj de succes temporar
                 ShowTimedMessage("Comanda a fost anulată cu succes.");
             }
@@ -110,32 +110,32 @@ namespace OnlineRestaurant.ViewModels
                 });
             }
         }
-        
+
         private void ShowTimedMessage(string message)
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                ErrorMessage = message;
+                StatusMessage = message;
                 _messageTimer.Stop();
                 _messageTimer.Start();
             });
         }
-        
+
         private async Task LoadOrdersAsync()
         {
             if (_userViewModel.CurrentUser == null)
             {
-                ErrorMessage = "Trebuie să fiți autentificat pentru a vedea comenzile.";
+                StatusMessage = "Trebuie să fiți autentificat pentru a vedea comenzile.";
                 return;
             }
-            
+
             try
             {
                 IsLoading = true;
-                ErrorMessage = string.Empty;
-                
+                StatusMessage = string.Empty;
+
                 var userOrders = await _orderService.GetByUserAsync(_userViewModel.CurrentUser.IdUser);
-                
+
                 // Ne asigurăm că actualizăm colecția pe thread-ul UI
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -144,10 +144,10 @@ namespace OnlineRestaurant.ViewModels
                     {
                         Orders.Add(order);
                     }
-                    
+
                     if (Orders.Count == 0)
                     {
-                        ErrorMessage = "Nu aveți comenzi înregistrate.";
+                        StatusMessage = "Nu aveți comenzi înregistrate.";
                     }
                 });
             }
@@ -163,10 +163,10 @@ namespace OnlineRestaurant.ViewModels
                 });
             }
         }
-        
+
         private void NavigateBack()
         {
             // Va fi implementat în MainViewModel
         }
     }
-} 
+}
