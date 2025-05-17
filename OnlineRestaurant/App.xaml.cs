@@ -125,6 +125,7 @@ public partial class App : Application
                 services.AddTransient<LoginViewModel>();
                 services.AddTransient<RegisterViewModel>();
                 services.AddTransient<UserProfileViewModel>();
+                services.AddTransient<OrdersViewModel>();
                 services.AddTransient<MainViewModel>();
 
                 // Vizualizări

@@ -41,6 +41,7 @@ namespace OnlineRestaurant.ViewModels
         public ICommand NavigateToLoginCommand { get; }
         public ICommand NavigateToProfileCommand { get; }
         public ICommand NavigateToCartCommand { get; }
+        public ICommand NavigateToOrdersCommand { get; }
 
         public MainViewModel(
             IServiceProvider serviceProvider,
@@ -67,6 +68,7 @@ namespace OnlineRestaurant.ViewModels
             NavigateToLoginCommand = new RelayCommand(NavigateToLogin);
             NavigateToProfileCommand = new RelayCommand(NavigateToProfile, CanNavigateToProfile);
             NavigateToCartCommand = new RelayCommand(NavigateToCart, CanNavigateToCart);
+            NavigateToOrdersCommand = new RelayCommand(NavigateToOrders, CanNavigateToProfile);
             
             // Subscribe to property changed event to update commands
             _userViewModel.PropertyChanged += (sender, args) => 
@@ -123,9 +125,9 @@ namespace OnlineRestaurant.ViewModels
         
         private bool CanNavigateToCart()
         {
-            // Pentru a naviga în coș, utilizatorul trebuie să fie autentificat
-            // și să aibă produse în coș
-            return UserViewModel.IsLoggedIn && ShoppingCart.ItemCount > 0;
+            // Pentru a naviga în coș, utilizatorul trebuie să fie doar autentificat
+            // Nu mai verificăm dacă coșul are produse
+            return UserViewModel.IsLoggedIn;
         }
         
         private void NavigateToLogin()
@@ -221,6 +223,42 @@ namespace OnlineRestaurant.ViewModels
         private bool CanNavigateToProfile()
         {
             return UserViewModel.IsLoggedIn;
+        }
+        
+        private void NavigateToOrders()
+        {
+            var ordersViewModel = _serviceProvider.GetRequiredService<OrdersViewModel>();
+            CurrentViewModel = ordersViewModel;
+            
+            // Set handler for back navigation
+            if (ordersViewModel is OrdersViewModel orders)
+            {
+                // Use reflection to access private NavigateBack method
+                var navigateMethod = orders.GetType().GetMethod("NavigateBack", 
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                
+                if (navigateMethod != null)
+                {
+                    var originalAction = navigateMethod.CreateDelegate(typeof(Action), orders) as Action;
+                    
+                    // Redefine action to include navigation to profile
+                    Action newAction = () =>
+                    {
+                        originalAction?.Invoke();
+                        NavigateToProfile();
+                    };
+                    
+                    // Set new delegate for BackCommand
+                    var command = orders.BackCommand as RelayCommand;
+                    var field = typeof(RelayCommand).GetField("_execute", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    
+                    if (field != null && command != null)
+                    {
+                        field.SetValue(command, newAction);
+                    }
+                }
+            }
         }
 
         // Implement IDisposable pattern correctly

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel;
+using System.Runtime.Serialization;
 
 namespace OnlineRestaurant.Models
 {
@@ -9,7 +11,8 @@ namespace OnlineRestaurant.Models
     {
         registered,
         preparing,
-        outForDelivery,
+        [EnumMember(Value = "out for delivery")]
+        out_for_delivery,
         delivered,
         canceled
     }
@@ -23,6 +26,7 @@ namespace OnlineRestaurant.Models
             Status = OrderStatus.registered;
             OrderDishes = new List<OrderDish>();
             OrderMenus = new List<OrderMenu>();
+            TotalAmount = 0;
         }
 
         [Key]
@@ -36,6 +40,10 @@ namespace OnlineRestaurant.Models
 
         [Required]
         public OrderStatus Status { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal TotalAmount { get; set; }
 
         [ForeignKey("IdUser")]
         public virtual User User { get; set; }
@@ -76,6 +84,11 @@ namespace OnlineRestaurant.Models
             }
             
             return total;
+        }
+
+        public void UpdateTotalAmount()
+        {
+            TotalAmount = CalculateTotal();
         }
     }
 } 

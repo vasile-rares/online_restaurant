@@ -14,6 +14,8 @@
     <Window.Resources>
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:OrderStatusToColorConverter x:Key="OrderStatusToColorConverter" />
+        <converters:OrderStatusToStringConverter x:Key="OrderStatusToStringConverter" />
         <DataTemplate DataType="{x:Type viewmodels:MenuRestaurantViewModel}">
             <views:MenuRestaurantView />
         </DataTemplate>
@@ -28,6 +30,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type viewmodels:ShoppingCartViewModel}">
             <views:ShoppingCartView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:OrdersViewModel}">
+            <views:OrdersView />
         </DataTemplate>
     </Window.Resources>
 
@@ -91,6 +96,22 @@
                             <TextBlock Text="🛒" FontSize="14" Margin="0,0,5,0" />
                             <TextBlock Text="{Binding ShoppingCart.ItemCount, StringFormat='Coș ({0})'}" />
                         </StackPanel>
+                    </Button>
+
+                    <!-- Orders button - visible only when user is logged in -->
+                    <Button Content="Comenzile mele"
+                            Command="{Binding NavigateToOrdersCommand}"
+                            Padding="10,5"
+                            Margin="0,0,10,0"
+                            Background="#3498DB"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Visibility="{Binding UserViewModel.IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="4" />
+                            </Style>
+                        </Button.Resources>
                     </Button>
 
                     <!-- Profile button - visible only when user is logged in -->

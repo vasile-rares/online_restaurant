@@ -256,6 +256,10 @@ namespace OnlineRestaurant.ViewModels
                     }
                 }
                 
+                // Setăm suma totală a comenzii DUPĂ ce am adăugat toate produsele
+                // Această sumă va fi direct preluată din UI
+                order.TotalAmount = TotalPrice;
+                
                 // Save the order to database
                 await _orderService.AddAsync(order);
                 await _orderService.SaveChangesAsync();

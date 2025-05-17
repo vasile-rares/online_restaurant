@@ -20,6 +20,8 @@ namespace OnlineRestaurant.Services
                 .Include(c => c.User)
                 .Include(c => c.OrderDishes)
                     .ThenInclude(cp => cp.Dish)
+                .Include(c => c.OrderMenus)
+                    .ThenInclude(om => om.Menu)
                 .ToListAsync();
         }
 
@@ -29,6 +31,8 @@ namespace OnlineRestaurant.Services
                 .Include(c => c.User)
                 .Include(c => c.OrderDishes)
                     .ThenInclude(cp => cp.Dish)
+                .Include(c => c.OrderMenus)
+                    .ThenInclude(om => om.Menu)
                 .FirstOrDefaultAsync(c => c.IdOrder == (Guid)id);
         }
 
@@ -37,6 +41,8 @@ namespace OnlineRestaurant.Services
             return await _dbSet
                 .Include(c => c.OrderDishes)
                     .ThenInclude(cp => cp.Dish)
+                .Include(c => c.OrderMenus)
+                    .ThenInclude(om => om.Menu)
                 .Where(c => c.IdUser == userId)
                 .OrderByDescending(c => c.OrderDate)
                 .ToListAsync();
@@ -48,6 +54,8 @@ namespace OnlineRestaurant.Services
                 .Include(c => c.User)
                 .Include(c => c.OrderDishes)
                     .ThenInclude(cp => cp.Dish)
+                .Include(c => c.OrderMenus)
+                    .ThenInclude(om => om.Menu)
                 .Where(c => c.Status != OrderStatus.delivered && c.Status != OrderStatus.canceled)
                 .OrderBy(c => c.OrderDate)
                 .ToListAsync();
