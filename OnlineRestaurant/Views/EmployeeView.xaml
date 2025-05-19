@@ -346,24 +346,27 @@
                                         <StackPanel>
                                             <TextBlock Text="Order Items" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,15" />
 
-                                            <!-- Dishes Section -->
-                                            <Border Background="#F9F9F9" CornerRadius="4" Margin="0,5,0,10"
-                                                    BorderThickness="1" BorderBrush="#E0E0E0" Padding="8"
-                                                    Visibility="{Binding SelectedOrder.OrderDishes.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=1}">
-                                                <TextBlock Text="No dishes in this order" Foreground="#757575" FontStyle="Italic" />
-                                            </Border>
+                                                                                         <!-- Dishes Section -->
+                                             <Border Background="#F9F9F9" CornerRadius="4" Margin="0,5,0,10" 
+                                                     BorderThickness="1" BorderBrush="#E0E0E0" Padding="8"
+                                                     Visibility="{Binding SelectedOrder.OrderDishes.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=1, FallbackValue=Collapsed}">
+                                                 <TextBlock Text="No dishes in this order" Foreground="#757575" FontStyle="Italic" />
+                                             </Border>
 
-                                            <ItemsControl ItemsSource="{Binding SelectedOrder.OrderDishes}">
-                                                <ItemsControl.Style>
-                                                    <Style TargetType="ItemsControl">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding SelectedOrder.OrderDishes.Count}" Value="0">
-                                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </ItemsControl.Style>
+                                                                                         <ItemsControl ItemsSource="{Binding SelectedOrder.OrderDishes}">
+                                                 <ItemsControl.Style>
+                                                     <Style TargetType="ItemsControl">
+                                                         <Setter Property="Visibility" Value="Collapsed" />
+                                                         <Style.Triggers>
+                                                             <DataTrigger Binding="{Binding SelectedOrder.OrderDishes.Count}" Value="0">
+                                                                 <Setter Property="Visibility" Value="Collapsed" />
+                                                             </DataTrigger>
+                                                             <DataTrigger Binding="{Binding SelectedOrder.OrderDishes.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=1}" Value="False">
+                                                                 <Setter Property="Visibility" Value="Visible" />
+                                                             </DataTrigger>
+                                                         </Style.Triggers>
+                                                     </Style>
+                                                 </ItemsControl.Style>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
                                                         <Border Background="#F9F9F9" CornerRadius="4" Margin="0,0,0,5"
@@ -383,27 +386,30 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
 
-                                            <!-- Menus Section -->
-                                            <TextBlock Text="Menus" FontWeight="SemiBold" Margin="0,15,0,5" Foreground="#333333"
-                                                      Visibility="{Binding SelectedOrder.OrderMenus.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=1, FallbackValue=Collapsed}" />
+                                                                                         <!-- Menus Section -->
+                                             <TextBlock Text="Menus" FontWeight="SemiBold" Margin="0,15,0,5" Foreground="#333333"
+                                                       Visibility="{Binding SelectedOrder.OrderMenus.Count, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" />
 
-                                            <Border Background="#F9F9F9" CornerRadius="4" Margin="0,5,0,10"
-                                                    BorderThickness="1" BorderBrush="#E0E0E0" Padding="8"
-                                                    Visibility="{Binding SelectedOrder.OrderMenus.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=1}">
-                                                <TextBlock Text="No menus in this order" Foreground="#757575" FontStyle="Italic" />
-                                            </Border>
+                                             <Border Background="#F9F9F9" CornerRadius="4" Margin="0,5,0,10" 
+                                                     BorderThickness="1" BorderBrush="#E0E0E0" Padding="8"
+                                                     Visibility="{Binding SelectedOrder.OrderMenus.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=1, FallbackValue=Collapsed}">
+                                                 <TextBlock Text="No menus in this order" Foreground="#757575" FontStyle="Italic" />
+                                             </Border>
 
-                                            <ItemsControl ItemsSource="{Binding SelectedOrder.OrderMenus}">
-                                                <ItemsControl.Style>
-                                                    <Style TargetType="ItemsControl">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding SelectedOrder.OrderMenus.Count}" Value="0">
-                                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </ItemsControl.Style>
+                                                                                         <ItemsControl ItemsSource="{Binding SelectedOrder.OrderMenus}">
+                                                 <ItemsControl.Style>
+                                                     <Style TargetType="ItemsControl">
+                                                         <Setter Property="Visibility" Value="Collapsed" />
+                                                         <Style.Triggers>
+                                                             <DataTrigger Binding="{Binding SelectedOrder.OrderMenus.Count}" Value="0">
+                                                                 <Setter Property="Visibility" Value="Collapsed" />
+                                                             </DataTrigger>
+                                                             <DataTrigger Binding="{Binding SelectedOrder.OrderMenus.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=1}" Value="False">
+                                                                 <Setter Property="Visibility" Value="Visible" />
+                                                             </DataTrigger>
+                                                         </Style.Triggers>
+                                                     </Style>
+                                                 </ItemsControl.Style>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
                                                         <Border Background="#F9F9F9" CornerRadius="4" Margin="0,0,0,5"
