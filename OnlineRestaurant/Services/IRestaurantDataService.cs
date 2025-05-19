@@ -12,5 +12,6 @@ namespace OnlineRestaurant.Services
         Task UpdateAsync(T entity);
         Task DeleteAsync(object id);
         Task SaveChangesAsync();
+        void DetachEntity(T entity);
     }
 } 

@@ -52,5 +52,10 @@ namespace OnlineRestaurant.Services
         {
             await _context.SaveChangesAsync();
         }
+        
+        public void DetachEntity(T entity)
+        {
+            _context.Entry(entity).State = EntityState.Detached;
+        }
     }
 } 

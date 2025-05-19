@@ -272,15 +272,9 @@ namespace OnlineRestaurant.ViewModels
         
         private bool CanNavigateToEmployeeDashboard()
         {
-            // Debug output
-            System.Diagnostics.Debug.WriteLine($"User logged in: {UserViewModel.IsLoggedIn}");
-            System.Diagnostics.Debug.WriteLine($"Current user role: {UserViewModel.CurrentUser?.Role ?? "null"}");
-            
             // Make role comparison case insensitive and check for "Angajat" (Romanian for Employee)
             string? role = UserViewModel.CurrentUser?.Role;
             bool isEmployee = role != null && role.Equals("Angajat", StringComparison.OrdinalIgnoreCase);
-            
-            System.Diagnostics.Debug.WriteLine($"Is employee check result: {isEmployee}");
             
             return UserViewModel.IsLoggedIn && isEmployee;
         }

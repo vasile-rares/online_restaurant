@@ -12,8 +12,8 @@ namespace OnlineRestaurant.ViewModels
 {
     public class EmployeeViewModel : BaseVM, IDisposable
     {
-        private readonly OrderService _orderService;
-        private readonly DishService _dishService;
+        private readonly IRestaurantDataService<Order> _orderService;
+        private readonly IRestaurantDataService<Dish> _dishService;
         private readonly IRestaurantDataService<Category> _categoryService;
         private readonly IRestaurantDataService<Menu> _menuService;
         private readonly IRestaurantDataService<Allergen> _allergenService;
@@ -40,8 +40,8 @@ namespace OnlineRestaurant.ViewModels
         
         // Constructor
         public EmployeeViewModel(
-            OrderService orderService,
-            DishService dishService,
+            IRestaurantDataService<Order> orderService,
+            IRestaurantDataService<Dish> dishService,
             IRestaurantDataService<Category> categoryService,
             IRestaurantDataService<Menu> menuService,
             IRestaurantDataService<Allergen> allergenService,
@@ -273,9 +273,12 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = true;
                 ErrorMessage = string.Empty;
                 
-                var orders = await _orderService.GetActiveOrdersAsync();
+                var allOrders = await _orderService.GetAllAsync();
+                var activeOrders = allOrders.Where(o => o.Status != OrderStatus.delivered && o.Status != OrderStatus.canceled)
+                                           .OrderBy(o => o.OrderDate);
+                
                 ActiveOrders.Clear();
-                foreach (var order in orders.OrderByDescending(o => o.OrderDate))
+                foreach (var order in activeOrders)
                 {
                     ActiveOrders.Add(order);
                 }
@@ -422,13 +425,33 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = true;
                 ErrorMessage = string.Empty;
                 
-                // Update the order status
-                SelectedOrder.Status = newStatus;
-                await _orderService.UpdateAsync(SelectedOrder);
-                
-                // Refresh the active orders list
-                await LoadActiveOrdersAsync();
-                await LoadAllOrdersAsync();
+                try
+                {
+                    // Direct database approach with minimal entity tracking
+                    using (var context = new Data.RestaurantDbContext(
+                        new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                            .UseSqlServer(_appSettingsService.ConnectionString)
+                            .Options))
+                    {
+                        var order = await context.Orders.FindAsync(SelectedOrder.IdOrder);
+                        if (order != null)
+                        {
+                            order.Status = newStatus;
+                            await context.SaveChangesAsync();
+                            
+                            // Update the UI model
+                            SelectedOrder.Status = newStatus;
+                        }
+                    }
+                    
+                    // Refresh lists after successful update
+                    await LoadActiveOrdersAsync();
+                    await LoadAllOrdersAsync();
+                }
+                catch (Exception dbEx)
+                {
+                    ErrorMessage = $"Database error: {dbEx.Message}";
+                }
             }
             catch (Exception ex)
             {
