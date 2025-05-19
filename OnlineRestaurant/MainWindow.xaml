@@ -34,6 +34,9 @@
         <DataTemplate DataType="{x:Type viewmodels:OrdersViewModel}">
             <views:OrdersView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type viewmodels:EmployeeViewModel}">
+            <views:EmployeeView />
+        </DataTemplate>
     </Window.Resources>
 
     <Grid>
@@ -118,6 +121,7 @@
                         </Button.Effect>
                     </Button>
 
+
                     <!-- Orders button - visible only when user is logged in -->
                     <Button Padding="10,5"
                             Margin="0,0,10,0"
@@ -181,7 +185,34 @@
                         <Button.Effect>
                             <DropShadowEffect ShadowDepth="2" Color="#000000" Opacity="0.3" BlurRadius="4" />
                         </Button.Effect>
+                                        </Button>
+                    
+                    <!-- Employee Dashboard button - visible only when employee is logged in -->
+                    <Button Padding="10,5"
+                            Margin="0,0,10,0"
+                            Background="#9B59B6"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Command="{Binding NavigateToEmployeeDashboardCommand}"
+                            Visibility="{Binding UserViewModel.CurrentUser.Role, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=Angajat}">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6" />
+                            </Style>
+                        </Button.Resources>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🧑‍💼" FontSize="14" Margin="0,-1,5,0" />
+                            <TextBlock Text="Administrare" FontWeight="SemiBold" />
+                        </StackPanel>
+                        <Button.Effect>
+                            <DropShadowEffect ShadowDepth="2" Color="#000000" Opacity="0.3" BlurRadius="4" />
+                        </Button.Effect>
                     </Button>
+                    
+                    <!-- Debug text to show current role -->
+                    <TextBlock Text="{Binding UserViewModel.CurrentUser.Role}" 
+                             Visibility="{Binding UserViewModel.IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}"
+                             Foreground="Yellow" Margin="10,0,0,0" VerticalAlignment="Center"/>
                 </StackPanel>
             </Grid>
         </Border>

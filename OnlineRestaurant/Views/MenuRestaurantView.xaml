@@ -194,7 +194,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Border Grid.Column="0"
-                                CornerRadius="4"
+                                CornerRadius="1"
                                 BorderThickness="1"
                                 BorderBrush="#E0E0E0">
                             <TextBox Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"

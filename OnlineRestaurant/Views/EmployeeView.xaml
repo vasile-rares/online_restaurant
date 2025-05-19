@@ -1,0 +1,425 @@
+<UserControl
+    x:Class="OnlineRestaurant.Views.EmployeeView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:OnlineRestaurant.Views"
+    xmlns:viewmodels="clr-namespace:OnlineRestaurant.ViewModels"
+    xmlns:models="clr-namespace:OnlineRestaurant.Models"
+    xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
+    mc:Ignorable="d" 
+    d:DesignHeight="800" d:DesignWidth="1200">
+
+    <UserControl.Resources>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#FF4B2E83" Padding="20,10">
+            <TextBlock Text="Restaurant Management Dashboard - Employee" 
+                       FontSize="24" Foreground="White" 
+                       HorizontalAlignment="Center"/>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1">
+            <TabControl Margin="10" Background="White">
+                <!-- All Orders Tab -->
+                <TabItem Header="All Orders">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                            <Button Content="Refresh Orders" Command="{Binding LoadAllOrdersCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                        </StackPanel>
+
+                        <ListView Grid.Row="1" ItemsSource="{Binding AllOrders}" 
+                                  SelectedItem="{Binding SelectedOrder, Mode=TwoWay}"
+                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Order Date" Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Order ID" Width="200" 
+                                                   DisplayMemberBinding="{Binding IdOrder}"/>
+                                    <GridViewColumn Header="Customer" Width="200">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding User.FullName}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Phone" Width="120" 
+                                                    DisplayMemberBinding="{Binding User.Phone}"/>
+                                    <GridViewColumn Header="Total Amount" Width="100">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:C}'}" 
+                                                           HorizontalAlignment="Right" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Status" Width="120" 
+                                                    DisplayMemberBinding="{Binding Status}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Grid>
+                </TabItem>
+
+                <!-- Active Orders Tab -->
+                <TabItem Header="Active Orders">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                            <Button Content="Refresh Active Orders" Command="{Binding LoadActiveOrdersCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                        </StackPanel>
+
+                        <ListView Grid.Row="1" ItemsSource="{Binding ActiveOrders}" 
+                                  SelectedItem="{Binding SelectedOrder, Mode=TwoWay}"
+                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Order Date" Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Order ID" Width="200" 
+                                                   DisplayMemberBinding="{Binding IdOrder}"/>
+                                    <GridViewColumn Header="Customer" Width="200">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding User.FullName}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Delivery Address" Width="250" 
+                                                    DisplayMemberBinding="{Binding User.DeliveryAddress}"/>
+                                    <GridViewColumn Header="Total Amount" Width="100">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:C}'}" 
+                                                           HorizontalAlignment="Right" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Status" Width="120" 
+                                                    DisplayMemberBinding="{Binding Status}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+
+                        <!-- Order Details and Status Update -->
+                        <Grid Grid.Row="2" Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <GroupBox Grid.Column="0" Header="Order Details" Padding="10">
+                                <StackPanel>
+                                    <TextBlock Text="No order selected" Visibility="{Binding SelectedOrder, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=true}"/>
+                                    <Grid Visibility="{Binding SelectedOrder, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Order ID:" FontWeight="Bold" Margin="0,0,10,5"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedOrder.IdOrder}" Margin="0,0,0,5"/>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Date:" FontWeight="Bold" Margin="0,0,10,5"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedOrder.OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Margin="0,0,0,5"/>
+
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Customer:" FontWeight="Bold" Margin="0,0,10,5"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedOrder.User.FullName}" Margin="0,0,0,5"/>
+                                        
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Phone:" FontWeight="Bold" Margin="0,0,10,5"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedOrder.User.Phone}" Margin="0,0,0,5"/>
+                                        
+                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Delivery Address:" FontWeight="Bold" Margin="0,0,10,5"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedOrder.User.DeliveryAddress}" Margin="0,0,0,5"/>
+
+                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Total Amount:" FontWeight="Bold" Margin="0,0,10,5"/>
+                                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedOrder.TotalAmount, StringFormat='{}{0:C}'}" Margin="0,0,0,5"/>
+                                    </Grid>
+                                </StackPanel>
+                            </GroupBox>
+
+                            <GroupBox Grid.Column="1" Header="Change Status" Padding="10" Width="250" Margin="10,0,0,0">
+                                <StackPanel>
+                                    <Button Content="Mark as Preparing" Margin="0,5" Padding="5"
+                                            Command="{Binding UpdateOrderStatusCommand}" 
+                                            CommandParameter="{x:Static models:OrderStatus.preparing}"/>
+                                    <Button Content="Mark as Out for Delivery" Margin="0,5" Padding="5"
+                                            Command="{Binding UpdateOrderStatusCommand}" 
+                                            CommandParameter="{x:Static models:OrderStatus.out_for_delivery}"/>
+                                    <Button Content="Mark as Delivered" Margin="0,5" Padding="5"
+                                            Command="{Binding UpdateOrderStatusCommand}" 
+                                            CommandParameter="{x:Static models:OrderStatus.delivered}"/>
+                                    <Button Content="Mark as Canceled" Margin="0,5" Padding="5"
+                                            Command="{Binding UpdateOrderStatusCommand}" 
+                                            CommandParameter="{x:Static models:OrderStatus.canceled}"/>
+                                </StackPanel>
+                            </GroupBox>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <!-- Low Stock Dishes Tab -->
+                <TabItem Header="Low Stock Items">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                            <Button Content="Refresh Low Stock Items" Command="{Binding LoadLowStockDishesCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                        </StackPanel>
+
+                        <ListView Grid.Row="1" ItemsSource="{Binding LowStockDishes}" 
+                                  SelectedItem="{Binding SelectedDish, Mode=TwoWay}"
+                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Name" Width="250" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="Category" Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Category.Name}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Total Quantity (g)" Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding TotalQuantity}" HorizontalAlignment="Right"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Portion Size (g)" Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding PortionSize}" HorizontalAlignment="Right"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Available Portions" Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding AvailablePortions}" HorizontalAlignment="Right"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Grid>
+                </TabItem>
+
+                <!-- Categories Tab -->
+                <TabItem Header="Categories">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                            <Button Content="Add Category" Command="{Binding AddCategoryCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Edit Category" Command="{Binding EditCategoryCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Delete Category" Command="{Binding DeleteCategoryCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Refresh" Command="{Binding LoadCategoriesCommand}" 
+                                    Padding="10,5"/>
+                        </StackPanel>
+
+                        <ListView Grid.Row="1" ItemsSource="{Binding Categories}" 
+                                  SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdCategory}"/>
+                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="Description" Width="400" DisplayMemberBinding="{Binding Description}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Grid>
+                </TabItem>
+
+                <!-- Dishes Tab -->
+                <TabItem Header="Dishes">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                            <Button Content="Add Dish" Command="{Binding AddDishCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Edit Dish" Command="{Binding EditDishCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Delete Dish" Command="{Binding DeleteDishCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Refresh" Command="{Binding LoadDishesCommand}" 
+                                    Padding="10,5"/>
+                        </StackPanel>
+
+                        <ListView Grid.Row="1" ItemsSource="{Binding Dishes}" 
+                                  SelectedItem="{Binding SelectedDish, Mode=TwoWay}"
+                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdDish}"/>
+                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="Category" Width="150">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Category.Name}" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Price" Width="100">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Price, StringFormat='{}{0:C}'}" 
+                                                           HorizontalAlignment="Right" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Portion Size (g)" Width="120">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding PortionSize}" HorizontalAlignment="Right"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                    <GridViewColumn Header="Total Quantity (g)" Width="120">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding TotalQuantity}" HorizontalAlignment="Right"/>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Grid>
+                </TabItem>
+
+                <!-- Menus Tab -->
+                <TabItem Header="Menus">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                            <Button Content="Add Menu" Command="{Binding AddMenuCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Edit Menu" Command="{Binding EditMenuCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Delete Menu" Command="{Binding DeleteMenuCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Refresh" Command="{Binding LoadMenusCommand}" 
+                                    Padding="10,5"/>
+                        </StackPanel>
+
+                        <ListView Grid.Row="1" ItemsSource="{Binding Menus}" 
+                                  SelectedItem="{Binding SelectedMenu, Mode=TwoWay}"
+                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdMenu}"/>
+                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="Description" Width="300" DisplayMemberBinding="{Binding Description}"/>
+                                    <GridViewColumn Header="Total Price" Width="100">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding TotalPrice, StringFormat='{}{0:C}'}" 
+                                                           HorizontalAlignment="Right" />
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Grid>
+                </TabItem>
+
+                <!-- Allergens Tab -->
+                <TabItem Header="Allergens">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                            <Button Content="Add Allergen" Command="{Binding AddAllergenCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Edit Allergen" Command="{Binding EditAllergenCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Delete Allergen" Command="{Binding DeleteAllergenCommand}" 
+                                    Padding="10,5" Margin="0,0,10,0"/>
+                            <Button Content="Refresh" Command="{Binding LoadAllergensCommand}" 
+                                    Padding="10,5"/>
+                        </StackPanel>
+
+                        <ListView Grid.Row="1" ItemsSource="{Binding Allergens}" 
+                                  SelectedItem="{Binding SelectedAllergen, Mode=TwoWay}"
+                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdAllergen}"/>
+                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="Description" Width="400" DisplayMemberBinding="{Binding Description}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </Grid>
+</UserControl> 

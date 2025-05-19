@@ -44,5 +44,13 @@ namespace OnlineRestaurant.Services
         {
             return Convert.ToDecimal(_configuration["OrderDiscounts:ShippingCost"]);
         }
+
+        public int GetLowStockThreshold()
+        {
+            // Try to get the value from config; default to 15 if not found
+            if (int.TryParse(_configuration["OrderDiscounts:LowStockThreshold"], out int threshold))
+                return threshold;
+            return 15;
+        }
     }
 } 
