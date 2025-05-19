@@ -558,12 +558,12 @@ namespace OnlineRestaurant.ViewModels
                                 
                                 // Save changes
                                 await context.SaveChangesAsync();
-                                
-                                // Update the UI model
-                                SelectedCategory.Name = dialog.Category.Name;
-                                
+                            
+                            // Update the UI model
+                            SelectedCategory.Name = dialog.Category.Name;
+                            
                                 // Refresh the categories list
-                                await LoadCategoriesAsync();
+                            await LoadCategoriesAsync();
                             }
                         }
                     }
@@ -616,8 +616,8 @@ namespace OnlineRestaurant.ViewModels
                                 await context.SaveChangesAsync();
                                 
                                 // Remove from UI collection
-                                Categories.Remove(SelectedCategory);
-                                SelectedCategory = null;
+                Categories.Remove(SelectedCategory);
+                SelectedCategory = null;
                             }
                             else
                             {
@@ -686,7 +686,7 @@ namespace OnlineRestaurant.ViewModels
             try
             {
                 if (SelectedDish == null) return;
-                
+
                 // Store the original values for comparison
                 string originalName = SelectedDish.Name;
                 int originalCategoryId = SelectedDish.IdCategory;
@@ -758,10 +758,10 @@ namespace OnlineRestaurant.ViewModels
                                 if (wasLowStock && !isLowStock)
                                 {
                                     // Remove from low stock collection
-                                    var dishToRemove = LowStockDishes.FirstOrDefault(d => d.IdDish == SelectedDish.IdDish);
-                                    if (dishToRemove != null)
+                var dishToRemove = LowStockDishes.FirstOrDefault(d => d.IdDish == SelectedDish.IdDish);
+                if (dishToRemove != null)
                                     {
-                                        LowStockDishes.Remove(dishToRemove);
+                    LowStockDishes.Remove(dishToRemove);
                                     }
                                 }
                                 else if (!wasLowStock && isLowStock)
@@ -832,8 +832,8 @@ namespace OnlineRestaurant.ViewModels
                                 {
                                     LowStockDishes.Remove(dishInLowStock);
                                 }
-                                
-                                SelectedDish = null;
+
+                SelectedDish = null;
                             }
                             else
                             {
@@ -867,21 +867,45 @@ namespace OnlineRestaurant.ViewModels
                 // Get categories for the menu dialog
                 var categories = new List<Category>(Categories);
                 
+                // Get dishes for the menu dialog
+                var dishes = new List<Dish>(Dishes);
+                
                 // Create and show the dialog for adding a new menu
-                var dialog = new Views.MenuDialog(mainWindow, categories);
+                var dialog = new Views.MenuDialog(mainWindow, categories, dishes, _appSettingsService);
                 bool? result = dialog.ShowDialog();
                 
                 if (result == true)
                 {
-                    // Add the new menu to the database
-                    await _menuService.AddAsync(dialog.Menu);
-                    await _menuService.SaveChangesAsync();
-                    
-                    // Add the new menu to the collection
-                    Menus.Add(dialog.Menu);
-                    
-                    // Select the newly added menu
-                    SelectedMenu = dialog.Menu;
+                    // Use direct database approach to handle both menu and menu-dish relationships
+                    using (var context = new Data.RestaurantDbContext(
+                        new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                            .UseSqlServer(_appSettingsService.ConnectionString)
+                            .Options))
+                    {
+                        // Add the new menu
+                        context.Menus.Add(dialog.Menu);
+                        await context.SaveChangesAsync(); // Save to get the generated menu ID
+                        
+                        // Add the menu-dish relationships
+                        foreach (var menuDish in dialog.SelectedDishes)
+                        {
+                            context.MenuDishes.Add(new MenuDish
+                            {
+                                IdMenu = dialog.Menu.IdMenu,
+                                IdDish = menuDish.Dish.IdDish,
+                                Quantity = menuDish.Quantity
+                            });
+                        }
+                        
+                        // Save the relationships
+                        await context.SaveChangesAsync();
+                        
+                        // Add the new menu to the collection
+                        Menus.Add(dialog.Menu);
+                        
+                        // Select the newly added menu
+                        SelectedMenu = dialog.Menu;
+                    }
                 }
             }
             catch (Exception ex)
@@ -906,8 +930,32 @@ namespace OnlineRestaurant.ViewModels
                 // Get categories for the menu dialog
                 var categories = new List<Category>(Categories);
                 
+                // Get dishes for the menu dialog
+                var dishes = new List<Dish>(Dishes);
+                
+                // Get menu-dish relationships for this menu
+                List<MenuDish> menuDishes = new List<MenuDish>();
+                try
+                {
+                    using (var context = new Data.RestaurantDbContext(
+                        new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                            .UseSqlServer(_appSettingsService.ConnectionString)
+                            .Options))
+                    {
+                        menuDishes = await context.MenuDishes
+                            .AsNoTracking()
+                            .Where(md => md.IdMenu == SelectedMenu.IdMenu)
+                            .ToListAsync();
+                    }
+                }
+                catch (Exception dbEx)
+                {
+                    ErrorMessage = $"Error loading menu details: {dbEx.Message}";
+                    return;
+                }
+                
                 // Create and show the dialog for editing the menu
-                var dialog = new Views.MenuDialog(mainWindow, SelectedMenu, categories);
+                var dialog = new Views.MenuDialog(mainWindow, SelectedMenu, categories, dishes, menuDishes, _appSettingsService);
                 bool? result = dialog.ShowDialog();
                 
                 if (result == true)
@@ -939,6 +987,27 @@ namespace OnlineRestaurant.ViewModels
                                 context.Menus.Attach(updatedMenu);
                                 context.Entry(updatedMenu).Property(m => m.Name).IsModified = true;
                                 context.Entry(updatedMenu).Property(m => m.IdCategory).IsModified = true;
+                                
+                                // Handle menu dishes - first remove existing relationships
+                                var existingMenuDishes = await context.MenuDishes
+                                    .Where(md => md.IdMenu == SelectedMenu.IdMenu)
+                                    .ToListAsync();
+                                    
+                                if (existingMenuDishes.Any())
+                                {
+                                    context.MenuDishes.RemoveRange(existingMenuDishes);
+                                }
+                                
+                                // Add selected dishes
+                                foreach (var menuDish in dialog.SelectedDishes)
+                                {
+                                    context.MenuDishes.Add(new MenuDish
+                                    {
+                                        IdMenu = SelectedMenu.IdMenu,
+                                        IdDish = menuDish.Dish.IdDish,
+                                        Quantity = menuDish.Quantity
+                                    });
+                                }
                                 
                                 // Save changes
                                 await context.SaveChangesAsync();
@@ -1001,8 +1070,8 @@ namespace OnlineRestaurant.ViewModels
                                 await context.SaveChangesAsync();
                                 
                                 // Remove from UI collection
-                                Menus.Remove(SelectedMenu);
-                                SelectedMenu = null;
+                Menus.Remove(SelectedMenu);
+                SelectedMenu = null;
                             }
                             else
                             {
@@ -1168,8 +1237,8 @@ namespace OnlineRestaurant.ViewModels
                                 await context.SaveChangesAsync();
                                 
                                 // Remove from UI collection
-                                Allergens.Remove(SelectedAllergen);
-                                SelectedAllergen = null;
+                Allergens.Remove(SelectedAllergen);
+                SelectedAllergen = null;
                             }
                             else
                             {
