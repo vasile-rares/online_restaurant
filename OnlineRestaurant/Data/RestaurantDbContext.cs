@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineRestaurant.Models;
+using System;
 
 namespace OnlineRestaurant.Data
 {
@@ -113,10 +114,13 @@ namespace OnlineRestaurant.Data
                 .HasForeignKey(c => c.IdUser)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Convertirea enum-ului StareComanda la string
+            // Convertirea enum-ului OrderStatus la string cu valorile corecte
             modelBuilder.Entity<Order>()
                 .Property(c => c.Status)
-                .HasConversion<string>();
+                .HasConversion(
+                    v => v.ToString().Replace('_', ' '),  // Replace underscores with spaces when saving to DB
+                    v => (OrderStatus)Enum.Parse(typeof(OrderStatus), v.Replace(' ', '_'))  // Replace spaces with underscores when reading from DB
+                );
 
             // Configurarea preciziei pentru valorile monetare
             modelBuilder.Entity<Dish>()

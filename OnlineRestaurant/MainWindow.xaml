@@ -192,8 +192,7 @@
                             Background="#9B59B6"
                             Foreground="White"
                             BorderThickness="0"
-                            Command="{Binding NavigateToEmployeeDashboardCommand}"
-                            Visibility="{Binding UserViewModel.CurrentUser.Role, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=Angajat}">
+                            Command="{Binding NavigateToEmployeeDashboardCommand}">
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="6" />

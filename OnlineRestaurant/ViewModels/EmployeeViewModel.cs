@@ -19,7 +19,7 @@ namespace OnlineRestaurant.ViewModels
         private readonly IRestaurantDataService<Allergen> _allergenService;
         private readonly AppSettingsService _appSettingsService;
         private readonly UserViewModel _userViewModel;
-        
+
         private ObservableCollection<Order> _allOrders;
         private ObservableCollection<Order> _activeOrders;
         private ObservableCollection<Dish> _lowStockDishes;
@@ -27,17 +27,17 @@ namespace OnlineRestaurant.ViewModels
         private ObservableCollection<Menu> _menus;
         private ObservableCollection<Allergen> _allergens;
         private ObservableCollection<Dish> _dishes;
-        
+
         private Order _selectedOrder;
         private Category _selectedCategory;
         private Dish _selectedDish;
         private Menu _selectedMenu;
         private Allergen _selectedAllergen;
-        
+
         private bool _isLoading;
         private string _errorMessage;
         private bool _isDisposed;
-        
+
         // Constructor
         public EmployeeViewModel(
             IRestaurantDataService<Order> orderService,
@@ -55,7 +55,7 @@ namespace OnlineRestaurant.ViewModels
             _allergenService = allergenService;
             _appSettingsService = appSettingsService;
             _userViewModel = userViewModel;
-            
+
             // Initialize collections
             _allOrders = new ObservableCollection<Order>();
             _activeOrders = new ObservableCollection<Order>();
@@ -64,7 +64,7 @@ namespace OnlineRestaurant.ViewModels
             _menus = new ObservableCollection<Menu>();
             _allergens = new ObservableCollection<Allergen>();
             _dishes = new ObservableCollection<Dish>();
-            
+
             // Initialize commands
             LoadAllOrdersCommand = new RelayCommand(async () => await LoadAllOrdersAsync());
             LoadActiveOrdersCommand = new RelayCommand(async () => await LoadActiveOrdersAsync());
@@ -73,25 +73,25 @@ namespace OnlineRestaurant.ViewModels
             LoadMenusCommand = new RelayCommand(async () => await LoadMenusAsync());
             LoadAllergensCommand = new RelayCommand(async () => await LoadAllergensAsync());
             LoadDishesCommand = new RelayCommand(async () => await LoadDishesAsync());
-            
+
             UpdateOrderStatusCommand = new RelayCommand<OrderStatus>(async status => await UpdateOrderStatusAsync(status), _ => SelectedOrder != null && CanUpdateOrderStatus());
-            
+
             AddCategoryCommand = new RelayCommand(AddCategory);
             EditCategoryCommand = new RelayCommand(EditCategory, () => SelectedCategory != null);
             DeleteCategoryCommand = new RelayCommand(async () => await DeleteCategoryAsync(), () => SelectedCategory != null);
-            
+
             AddDishCommand = new RelayCommand(AddDish);
             EditDishCommand = new RelayCommand(EditDish, () => SelectedDish != null);
             DeleteDishCommand = new RelayCommand(async () => await DeleteDishAsync(), () => SelectedDish != null);
-            
+
             AddMenuCommand = new RelayCommand(AddMenu);
             EditMenuCommand = new RelayCommand(EditMenu, () => SelectedMenu != null);
             DeleteMenuCommand = new RelayCommand(async () => await DeleteMenuAsync(), () => SelectedMenu != null);
-            
+
             AddAllergenCommand = new RelayCommand(AddAllergen);
             EditAllergenCommand = new RelayCommand(EditAllergen, () => SelectedAllergen != null);
             DeleteAllergenCommand = new RelayCommand(async () => await DeleteAllergenAsync(), () => SelectedAllergen != null);
-            
+
             // Load data initially
             Task.Run(async () =>
             {
@@ -104,50 +104,50 @@ namespace OnlineRestaurant.ViewModels
                 await LoadDishesAsync();
             });
         }
-        
+
         // Properties
         public ObservableCollection<Order> AllOrders
         {
             get => _allOrders;
             set => SetProperty(ref _allOrders, value);
         }
-        
+
         public ObservableCollection<Order> ActiveOrders
         {
             get => _activeOrders;
             set => SetProperty(ref _activeOrders, value);
         }
-        
+
         public ObservableCollection<Dish> LowStockDishes
         {
             get => _lowStockDishes;
             set => SetProperty(ref _lowStockDishes, value);
         }
-        
+
         public ObservableCollection<Category> Categories
         {
             get => _categories;
             set => SetProperty(ref _categories, value);
         }
-        
+
         public ObservableCollection<Menu> Menus
         {
             get => _menus;
             set => SetProperty(ref _menus, value);
         }
-        
+
         public ObservableCollection<Allergen> Allergens
         {
             get => _allergens;
             set => SetProperty(ref _allergens, value);
         }
-        
+
         public ObservableCollection<Dish> Dishes
         {
             get => _dishes;
             set => SetProperty(ref _dishes, value);
         }
-        
+
         public Order SelectedOrder
         {
             get => _selectedOrder;
@@ -157,7 +157,7 @@ namespace OnlineRestaurant.ViewModels
                 ((RelayCommand<OrderStatus>)UpdateOrderStatusCommand).RaiseCanExecuteChanged();
             }
         }
-        
+
         public Category SelectedCategory
         {
             get => _selectedCategory;
@@ -168,7 +168,7 @@ namespace OnlineRestaurant.ViewModels
                 ((RelayCommand)DeleteCategoryCommand).RaiseCanExecuteChanged();
             }
         }
-        
+
         public Dish SelectedDish
         {
             get => _selectedDish;
@@ -179,7 +179,7 @@ namespace OnlineRestaurant.ViewModels
                 ((RelayCommand)DeleteDishCommand).RaiseCanExecuteChanged();
             }
         }
-        
+
         public Menu SelectedMenu
         {
             get => _selectedMenu;
@@ -190,7 +190,7 @@ namespace OnlineRestaurant.ViewModels
                 ((RelayCommand)DeleteMenuCommand).RaiseCanExecuteChanged();
             }
         }
-        
+
         public Allergen SelectedAllergen
         {
             get => _selectedAllergen;
@@ -201,46 +201,47 @@ namespace OnlineRestaurant.ViewModels
                 ((RelayCommand)DeleteAllergenCommand).RaiseCanExecuteChanged();
             }
         }
-        
+
         public bool IsLoading
         {
             get => _isLoading;
             set => SetProperty(ref _isLoading, value);
         }
-        
+
         public string ErrorMessage
         {
             get => _errorMessage;
             set => SetProperty(ref _errorMessage, value);
         }
-        
+
         // Commands
         public ICommand LoadAllOrdersCommand { get; }
+
         public ICommand LoadActiveOrdersCommand { get; }
         public ICommand LoadLowStockDishesCommand { get; }
         public ICommand LoadCategoriesCommand { get; }
         public ICommand LoadMenusCommand { get; }
         public ICommand LoadAllergensCommand { get; }
         public ICommand LoadDishesCommand { get; }
-        
+
         public ICommand UpdateOrderStatusCommand { get; }
-        
+
         public ICommand AddCategoryCommand { get; }
         public ICommand EditCategoryCommand { get; }
         public ICommand DeleteCategoryCommand { get; }
-        
+
         public ICommand AddDishCommand { get; }
         public ICommand EditDishCommand { get; }
         public ICommand DeleteDishCommand { get; }
-        
+
         public ICommand AddMenuCommand { get; }
         public ICommand EditMenuCommand { get; }
         public ICommand DeleteMenuCommand { get; }
-        
+
         public ICommand AddAllergenCommand { get; }
         public ICommand EditAllergenCommand { get; }
         public ICommand DeleteAllergenCommand { get; }
-        
+
         // Implementation methods
         private async Task LoadAllOrdersAsync()
         {
@@ -248,7 +249,7 @@ namespace OnlineRestaurant.ViewModels
             {
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
+
                 var orders = await _orderService.GetAllAsync();
                 AllOrders.Clear();
                 foreach (var order in orders.OrderByDescending(o => o.OrderDate))
@@ -265,18 +266,18 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
+
         private async Task LoadActiveOrdersAsync()
         {
             try
             {
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
+
                 var allOrders = await _orderService.GetAllAsync();
                 var activeOrders = allOrders.Where(o => o.Status != OrderStatus.delivered && o.Status != OrderStatus.canceled)
                                            .OrderBy(o => o.OrderDate);
-                
+
                 ActiveOrders.Clear();
                 foreach (var order in activeOrders)
                 {
@@ -292,17 +293,17 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
+
         private async Task LoadLowStockDishesAsync()
         {
             try
             {
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
+
                 // Retrieve the threshold value from appsettings.json
                 int lowStockThreshold = _appSettingsService.GetLowStockThreshold();
-                
+
                 var dishes = await _dishService.GetAllAsync();
                 LowStockDishes.Clear();
                 foreach (var dish in dishes.Where(d => d.TotalQuantity <= lowStockThreshold))
@@ -319,14 +320,14 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
+
         private async Task LoadCategoriesAsync()
         {
             try
             {
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
+
                 var categories = await _categoryService.GetAllAsync();
                 Categories.Clear();
                 foreach (var category in categories)
@@ -343,14 +344,14 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
+
         private async Task LoadMenusAsync()
         {
             try
             {
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
+
                 var menus = await _menuService.GetAllAsync();
                 Menus.Clear();
                 foreach (var menu in menus)
@@ -367,14 +368,14 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
+
         private async Task LoadAllergensAsync()
         {
             try
             {
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
+
                 var allergens = await _allergenService.GetAllAsync();
                 Allergens.Clear();
                 foreach (var allergen in allergens)
@@ -391,14 +392,14 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
+
         private async Task LoadDishesAsync()
         {
             try
             {
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
+
                 var dishes = await _dishService.GetAllAsync();
                 Dishes.Clear();
                 foreach (var dish in dishes)
@@ -415,16 +416,16 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
+
         private async Task UpdateOrderStatusAsync(OrderStatus newStatus)
         {
             try
             {
                 if (SelectedOrder == null) return;
-                
+
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
+
                 try
                 {
                     // Direct database approach with minimal entity tracking
@@ -438,12 +439,12 @@ namespace OnlineRestaurant.ViewModels
                         {
                             order.Status = newStatus;
                             await context.SaveChangesAsync();
-                            
+
                             // Update the UI model
                             SelectedOrder.Status = newStatus;
                         }
                     }
-                    
+
                     // Refresh lists after successful update
                     await LoadActiveOrdersAsync();
                     await LoadAllOrdersAsync();
@@ -462,31 +463,173 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
+
         private bool CanUpdateOrderStatus()
         {
             if (SelectedOrder == null) return false;
-            
+
             // Can only update orders that are not delivered or canceled
             return SelectedOrder.Status != OrderStatus.delivered && SelectedOrder.Status != OrderStatus.canceled;
         }
-        
-        // CRUD operations for Categories, Dishes, Menus, and Allergens 
+
+        // CRUD operations for Categories, Dishes, Menus, and Allergens
         // These methods would create/update dialogs or navigate to dedicated forms
-        private void AddCategory() { /* Implementation would show dialog/form for adding a category */ }
-        private void EditCategory() { /* Implementation would show dialog/form for editing the selected category */ }
+        private async void AddCategory()
+        {
+            try
+            {
+                // Get the MainWindow as the owner for the dialog
+                var mainWindow = System.Windows.Application.Current.MainWindow;
+
+                // Create and show the dialog for adding a new category
+                var dialog = new Views.CategoryDialog(mainWindow);
+                bool? result = dialog.ShowDialog();
+
+                if (result == true)
+                {
+                    // Add the new category to the database
+                    await _categoryService.AddAsync(dialog.Category);
+                    await _categoryService.SaveChangesAsync();
+
+                    // Add the new category to the collection
+                    Categories.Add(dialog.Category);
+
+                    // Select the newly added category
+                    SelectedCategory = dialog.Category;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error adding category: {ex.Message}";
+            }
+        }
+
+        private async void EditCategory()
+        {
+            try
+            {
+                if (SelectedCategory == null) return;
+
+                // Store the original name and ID
+                string originalName = SelectedCategory.Name;
+                int categoryId = SelectedCategory.IdCategory;
+
+                // Get the MainWindow as the owner for the dialog
+                var mainWindow = System.Windows.Application.Current.MainWindow;
+
+                // Create a detached copy of the selected category to edit
+                var categoryToEdit = new Category
+                {
+                    IdCategory = categoryId,
+                    Name = originalName
+                };
+
+                // Create and show the dialog for editing the category
+                var dialog = new Views.CategoryDialog(mainWindow, categoryToEdit);
+                bool? result = dialog.ShowDialog();
+
+                if (result == true && dialog.Category.Name != originalName)
+                {
+                    try
+                    {
+                        // Use direct SQL connection to avoid entity tracking issues
+                        using (var context = new Data.RestaurantDbContext(
+                            new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                                .UseSqlServer(_appSettingsService.ConnectionString)
+                                .Options))
+                        {
+                            // Find the category by ID without tracking
+                            var category = await context.Categories
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(c => c.IdCategory == categoryId);
+
+                            if (category != null)
+                            {
+                                // Create a new instance to update
+                                var updatedCategory = new Category
+                                {
+                                    IdCategory = categoryId,
+                                    Name = dialog.Category.Name
+                                };
+
+                                // Attach with modified state
+                                context.Categories.Attach(updatedCategory);
+                                context.Entry(updatedCategory).Property(c => c.Name).IsModified = true;
+                                
+                                // Save changes
+                                await context.SaveChangesAsync();
+                                
+                                // Update the UI model
+                                SelectedCategory.Name = dialog.Category.Name;
+                                
+                                // Refresh the categories list
+                                await LoadCategoriesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorMessage = $"Error updating category in database: {ex.Message}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error editing category: {ex.Message}";
+            }
+        }
+
         private async Task DeleteCategoryAsync()
         {
             try
             {
                 if (SelectedCategory == null) return;
-                
+
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
-                await _categoryService.DeleteAsync(SelectedCategory.IdCategory);
-                Categories.Remove(SelectedCategory);
-                SelectedCategory = null;
+
+                // Ask for confirmation
+                var result = System.Windows.MessageBox.Show(
+                    $"Are you sure you want to delete the category '{SelectedCategory.Name}'?",
+                    "Confirm Delete",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question);
+
+                if (result == System.Windows.MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        int categoryId = SelectedCategory.IdCategory;
+
+                        // Use direct database approach to ensure deletion
+                        using (var context = new Data.RestaurantDbContext(
+                            new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                                .UseSqlServer(_appSettingsService.ConnectionString)
+                                .Options))
+                        {
+                            // Find the category by ID
+                            var category = await context.Categories.FindAsync(categoryId);
+                            if (category != null)
+                            {
+                                // Remove from context and save changes
+                                context.Categories.Remove(category);
+                                await context.SaveChangesAsync();
+                                
+                                // Remove from UI collection
+                                Categories.Remove(SelectedCategory);
+                                SelectedCategory = null;
+                            }
+                            else
+                            {
+                                ErrorMessage = "Category not found in database.";
+                            }
+                        }
+                    }
+                    catch (Exception dbEx)
+                    {
+                        ErrorMessage = $"Database error: {dbEx.Message}";
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -497,24 +640,28 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
-        private void AddDish() { /* Implementation would show dialog/form for adding a dish */ }
-        private void EditDish() { /* Implementation would show dialog/form for editing the selected dish */ }
+
+        private void AddDish()
+        { /* Implementation would show dialog/form for adding a dish */ }
+
+        private void EditDish()
+        { /* Implementation would show dialog/form for editing the selected dish */ }
+
         private async Task DeleteDishAsync()
         {
             try
             {
                 if (SelectedDish == null) return;
-                
+
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
+
                 await _dishService.DeleteAsync(SelectedDish.IdDish);
                 // Remove from any collections that contain this dish
                 var dishToRemove = LowStockDishes.FirstOrDefault(d => d.IdDish == SelectedDish.IdDish);
                 if (dishToRemove != null)
                     LowStockDishes.Remove(dishToRemove);
-                
+
                 SelectedDish = null;
             }
             catch (Exception ex)
@@ -526,18 +673,22 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
-        private void AddMenu() { /* Implementation would show dialog/form for adding a menu */ }
-        private void EditMenu() { /* Implementation would show dialog/form for editing the selected menu */ }
+
+        private void AddMenu()
+        { /* Implementation would show dialog/form for adding a menu */ }
+
+        private void EditMenu()
+        { /* Implementation would show dialog/form for editing the selected menu */ }
+
         private async Task DeleteMenuAsync()
         {
             try
             {
                 if (SelectedMenu == null) return;
-                
+
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
+
                 await _menuService.DeleteAsync(SelectedMenu.IdMenu);
                 Menus.Remove(SelectedMenu);
                 SelectedMenu = null;
@@ -551,18 +702,22 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
-        private void AddAllergen() { /* Implementation would show dialog/form for adding an allergen */ }
-        private void EditAllergen() { /* Implementation would show dialog/form for editing the selected allergen */ }
+
+        private void AddAllergen()
+        { /* Implementation would show dialog/form for adding an allergen */ }
+
+        private void EditAllergen()
+        { /* Implementation would show dialog/form for editing the selected allergen */ }
+
         private async Task DeleteAllergenAsync()
         {
             try
             {
                 if (SelectedAllergen == null) return;
-                
+
                 IsLoading = true;
                 ErrorMessage = string.Empty;
-                
+
                 await _allergenService.DeleteAsync(SelectedAllergen.IdAllergen);
                 Allergens.Remove(SelectedAllergen);
                 SelectedAllergen = null;
@@ -576,23 +731,23 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = false;
             }
         }
-        
+
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        
+
         protected virtual void Dispose(bool disposing)
         {
             if (_isDisposed) return;
-            
+
             if (disposing)
             {
                 // Cleanup
             }
-            
+
             _isDisposed = true;
         }
     }
-} 
+}
