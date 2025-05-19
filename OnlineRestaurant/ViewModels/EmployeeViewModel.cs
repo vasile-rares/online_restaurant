@@ -641,11 +641,151 @@ namespace OnlineRestaurant.ViewModels
             }
         }
 
-        private void AddDish()
-        { /* Implementation would show dialog/form for adding a dish */ }
+        private async void AddDish()
+        {
+            try
+            {
+                // Get the MainWindow as the owner for the dialog
+                var mainWindow = System.Windows.Application.Current.MainWindow;
+                
+                // Get categories for the dish dialog
+                var categories = new List<Category>(Categories);
+                
+                // Create and show the dialog for adding a new dish
+                var dialog = new Views.DishDialog(mainWindow, categories);
+                bool? result = dialog.ShowDialog();
+                
+                if (result == true)
+                {
+                    // Add the new dish to the database
+                    await _dishService.AddAsync(dialog.Dish);
+                    await _dishService.SaveChangesAsync();
+                    
+                    // Add the new dish to the collection
+                    Dishes.Add(dialog.Dish);
+                    
+                    // Also check if it should be added to low stock dishes
+                    int lowStockThreshold = _appSettingsService.GetLowStockThreshold();
+                    if (dialog.Dish.TotalQuantity <= lowStockThreshold)
+                    {
+                        LowStockDishes.Add(dialog.Dish);
+                    }
+                    
+                    // Select the newly added dish
+                    SelectedDish = dialog.Dish;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error adding dish: {ex.Message}";
+            }
+        }
 
-        private void EditDish()
-        { /* Implementation would show dialog/form for editing the selected dish */ }
+        private async void EditDish()
+        {
+            try
+            {
+                if (SelectedDish == null) return;
+                
+                // Store the original values for comparison
+                string originalName = SelectedDish.Name;
+                int originalCategoryId = SelectedDish.IdCategory;
+                decimal originalPrice = SelectedDish.Price;
+                int originalPortionSize = SelectedDish.PortionSize;
+                int originalTotalQuantity = SelectedDish.TotalQuantity;
+                
+                // Get the MainWindow as the owner for the dialog
+                var mainWindow = System.Windows.Application.Current.MainWindow;
+                
+                // Get categories for the dish dialog
+                var categories = new List<Category>(Categories);
+                
+                // Create and show the dialog for editing the dish
+                var dialog = new Views.DishDialog(mainWindow, SelectedDish, categories);
+                bool? result = dialog.ShowDialog();
+                
+                if (result == true)
+                {
+                    try
+                    {
+                        // Use direct database approach to avoid entity tracking issues
+                        using (var context = new Data.RestaurantDbContext(
+                            new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                                .UseSqlServer(_appSettingsService.ConnectionString)
+                                .Options))
+                        {
+                            // Find the dish by ID without tracking
+                            var dishFromDb = await context.Dishes
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(d => d.IdDish == SelectedDish.IdDish);
+                                
+                            if (dishFromDb != null)
+                            {
+                                // Create a new instance to update
+                                var updatedDish = new Dish
+                                {
+                                    IdDish = SelectedDish.IdDish,
+                                    Name = dialog.Dish.Name,
+                                    IdCategory = dialog.Dish.IdCategory,
+                                    Price = dialog.Dish.Price,
+                                    PortionSize = dialog.Dish.PortionSize,
+                                    TotalQuantity = dialog.Dish.TotalQuantity
+                                };
+                                
+                                // Attach with modified state
+                                context.Dishes.Attach(updatedDish);
+                                context.Entry(updatedDish).Property(d => d.Name).IsModified = true;
+                                context.Entry(updatedDish).Property(d => d.IdCategory).IsModified = true;
+                                context.Entry(updatedDish).Property(d => d.Price).IsModified = true;
+                                context.Entry(updatedDish).Property(d => d.PortionSize).IsModified = true;
+                                context.Entry(updatedDish).Property(d => d.TotalQuantity).IsModified = true;
+                                
+                                // Save changes
+                                await context.SaveChangesAsync();
+                                
+                                // Update the UI model
+                                SelectedDish.Name = dialog.Dish.Name;
+                                SelectedDish.IdCategory = dialog.Dish.IdCategory;
+                                SelectedDish.Price = dialog.Dish.Price;
+                                SelectedDish.PortionSize = dialog.Dish.PortionSize;
+                                SelectedDish.TotalQuantity = dialog.Dish.TotalQuantity;
+                                
+                                // Check if LowStockDishes collection needs to be updated
+                                int lowStockThreshold = _appSettingsService.GetLowStockThreshold();
+                                bool wasLowStock = originalTotalQuantity <= lowStockThreshold;
+                                bool isLowStock = SelectedDish.TotalQuantity <= lowStockThreshold;
+                                
+                                if (wasLowStock && !isLowStock)
+                                {
+                                    // Remove from low stock collection
+                                    var dishToRemove = LowStockDishes.FirstOrDefault(d => d.IdDish == SelectedDish.IdDish);
+                                    if (dishToRemove != null)
+                                    {
+                                        LowStockDishes.Remove(dishToRemove);
+                                    }
+                                }
+                                else if (!wasLowStock && isLowStock)
+                                {
+                                    // Add to low stock collection
+                                    LowStockDishes.Add(SelectedDish);
+                                }
+                                
+                                // Refresh the dishes list
+                                await LoadDishesAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorMessage = $"Error updating dish in database: {ex.Message}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error editing dish: {ex.Message}";
+            }
+        }
 
         private async Task DeleteDishAsync()
         {
@@ -656,13 +796,56 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 
-                await _dishService.DeleteAsync(SelectedDish.IdDish);
-                // Remove from any collections that contain this dish
-                var dishToRemove = LowStockDishes.FirstOrDefault(d => d.IdDish == SelectedDish.IdDish);
-                if (dishToRemove != null)
-                    LowStockDishes.Remove(dishToRemove);
+                // Ask for confirmation
+                var result = System.Windows.MessageBox.Show(
+                    $"Are you sure you want to delete the dish '{SelectedDish.Name}'?",
+                    "Confirm Delete",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question);
 
-                SelectedDish = null;
+                if (result == System.Windows.MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        int dishId = SelectedDish.IdDish;
+
+                        // Use direct database approach to ensure deletion
+                        using (var context = new Data.RestaurantDbContext(
+                            new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                                .UseSqlServer(_appSettingsService.ConnectionString)
+                                .Options))
+                        {
+                            // Find the dish by ID
+                            var dish = await context.Dishes.FindAsync(dishId);
+                            if (dish != null)
+                            {
+                                // Remove from context and save changes
+                                context.Dishes.Remove(dish);
+                                await context.SaveChangesAsync();
+                                
+                                // Remove from UI collections
+                                Dishes.Remove(SelectedDish);
+                                
+                                // Remove from low stock dishes if present
+                                var dishInLowStock = LowStockDishes.FirstOrDefault(d => d.IdDish == dishId);
+                                if (dishInLowStock != null)
+                                {
+                                    LowStockDishes.Remove(dishInLowStock);
+                                }
+                                
+                                SelectedDish = null;
+                            }
+                            else
+                            {
+                                ErrorMessage = "Dish not found in database.";
+                            }
+                        }
+                    }
+                    catch (Exception dbEx)
+                    {
+                        ErrorMessage = $"Database error: {dbEx.Message}";
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -674,11 +857,112 @@ namespace OnlineRestaurant.ViewModels
             }
         }
 
-        private void AddMenu()
-        { /* Implementation would show dialog/form for adding a menu */ }
+        private async void AddMenu()
+        {
+            try
+            {
+                // Get the MainWindow as the owner for the dialog
+                var mainWindow = System.Windows.Application.Current.MainWindow;
+                
+                // Get categories for the menu dialog
+                var categories = new List<Category>(Categories);
+                
+                // Create and show the dialog for adding a new menu
+                var dialog = new Views.MenuDialog(mainWindow, categories);
+                bool? result = dialog.ShowDialog();
+                
+                if (result == true)
+                {
+                    // Add the new menu to the database
+                    await _menuService.AddAsync(dialog.Menu);
+                    await _menuService.SaveChangesAsync();
+                    
+                    // Add the new menu to the collection
+                    Menus.Add(dialog.Menu);
+                    
+                    // Select the newly added menu
+                    SelectedMenu = dialog.Menu;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error adding menu: {ex.Message}";
+            }
+        }
 
-        private void EditMenu()
-        { /* Implementation would show dialog/form for editing the selected menu */ }
+        private async void EditMenu()
+        {
+            try
+            {
+                if (SelectedMenu == null) return;
+                
+                // Store the original values for comparison
+                string originalName = SelectedMenu.Name;
+                int originalCategoryId = SelectedMenu.IdCategory;
+                
+                // Get the MainWindow as the owner for the dialog
+                var mainWindow = System.Windows.Application.Current.MainWindow;
+                
+                // Get categories for the menu dialog
+                var categories = new List<Category>(Categories);
+                
+                // Create and show the dialog for editing the menu
+                var dialog = new Views.MenuDialog(mainWindow, SelectedMenu, categories);
+                bool? result = dialog.ShowDialog();
+                
+                if (result == true)
+                {
+                    try
+                    {
+                        // Use direct database approach to avoid entity tracking issues
+                        using (var context = new Data.RestaurantDbContext(
+                            new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                                .UseSqlServer(_appSettingsService.ConnectionString)
+                                .Options))
+                        {
+                            // Find the menu by ID without tracking
+                            var menuFromDb = await context.Menus
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(m => m.IdMenu == SelectedMenu.IdMenu);
+                                
+                            if (menuFromDb != null)
+                            {
+                                // Create a new instance to update
+                                var updatedMenu = new Menu
+                                {
+                                    IdMenu = SelectedMenu.IdMenu,
+                                    Name = dialog.Menu.Name,
+                                    IdCategory = dialog.Menu.IdCategory
+                                };
+                                
+                                // Attach with modified state
+                                context.Menus.Attach(updatedMenu);
+                                context.Entry(updatedMenu).Property(m => m.Name).IsModified = true;
+                                context.Entry(updatedMenu).Property(m => m.IdCategory).IsModified = true;
+                                
+                                // Save changes
+                                await context.SaveChangesAsync();
+                                
+                                // Update the UI model
+                                SelectedMenu.Name = dialog.Menu.Name;
+                                SelectedMenu.IdCategory = dialog.Menu.IdCategory;
+                                
+                                // Refresh the menus list
+                                await LoadMenusAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorMessage = $"Error updating menu in database: {ex.Message}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error editing menu: {ex.Message}";
+            }
+        }
 
         private async Task DeleteMenuAsync()
         {
@@ -689,9 +973,48 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 
-                await _menuService.DeleteAsync(SelectedMenu.IdMenu);
-                Menus.Remove(SelectedMenu);
-                SelectedMenu = null;
+                // Ask for confirmation
+                var result = System.Windows.MessageBox.Show(
+                    $"Are you sure you want to delete the menu '{SelectedMenu.Name}'?",
+                    "Confirm Delete",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question);
+
+                if (result == System.Windows.MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        int menuId = SelectedMenu.IdMenu;
+
+                        // Use direct database approach to ensure deletion
+                        using (var context = new Data.RestaurantDbContext(
+                            new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                                .UseSqlServer(_appSettingsService.ConnectionString)
+                                .Options))
+                        {
+                            // Find the menu by ID
+                            var menu = await context.Menus.FindAsync(menuId);
+                            if (menu != null)
+                            {
+                                // Remove from context and save changes
+                                context.Menus.Remove(menu);
+                                await context.SaveChangesAsync();
+                                
+                                // Remove from UI collection
+                                Menus.Remove(SelectedMenu);
+                                SelectedMenu = null;
+                            }
+                            else
+                            {
+                                ErrorMessage = "Menu not found in database.";
+                            }
+                        }
+                    }
+                    catch (Exception dbEx)
+                    {
+                        ErrorMessage = $"Database error: {dbEx.Message}";
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -703,11 +1026,110 @@ namespace OnlineRestaurant.ViewModels
             }
         }
 
-        private void AddAllergen()
-        { /* Implementation would show dialog/form for adding an allergen */ }
+        private async void AddAllergen()
+        {
+            try
+            {
+                // Get the MainWindow as the owner for the dialog
+                var mainWindow = System.Windows.Application.Current.MainWindow;
+                
+                // Create and show the dialog for adding a new allergen
+                var dialog = new Views.AllergenDialog(mainWindow);
+                bool? result = dialog.ShowDialog();
+                
+                if (result == true)
+                {
+                    // Add the new allergen to the database
+                    await _allergenService.AddAsync(dialog.Allergen);
+                    await _allergenService.SaveChangesAsync();
+                    
+                    // Add the new allergen to the collection
+                    Allergens.Add(dialog.Allergen);
+                    
+                    // Select the newly added allergen
+                    SelectedAllergen = dialog.Allergen;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error adding allergen: {ex.Message}";
+            }
+        }
 
-        private void EditAllergen()
-        { /* Implementation would show dialog/form for editing the selected allergen */ }
+        private async void EditAllergen()
+        {
+            try
+            {
+                if (SelectedAllergen == null) return;
+                
+                // Store the original name and ID
+                string originalName = SelectedAllergen.Name;
+                int allergenId = SelectedAllergen.IdAllergen;
+                
+                // Get the MainWindow as the owner for the dialog
+                var mainWindow = System.Windows.Application.Current.MainWindow;
+                
+                // Create a detached copy of the selected allergen to edit
+                var allergenToEdit = new Allergen
+                {
+                    IdAllergen = allergenId,
+                    Name = originalName
+                };
+                
+                // Create and show the dialog for editing the allergen
+                var dialog = new Views.AllergenDialog(mainWindow, allergenToEdit);
+                bool? result = dialog.ShowDialog();
+                
+                if (result == true && dialog.Allergen.Name != originalName)
+                {
+                    try
+                    {
+                        // Use direct database approach to avoid entity tracking issues
+                        using (var context = new Data.RestaurantDbContext(
+                            new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                                .UseSqlServer(_appSettingsService.ConnectionString)
+                                .Options))
+                        {
+                            // Find the allergen by ID without tracking
+                            var allergen = await context.Allergens
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(a => a.IdAllergen == allergenId);
+                                
+                            if (allergen != null)
+                            {
+                                // Create a new instance to update
+                                var updatedAllergen = new Allergen
+                                {
+                                    IdAllergen = allergenId,
+                                    Name = dialog.Allergen.Name
+                                };
+                                
+                                // Attach with modified state
+                                context.Allergens.Attach(updatedAllergen);
+                                context.Entry(updatedAllergen).Property(a => a.Name).IsModified = true;
+                                
+                                // Save changes
+                                await context.SaveChangesAsync();
+                                
+                                // Update the UI model
+                                SelectedAllergen.Name = dialog.Allergen.Name;
+                                
+                                // Refresh the allergens list
+                                await LoadAllergensAsync();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorMessage = $"Error updating allergen in database: {ex.Message}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Error editing allergen: {ex.Message}";
+            }
+        }
 
         private async Task DeleteAllergenAsync()
         {
@@ -718,9 +1140,48 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 
-                await _allergenService.DeleteAsync(SelectedAllergen.IdAllergen);
-                Allergens.Remove(SelectedAllergen);
-                SelectedAllergen = null;
+                // Ask for confirmation
+                var result = System.Windows.MessageBox.Show(
+                    $"Are you sure you want to delete the allergen '{SelectedAllergen.Name}'?",
+                    "Confirm Delete",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question);
+
+                if (result == System.Windows.MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        int allergenId = SelectedAllergen.IdAllergen;
+
+                        // Use direct database approach to ensure deletion
+                        using (var context = new Data.RestaurantDbContext(
+                            new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                                .UseSqlServer(_appSettingsService.ConnectionString)
+                                .Options))
+                        {
+                            // Find the allergen by ID
+                            var allergen = await context.Allergens.FindAsync(allergenId);
+                            if (allergen != null)
+                            {
+                                // Remove from context and save changes
+                                context.Allergens.Remove(allergen);
+                                await context.SaveChangesAsync();
+                                
+                                // Remove from UI collection
+                                Allergens.Remove(SelectedAllergen);
+                                SelectedAllergen = null;
+                            }
+                            else
+                            {
+                                ErrorMessage = "Allergen not found in database.";
+                            }
+                        }
+                    }
+                    catch (Exception dbEx)
+                    {
+                        ErrorMessage = $"Database error: {dbEx.Message}";
+                    }
+                }
             }
             catch (Exception ex)
             {
