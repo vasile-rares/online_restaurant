@@ -8,7 +8,7 @@
         xmlns:viewmodels="clr-namespace:OnlineRestaurant.ViewModels"
         xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
         mc:Ignorable="d"
-        Title="Online Restaurant - Menu" Height="700" Width="1000"
+        Title="Online Restaurant - Menu" Height="750" Width="1000"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
@@ -121,7 +121,6 @@
                         </Button.Effect>
                     </Button>
 
-
                     <!-- Orders button - visible only when user is logged in -->
                     <Button Padding="10,5"
                             Margin="0,0,10,0"
@@ -185,8 +184,8 @@
                         <Button.Effect>
                             <DropShadowEffect ShadowDepth="2" Color="#000000" Opacity="0.3" BlurRadius="4" />
                         </Button.Effect>
-                                        </Button>
-                    
+                    </Button>
+
                     <!-- Employee Dashboard button - visible only when employee is logged in -->
                     <Button Padding="10,5"
                             Margin="0,0,10,0"
@@ -208,11 +207,11 @@
                             <DropShadowEffect ShadowDepth="2" Color="#000000" Opacity="0.3" BlurRadius="4" />
                         </Button.Effect>
                     </Button>
-                    
+
                     <!-- Debug text to show current role -->
-                    <TextBlock Text="{Binding UserViewModel.CurrentUser.Role}" 
+                    <TextBlock Text="{Binding UserViewModel.CurrentUser.Role}"
                              Visibility="{Binding UserViewModel.IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}"
-                             Foreground="Yellow" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                             Foreground="Yellow" Margin="10,0,0,0" VerticalAlignment="Center" />
                 </StackPanel>
             </Grid>
         </Border>

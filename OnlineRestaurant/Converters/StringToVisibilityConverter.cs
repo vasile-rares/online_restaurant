@@ -11,21 +11,34 @@ namespace OnlineRestaurant.Converters
         {
             if (value == null)
             {
-                System.Diagnostics.Debug.WriteLine($"StringToVisibilityConverter: value is null, parameter: {parameter}");
                 return Visibility.Collapsed;
             }
             
+            // Special handling for numeric values (like decimal)
+            if (value is decimal decimalValue)
+            {
+                return decimalValue > 0 ? Visibility.Visible : Visibility.Collapsed;
+            }
+            
             string stringValue = value.ToString();
-            string stringParameter = parameter?.ToString() ?? string.Empty;
             
-            System.Diagnostics.Debug.WriteLine($"StringToVisibilityConverter: comparing '{stringValue}' with '{stringParameter}'");
+            // Empty strings are collapsed
+            if (string.IsNullOrEmpty(stringValue))
+            {
+                return Visibility.Collapsed;
+            }
             
-            // Use case-insensitive comparison
-            bool isMatch = string.Equals(stringValue, stringParameter, StringComparison.OrdinalIgnoreCase);
+            // If a parameter is provided, compare with it
+            if (parameter != null)
+            {
+                string stringParameter = parameter.ToString();
+                // Use case-insensitive comparison
+                bool isMatch = string.Equals(stringValue, stringParameter, StringComparison.OrdinalIgnoreCase);
+                return isMatch ? Visibility.Visible : Visibility.Collapsed;
+            }
             
-            System.Diagnostics.Debug.WriteLine($"StringToVisibilityConverter: match result: {isMatch}");
-            
-            return isMatch ? Visibility.Visible : Visibility.Collapsed;
+            // Non-empty strings with no parameter are visible
+            return Visibility.Visible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

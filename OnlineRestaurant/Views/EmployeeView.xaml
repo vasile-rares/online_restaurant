@@ -2,51 +2,133 @@
     x:Class="OnlineRestaurant.Views.EmployeeView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:OnlineRestaurant.Views"
     xmlns:viewmodels="clr-namespace:OnlineRestaurant.ViewModels"
     xmlns:models="clr-namespace:OnlineRestaurant.Models"
     xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
-    mc:Ignorable="d" 
-    d:DesignHeight="800" d:DesignWidth="1200">
+    mc:Ignorable="d"
+    d:DesignHeight="800" d:DesignWidth="1200"
+    Background="#F5F5F5"
+    RenderOptions.EdgeMode="Aliased">
 
     <UserControl.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:StringToVisibilityConverter x:Key="StringVisibilityConverter" />
+        <converters:LessThanConverter x:Key="LessThanConverter" />
+
+        <!-- Common styles -->
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#333333" />
+        </Style>
+
+        <Style x:Key="SubHeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="#333333" />
+        </Style>
+
+        <Style x:Key="StandardButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="15,8" />
+            <Setter Property="Margin" Value="0,0,10,0" />
+            <Setter Property="Background" Value="#4CAF50" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#43A047" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5" />
+                    <Setter Property="Background" Value="#9E9E9E" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource StandardButtonStyle}">
+            <Setter Property="Background" Value="#E74C3C" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#C0392B" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="NeutralButtonStyle" TargetType="Button" BasedOn="{StaticResource StandardButtonStyle}">
+            <Setter Property="Background" Value="#757575" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#616161" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ListViewStyle" TargetType="ListView">
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#E0E0E0" />
+            <Setter Property="Background" Value="White" />
+        </Style>
+
+        <Style x:Key="CardBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#E0E0E0" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="15" />
+            <Setter Property="Margin" Value="0,0,0,15" />
+        </Style>
     </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <Border Grid.Row="0" Background="#FF4B2E83" Padding="20,10">
-            <TextBlock Text="Restaurant Management Dashboard - Employee" 
-                       FontSize="24" Foreground="White" 
-                       HorizontalAlignment="Center"/>
+        <Border Grid.Row="0" Background="White" Padding="25,15" BorderThickness="0,0,0,1" BorderBrush="#E0E0E0">
+            <TextBlock Text="Restaurant Management Dashboard"
+                       Style="{StaticResource HeaderTextStyle}"
+                       HorizontalAlignment="Left" />
         </Border>
 
         <!-- Main Content -->
-        <Grid Grid.Row="1">
-            <TabControl Margin="10" Background="White">
+        <Grid Grid.Row="1" Margin="15">
+            <TabControl Background="Transparent" BorderThickness="0">
                 <!-- All Orders Tab -->
                 <TabItem Header="All Orders">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                            <Button Content="Refresh Orders" Command="{Binding LoadAllOrdersCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                        </StackPanel>
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="Manage All Orders" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,10" />
+                                <Button Content="Refresh Orders" Command="{Binding LoadAllOrdersCommand}"
+                                        Style="{StaticResource NeutralButtonStyle}" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Border>
 
-                        <ListView Grid.Row="1" ItemsSource="{Binding AllOrders}" 
+                        <ListView Grid.Row="1" ItemsSource="{Binding AllOrders}"
                                   SelectedItem="{Binding SelectedOrder, Mode=TwoWay}"
-                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                                  Style="{StaticResource ListViewStyle}">
                             <ListView.View>
                                 <GridView>
                                     <GridViewColumn Header="Order Date" Width="150">
@@ -56,27 +138,55 @@
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Order ID" Width="200" 
-                                                   DisplayMemberBinding="{Binding IdOrder}"/>
-                                    <GridViewColumn Header="Customer" Width="200">
+                                    <GridViewColumn Header="Order ID" Width="120"
+                                                   DisplayMemberBinding="{Binding IdOrder}" />
+                                    <GridViewColumn Header="Customer" Width="180">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding User.FullName}" />
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Phone" Width="120" 
-                                                    DisplayMemberBinding="{Binding User.Phone}"/>
+                                    <GridViewColumn Header="Phone" Width="120"
+                                                    DisplayMemberBinding="{Binding User.Phone}" />
                                     <GridViewColumn Header="Total Amount" Width="100">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:C}'}" 
+                                                <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:C}'}"
                                                            HorizontalAlignment="Right" />
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
-                                    <GridViewColumn Header="Status" Width="120" 
-                                                    DisplayMemberBinding="{Binding Status}"/>
+                                    <GridViewColumn Header="Status" Width="120">
+                                        <GridViewColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Status}">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="cancelled">
+                                                                    <Setter Property="Foreground" Value="#E74C3C" />
+                                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="delivered">
+                                                                    <Setter Property="Foreground" Value="#27AE60" />
+                                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="preparing">
+                                                                    <Setter Property="Foreground" Value="#F39C12" />
+                                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="out_for_delivery">
+                                                                    <Setter Property="Foreground" Value="#3498DB" />
+                                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </GridViewColumn.CellTemplate>
+                                    </GridViewColumn>
                                 </GridView>
                             </ListView.View>
                         </ListView>
@@ -87,114 +197,265 @@
                 <TabItem Header="Active Orders">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                            <Button Content="Refresh Active Orders" Command="{Binding LoadActiveOrdersCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                        </StackPanel>
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="Manage Active Orders" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,10" />
+                                <Button Content="Refresh Active Orders" Command="{Binding LoadActiveOrdersCommand}"
+                                        Style="{StaticResource NeutralButtonStyle}" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Border>
 
-                        <ListView Grid.Row="1" ItemsSource="{Binding ActiveOrders}" 
-                                  SelectedItem="{Binding SelectedOrder, Mode=TwoWay}"
-                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Order Date" Width="150">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn Header="Order ID" Width="200" 
-                                                   DisplayMemberBinding="{Binding IdOrder}"/>
-                                    <GridViewColumn Header="Customer" Width="200">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding User.FullName}" />
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn Header="Delivery Address" Width="250" 
-                                                    DisplayMemberBinding="{Binding User.DeliveryAddress}"/>
-                                    <GridViewColumn Header="Total Amount" Width="100">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:C}'}" 
-                                                           HorizontalAlignment="Right" />
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                    <GridViewColumn Header="Status" Width="120" 
-                                                    DisplayMemberBinding="{Binding Status}"/>
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
-
-                        <!-- Order Details and Status Update -->
-                        <Grid Grid.Row="2" Margin="0,10,0,0">
+                        <Grid Grid.Row="1">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <GroupBox Grid.Column="0" Header="Order Details" Padding="10">
+                            <!-- Orders List - Left Side -->
+                            <ListView Grid.Column="0" ItemsSource="{Binding ActiveOrders}"
+                                      SelectedItem="{Binding SelectedOrder, Mode=TwoWay}"
+                                      Style="{StaticResource ListViewStyle}">
+                                <ListView.View>
+                                    <GridView>
+                                        <GridViewColumn Header="Order Date" Width="150">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Order ID" Width="120"
+                                                       DisplayMemberBinding="{Binding IdOrder}" />
+                                        <GridViewColumn Header="Customer" Width="180">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding User.FullName}" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Status" Width="120">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Status}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="cancelled">
+                                                                        <Setter Property="Foreground" Value="#E74C3C" />
+                                                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="delivered">
+                                                                        <Setter Property="Foreground" Value="#27AE60" />
+                                                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="preparing">
+                                                                        <Setter Property="Foreground" Value="#F39C12" />
+                                                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding Status}" Value="out_for_delivery">
+                                                                        <Setter Property="Foreground" Value="#3498DB" />
+                                                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                        <GridViewColumn Header="Total" Width="100">
+                                            <GridViewColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:C}'}"
+                                                               HorizontalAlignment="Right"
+                                                               Foreground="#4CAF50"
+                                                               FontWeight="SemiBold" />
+                                                </DataTemplate>
+                                            </GridViewColumn.CellTemplate>
+                                        </GridViewColumn>
+                                    </GridView>
+                                </ListView.View>
+                            </ListView>
+
+                            <!-- Separator -->
+                            <GridSplitter Grid.Column="1" Width="5" Margin="10,0"
+                                          HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                                          Background="#E0E0E0" />
+
+                            <!-- Order Details - Right Side -->
+                            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
                                 <StackPanel>
-                                    <TextBlock Text="No order selected" Visibility="{Binding SelectedOrder, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=true}"/>
-                                    <Grid Visibility="{Binding SelectedOrder, Converter={StaticResource NullToVisibilityConverter}}">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
+                                    <!-- Message when no order is selected -->
+                                    <Border Style="{StaticResource CardBorderStyle}"
+                                            Visibility="{Binding SelectedOrder, Converter={StaticResource NullToVisibilityConverter}, ConverterParameter=true}">
+                                        <TextBlock Text="Select an order to view details"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="#757575"
+                                                   FontSize="16" />
+                                    </Border>
 
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Order ID:" FontWeight="Bold" Margin="0,0,10,5"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedOrder.IdOrder}" Margin="0,0,0,5"/>
+                                    <!-- Order Info Card - Only visible when order selected -->
+                                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,15"
+                                            Visibility="{Binding SelectedOrder, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <TextBlock Text="Order Details" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,15" />
 
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Date:" FontWeight="Bold" Margin="0,0,10,5"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedOrder.OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Margin="0,0,0,5"/>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="140" />
+                                                    <ColumnDefinition Width="*" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                </Grid.RowDefinitions>
 
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Customer:" FontWeight="Bold" Margin="0,0,10,5"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedOrder.User.FullName}" Margin="0,0,0,5"/>
-                                        
-                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Phone:" FontWeight="Bold" Margin="0,0,10,5"/>
-                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedOrder.User.Phone}" Margin="0,0,0,5"/>
-                                        
-                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Delivery Address:" FontWeight="Bold" Margin="0,0,10,5"/>
-                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedOrder.User.DeliveryAddress}" Margin="0,0,0,5"/>
+                                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Order ID:" FontWeight="SemiBold" Margin="0,0,10,8" Foreground="#333333" />
+                                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedOrder.IdOrder}" Margin="0,0,0,8" Foreground="#757575" />
 
-                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Total Amount:" FontWeight="Bold" Margin="0,0,10,5"/>
-                                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedOrder.TotalAmount, StringFormat='{}{0:C}'}" Margin="0,0,0,5"/>
-                                    </Grid>
+                                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Date:" FontWeight="SemiBold" Margin="0,0,10,8" Foreground="#333333" />
+                                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedOrder.OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Margin="0,0,0,8" Foreground="#757575" />
+
+                                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Customer:" FontWeight="SemiBold" Margin="0,0,10,8" Foreground="#333333" />
+                                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedOrder.User.FullName}" Margin="0,0,0,8" Foreground="#757575" />
+
+                                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Phone:" FontWeight="SemiBold" Margin="0,0,10,8" Foreground="#333333" />
+                                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedOrder.User.Phone}" Margin="0,0,0,8" Foreground="#757575" />
+
+                                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Delivery Address:" FontWeight="SemiBold" Margin="0,0,10,8" Foreground="#333333" />
+                                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedOrder.User.DeliveryAddress}" Margin="0,0,0,8" Foreground="#757575" TextWrapping="Wrap" />
+
+                                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Total Amount:" FontWeight="SemiBold" Margin="0,0,10,8" Foreground="#333333" />
+                                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedOrder.TotalAmount, StringFormat='{}{0:C}'}" Margin="0,0,0,8" Foreground="#4CAF50" FontWeight="SemiBold" />
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Order Items Card -->
+                                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,15"
+                                            Visibility="{Binding SelectedOrder, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <TextBlock Text="Order Items" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,15" />
+
+                                            <!-- Dishes Section -->
+                                            <Border Background="#F9F9F9" CornerRadius="4" Margin="0,5,0,10"
+                                                    BorderThickness="1" BorderBrush="#E0E0E0" Padding="8"
+                                                    Visibility="{Binding SelectedOrder.OrderDishes.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=1}">
+                                                <TextBlock Text="No dishes in this order" Foreground="#757575" FontStyle="Italic" />
+                                            </Border>
+
+                                            <ItemsControl ItemsSource="{Binding SelectedOrder.OrderDishes}">
+                                                <ItemsControl.Style>
+                                                    <Style TargetType="ItemsControl">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding SelectedOrder.OrderDishes.Count}" Value="0">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ItemsControl.Style>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="#F9F9F9" CornerRadius="4" Margin="0,0,0,5"
+                                                                BorderThickness="1" BorderBrush="#E0E0E0" Padding="10">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*" />
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" Text="{Binding Dish.Name}" FontWeight="SemiBold" />
+                                                                <TextBlock Grid.Column="1" Text="{Binding Quantity, StringFormat='x{0}'}" Margin="15,0" Foreground="#757575" />
+                                                                <TextBlock Grid.Column="2" Text="{Binding Dish.Price, StringFormat='{}{0:C}'}" Foreground="#4CAF50" />
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+
+                                            <!-- Menus Section -->
+                                            <TextBlock Text="Menus" FontWeight="SemiBold" Margin="0,15,0,5" Foreground="#333333"
+                                                      Visibility="{Binding SelectedOrder.OrderMenus.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=1, FallbackValue=Collapsed}" />
+
+                                            <Border Background="#F9F9F9" CornerRadius="4" Margin="0,5,0,10"
+                                                    BorderThickness="1" BorderBrush="#E0E0E0" Padding="8"
+                                                    Visibility="{Binding SelectedOrder.OrderMenus.Count, Converter={StaticResource LessThanConverter}, ConverterParameter=1}">
+                                                <TextBlock Text="No menus in this order" Foreground="#757575" FontStyle="Italic" />
+                                            </Border>
+
+                                            <ItemsControl ItemsSource="{Binding SelectedOrder.OrderMenus}">
+                                                <ItemsControl.Style>
+                                                    <Style TargetType="ItemsControl">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding SelectedOrder.OrderMenus.Count}" Value="0">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ItemsControl.Style>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="#F9F9F9" CornerRadius="4" Margin="0,0,0,5"
+                                                                BorderThickness="1" BorderBrush="#E0E0E0" Padding="10">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*" />
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                    <ColumnDefinition Width="Auto" />
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" Text="{Binding Menu.Name}" FontWeight="SemiBold" />
+                                                                <TextBlock Grid.Column="1" Text="{Binding Quantity, StringFormat='x{0}'}" Margin="15,0" Foreground="#757575" />
+                                                                <TextBlock Grid.Column="2" Text="{Binding Menu.TotalPrice, StringFormat='{}{0:C}'}" Foreground="#4CAF50" />
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Status Change Card -->
+                                    <Border Style="{StaticResource CardBorderStyle}"
+                                            Visibility="{Binding SelectedOrder, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <TextBlock Text="Change Status" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,15" />
+                                            <Button Content="Mark as Preparing" Margin="0,5"
+                                                    Command="{Binding UpdateOrderStatusCommand}"
+                                                    CommandParameter="{x:Static models:OrderStatus.preparing}"
+                                                    Style="{StaticResource StandardButtonStyle}"
+                                                    Background="#F39C12"
+                                                    HorizontalAlignment="Stretch" />
+                                            <Button Content="Mark as Out for Delivery" Margin="0,5"
+                                                    Command="{Binding UpdateOrderStatusCommand}"
+                                                    CommandParameter="{x:Static models:OrderStatus.out_for_delivery}"
+                                                    Style="{StaticResource StandardButtonStyle}"
+                                                    Background="#3498DB"
+                                                    HorizontalAlignment="Stretch" />
+                                            <Button Content="Mark as Delivered" Margin="0,5"
+                                                    Command="{Binding UpdateOrderStatusCommand}"
+                                                    CommandParameter="{x:Static models:OrderStatus.delivered}"
+                                                    Style="{StaticResource StandardButtonStyle}"
+                                                    HorizontalAlignment="Stretch" />
+                                            <Button Content="Mark as Canceled" Margin="0,5"
+                                                    Command="{Binding UpdateOrderStatusCommand}"
+                                                    CommandParameter="{x:Static models:OrderStatus.canceled}"
+                                                    Style="{StaticResource DangerButtonStyle}"
+                                                    HorizontalAlignment="Stretch" />
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
-                            </GroupBox>
-
-                            <GroupBox Grid.Column="1" Header="Change Status" Padding="10" Width="250" Margin="10,0,0,0">
-                                <StackPanel>
-                                    <Button Content="Mark as Preparing" Margin="0,5" Padding="5"
-                                            Command="{Binding UpdateOrderStatusCommand}" 
-                                            CommandParameter="{x:Static models:OrderStatus.preparing}"/>
-                                    <Button Content="Mark as Out for Delivery" Margin="0,5" Padding="5"
-                                            Command="{Binding UpdateOrderStatusCommand}" 
-                                            CommandParameter="{x:Static models:OrderStatus.out_for_delivery}"/>
-                                    <Button Content="Mark as Delivered" Margin="0,5" Padding="5"
-                                            Command="{Binding UpdateOrderStatusCommand}" 
-                                            CommandParameter="{x:Static models:OrderStatus.delivered}"/>
-                                    <Button Content="Mark as Canceled" Margin="0,5" Padding="5"
-                                            Command="{Binding UpdateOrderStatusCommand}" 
-                                            CommandParameter="{x:Static models:OrderStatus.canceled}"/>
-                                </StackPanel>
-                            </GroupBox>
+                            </ScrollViewer>
                         </Grid>
                     </Grid>
                 </TabItem>
@@ -203,21 +464,24 @@
                 <TabItem Header="Low Stock Items">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                            <Button Content="Refresh Low Stock Items" Command="{Binding LoadLowStockDishesCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                        </StackPanel>
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="Manage Low Stock Items" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,10" />
+                                <Button Content="Refresh Low Stock Items" Command="{Binding LoadLowStockDishesCommand}"
+                                        Style="{StaticResource NeutralButtonStyle}" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Border>
 
-                        <ListView Grid.Row="1" ItemsSource="{Binding LowStockDishes}" 
+                        <ListView Grid.Row="1" ItemsSource="{Binding LowStockDishes}"
                                   SelectedItem="{Binding SelectedDish, Mode=TwoWay}"
-                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                                  Style="{StaticResource ListViewStyle}">
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn Header="Name" Width="250" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="Name" Width="250" DisplayMemberBinding="{Binding Name}" />
                                     <GridViewColumn Header="Category" Width="150">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
@@ -228,21 +492,36 @@
                                     <GridViewColumn Header="Total Quantity (g)" Width="150">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding TotalQuantity}" HorizontalAlignment="Right"/>
+                                                <TextBlock Text="{Binding TotalQuantity}" HorizontalAlignment="Right" />
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
                                     <GridViewColumn Header="Portion Size (g)" Width="150">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding PortionSize}" HorizontalAlignment="Right"/>
+                                                <TextBlock Text="{Binding PortionSize}" HorizontalAlignment="Right" />
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
                                     <GridViewColumn Header="Available Portions" Width="150">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding AvailablePortions}" HorizontalAlignment="Right"/>
+                                                <TextBlock Text="{Binding AvailablePortions}" HorizontalAlignment="Right">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding AvailablePortions}" Value="0">
+                                                                    <Setter Property="Foreground" Value="#E74C3C" />
+                                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding AvailablePortions, Converter={StaticResource LessThanConverter}, ConverterParameter=5}" Value="True">
+                                                                    <Setter Property="Foreground" Value="#F39C12" />
+                                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
@@ -256,29 +535,33 @@
                 <TabItem Header="Categories">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                            <Button Content="Add Category" Command="{Binding AddCategoryCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Edit Category" Command="{Binding EditCategoryCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Delete Category" Command="{Binding DeleteCategoryCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Refresh" Command="{Binding LoadCategoriesCommand}" 
-                                    Padding="10,5"/>
-                        </StackPanel>
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="Manage Categories" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,10" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Add Category" Command="{Binding AddCategoryCommand}"
+                                            Style="{StaticResource StandardButtonStyle}" />
+                                    <Button Content="Edit Category" Command="{Binding EditCategoryCommand}"
+                                            Style="{StaticResource NeutralButtonStyle}" />
+                                    <Button Content="Delete Category" Command="{Binding DeleteCategoryCommand}"
+                                            Style="{StaticResource DangerButtonStyle}" />
+                                    <Button Content="Refresh" Command="{Binding LoadCategoriesCommand}"
+                                            Style="{StaticResource NeutralButtonStyle}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
 
-                        <ListView Grid.Row="1" ItemsSource="{Binding Categories}" 
+                        <ListView Grid.Row="1" ItemsSource="{Binding Categories}"
                                   SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
-                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                                  Style="{StaticResource ListViewStyle}">
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdCategory}"/>
-                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}"/>
-                                    <GridViewColumn Header="Description" Width="400" DisplayMemberBinding="{Binding Description}"/>
+                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdCategory}" />
+                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}" />
                                 </GridView>
                             </ListView.View>
                         </ListView>
@@ -289,28 +572,33 @@
                 <TabItem Header="Dishes">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                            <Button Content="Add Dish" Command="{Binding AddDishCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Edit Dish" Command="{Binding EditDishCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Delete Dish" Command="{Binding DeleteDishCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Refresh" Command="{Binding LoadDishesCommand}" 
-                                    Padding="10,5"/>
-                        </StackPanel>
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="Manage Dishes" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,10" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Add Dish" Command="{Binding AddDishCommand}"
+                                            Style="{StaticResource StandardButtonStyle}" />
+                                    <Button Content="Edit Dish" Command="{Binding EditDishCommand}"
+                                            Style="{StaticResource NeutralButtonStyle}" />
+                                    <Button Content="Delete Dish" Command="{Binding DeleteDishCommand}"
+                                            Style="{StaticResource DangerButtonStyle}" />
+                                    <Button Content="Refresh" Command="{Binding LoadDishesCommand}"
+                                            Style="{StaticResource NeutralButtonStyle}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
 
-                        <ListView Grid.Row="1" ItemsSource="{Binding Dishes}" 
+                        <ListView Grid.Row="1" ItemsSource="{Binding Dishes}"
                                   SelectedItem="{Binding SelectedDish, Mode=TwoWay}"
-                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                                  Style="{StaticResource ListViewStyle}">
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdDish}"/>
-                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}"/>
+                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdDish}" />
+                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}" />
                                     <GridViewColumn Header="Category" Width="150">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
@@ -321,7 +609,8 @@
                                     <GridViewColumn Header="Price" Width="100">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding Price, StringFormat='{}{0:C}'}" 
+                                                <TextBlock Text="{Binding Price, StringFormat='{}{0:C}'}"
+                                                           Foreground="#4CAF50" FontWeight="SemiBold"
                                                            HorizontalAlignment="Right" />
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
@@ -329,14 +618,14 @@
                                     <GridViewColumn Header="Portion Size (g)" Width="120">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding PortionSize}" HorizontalAlignment="Right"/>
+                                                <TextBlock Text="{Binding PortionSize}" HorizontalAlignment="Right" />
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
                                     <GridViewColumn Header="Total Quantity (g)" Width="120">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding TotalQuantity}" HorizontalAlignment="Right"/>
+                                                <TextBlock Text="{Binding TotalQuantity}" HorizontalAlignment="Right" />
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
@@ -350,33 +639,38 @@
                 <TabItem Header="Menus">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                            <Button Content="Add Menu" Command="{Binding AddMenuCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Edit Menu" Command="{Binding EditMenuCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Delete Menu" Command="{Binding DeleteMenuCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Refresh" Command="{Binding LoadMenusCommand}" 
-                                    Padding="10,5"/>
-                        </StackPanel>
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="Manage Menus" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,10" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Add Menu" Command="{Binding AddMenuCommand}"
+                                            Style="{StaticResource StandardButtonStyle}" />
+                                    <Button Content="Edit Menu" Command="{Binding EditMenuCommand}"
+                                            Style="{StaticResource NeutralButtonStyle}" />
+                                    <Button Content="Delete Menu" Command="{Binding DeleteMenuCommand}"
+                                            Style="{StaticResource DangerButtonStyle}" />
+                                    <Button Content="Refresh" Command="{Binding LoadMenusCommand}"
+                                            Style="{StaticResource NeutralButtonStyle}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
 
-                        <ListView Grid.Row="1" ItemsSource="{Binding Menus}" 
+                        <ListView Grid.Row="1" ItemsSource="{Binding Menus}"
                                   SelectedItem="{Binding SelectedMenu, Mode=TwoWay}"
-                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                                  Style="{StaticResource ListViewStyle}">
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdMenu}"/>
-                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}"/>
-                                    <GridViewColumn Header="Description" Width="300" DisplayMemberBinding="{Binding Description}"/>
+                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdMenu}" />
+                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}" />
                                     <GridViewColumn Header="Total Price" Width="100">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding TotalPrice, StringFormat='{}{0:C}'}" 
+                                                <TextBlock Text="{Binding TotalPrice, StringFormat='{}{0:C}'}"
+                                                           Foreground="#4CAF50" FontWeight="SemiBold"
                                                            HorizontalAlignment="Right" />
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
@@ -391,29 +685,33 @@
                 <TabItem Header="Allergens">
                     <Grid Margin="10">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-                            <Button Content="Add Allergen" Command="{Binding AddAllergenCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Edit Allergen" Command="{Binding EditAllergenCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Delete Allergen" Command="{Binding DeleteAllergenCommand}" 
-                                    Padding="10,5" Margin="0,0,10,0"/>
-                            <Button Content="Refresh" Command="{Binding LoadAllergensCommand}" 
-                                    Padding="10,5"/>
-                        </StackPanel>
+                        <Border Grid.Row="0" Style="{StaticResource CardBorderStyle}" Margin="0,0,0,15">
+                            <StackPanel>
+                                <TextBlock Text="Manage Allergens" Style="{StaticResource SubHeaderTextStyle}" Margin="0,0,0,10" />
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Add Allergen" Command="{Binding AddAllergenCommand}"
+                                            Style="{StaticResource StandardButtonStyle}" />
+                                    <Button Content="Edit Allergen" Command="{Binding EditAllergenCommand}"
+                                            Style="{StaticResource NeutralButtonStyle}" />
+                                    <Button Content="Delete Allergen" Command="{Binding DeleteAllergenCommand}"
+                                            Style="{StaticResource DangerButtonStyle}" />
+                                    <Button Content="Refresh" Command="{Binding LoadAllergensCommand}"
+                                            Style="{StaticResource NeutralButtonStyle}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
 
-                        <ListView Grid.Row="1" ItemsSource="{Binding Allergens}" 
+                        <ListView Grid.Row="1" ItemsSource="{Binding Allergens}"
                                   SelectedItem="{Binding SelectedAllergen, Mode=TwoWay}"
-                                  BorderThickness="1" BorderBrush="#FFCCCCCC">
+                                  Style="{StaticResource ListViewStyle}">
                             <ListView.View>
                                 <GridView>
-                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdAllergen}"/>
-                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}"/>
-                                    <GridViewColumn Header="Description" Width="400" DisplayMemberBinding="{Binding Description}"/>
+                                    <GridViewColumn Header="ID" Width="50" DisplayMemberBinding="{Binding IdAllergen}" />
+                                    <GridViewColumn Header="Name" Width="200" DisplayMemberBinding="{Binding Name}" />
                                 </GridView>
                             </ListView.View>
                         </ListView>

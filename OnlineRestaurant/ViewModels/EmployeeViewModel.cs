@@ -154,7 +154,7 @@ namespace OnlineRestaurant.ViewModels
             set
             {
                 SetProperty(ref _selectedOrder, value);
-                ((RelayCommand)UpdateOrderStatusCommand).RaiseCanExecuteChanged();
+                ((RelayCommand<OrderStatus>)UpdateOrderStatusCommand).RaiseCanExecuteChanged();
             }
         }
         
