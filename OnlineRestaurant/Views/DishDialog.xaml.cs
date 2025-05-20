@@ -11,15 +11,51 @@ using OnlineRestaurant.Models;
 
 namespace OnlineRestaurant.Views
 {
+    // Helper class for allergen selection in the UI
+    public class AllergenViewModel : INotifyPropertyChanged
+    {
+        private bool _isSelected;
+        
+        public int IdAllergen { get; set; }
+        public string Name { get; set; }
+        
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        public event PropertyChangedEventHandler PropertyChanged;
+        
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
     public partial class DishDialog : Window, INotifyPropertyChanged
     {
         private bool _isEditMode;
         private string _selectedPhotoUrl;
         private bool _hasSelectedPhoto;
         private string _tempPhotoPath;
+        private List<AllergenViewModel> _allergens;
 
         public Dish Dish { get; private set; }
         public List<Category> Categories { get; set; }
+        public List<AllergenViewModel> Allergens
+        {
+            get => _allergens;
+            set
+            {
+                _allergens = value;
+                OnPropertyChanged();
+            }
+        }
         public string DialogTitle => _isEditMode ? "Edit Dish" : "Add Dish";
         
         public string SelectedPhotoUrl
@@ -44,7 +80,7 @@ namespace OnlineRestaurant.Views
         }
 
         // Constructor for adding a new dish
-        public DishDialog(Window owner, List<Category> categories)
+        public DishDialog(Window owner, List<Category> categories, List<Allergen> allergens)
         {
             InitializeComponent();
             Owner = owner;
@@ -59,6 +95,9 @@ namespace OnlineRestaurant.Views
                 Dish.IdCategory = Categories[0].IdCategory;
             }
             
+            // Initialize allergens list
+            InitializeAllergens(allergens, new List<DishAllergen>());
+            
             // Initialize photo properties
             SelectedPhotoUrl = null;
             HasSelectedPhoto = false;
@@ -67,7 +106,7 @@ namespace OnlineRestaurant.Views
         }
 
         // Constructor for editing an existing dish
-        public DishDialog(Window owner, Dish dishToEdit, List<Category> categories)
+        public DishDialog(Window owner, Dish dishToEdit, List<Category> categories, List<Allergen> allergens)
         {
             InitializeComponent();
             Owner = owner;
@@ -87,6 +126,9 @@ namespace OnlineRestaurant.Views
                 Photos = new List<DishPhoto>() // Initialize Photos collection
             };
             
+            // Initialize allergens list with pre-selected items
+            InitializeAllergens(allergens, dishToEdit.DishAllergens?.ToList() ?? new List<DishAllergen>());
+            
             // Load dish photo if available
             if (dishToEdit.Photos != null && dishToEdit.Photos.Any())
             {
@@ -100,6 +142,16 @@ namespace OnlineRestaurant.Views
             }
             
             DataContext = this;
+        }
+
+        private void InitializeAllergens(List<Allergen> allergens, List<DishAllergen> dishAllergens)
+        {
+            Allergens = allergens.Select(a => new AllergenViewModel
+            {
+                IdAllergen = a.IdAllergen,
+                Name = a.Name,
+                IsSelected = dishAllergens.Any(da => da.IdAllergen == a.IdAllergen)
+            }).ToList();
         }
 
         private void BtnSelectPhoto_Click(object sender, RoutedEventArgs e)
@@ -190,6 +242,26 @@ namespace OnlineRestaurant.Views
                 {
                     IdDish = Dish.IdDish, // Set the dish ID for new photos
                     Url = SelectedPhotoUrl
+                });
+            }
+            
+            // Update the dish allergens based on selected items
+            if (Dish.DishAllergens == null)
+            {
+                Dish.DishAllergens = new List<DishAllergen>();
+            }
+            else
+            {
+                Dish.DishAllergens.Clear();
+            }
+            
+            // Add selected allergens to the dish
+            foreach (var allergen in Allergens.Where(a => a.IsSelected))
+            {
+                Dish.DishAllergens.Add(new DishAllergen
+                {
+                    IdDish = Dish.IdDish,
+                    IdAllergen = allergen.IdAllergen
                 });
             }
 

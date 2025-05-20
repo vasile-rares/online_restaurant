@@ -651,8 +651,11 @@ namespace OnlineRestaurant.ViewModels
                 // Get categories for the dish dialog
                 var categories = new List<Category>(Categories);
                 
+                // Get allergens for the dish dialog
+                var allergens = new List<Allergen>(Allergens);
+                
                 // Create and show the dialog for adding a new dish
-                var dialog = new Views.DishDialog(mainWindow, categories);
+                var dialog = new Views.DishDialog(mainWindow, categories, allergens);
                 bool? result = dialog.ShowDialog();
                 
                 if (result == true)
@@ -700,8 +703,11 @@ namespace OnlineRestaurant.ViewModels
                 // Get categories for the dish dialog
                 var categories = new List<Category>(Categories);
                 
+                // Get allergens for the dish dialog
+                var allergens = new List<Allergen>(Allergens);
+                
                 // Create and show the dialog for editing the dish
-                var dialog = new Views.DishDialog(mainWindow, SelectedDish, categories);
+                var dialog = new Views.DishDialog(mainWindow, SelectedDish, categories, allergens);
                 bool? result = dialog.ShowDialog();
                 
                 if (result == true)
@@ -772,6 +778,35 @@ namespace OnlineRestaurant.ViewModels
                                     await context.SaveChangesAsync();
                                 }
                                 
+                                // Handle allergen updates
+                                if (dialog.Dish.DishAllergens != null)
+                                {
+                                    // Delete existing allergen associations
+                                    var existingAllergens = await context.DishAllergens
+                                        .Where(da => da.IdDish == SelectedDish.IdDish)
+                                        .ToListAsync();
+                                    
+                                    if (existingAllergens.Any())
+                                    {
+                                        context.DishAllergens.RemoveRange(existingAllergens);
+                                        await context.SaveChangesAsync();
+                                    }
+                                    
+                                    // Add new allergen associations
+                                    foreach (var allergen in dialog.Dish.DishAllergens)
+                                    {
+                                        var newDishAllergen = new DishAllergen
+                                        {
+                                            IdDish = SelectedDish.IdDish,
+                                            IdAllergen = allergen.IdAllergen
+                                        };
+                                        
+                                        context.DishAllergens.Add(newDishAllergen);
+                                    }
+                                    
+                                    await context.SaveChangesAsync();
+                                }
+                                
                                 // Update the UI model
                                 SelectedDish.Name = dialog.Dish.Name;
                                 SelectedDish.IdCategory = dialog.Dish.IdCategory;
@@ -779,6 +814,7 @@ namespace OnlineRestaurant.ViewModels
                                 SelectedDish.PortionSize = dialog.Dish.PortionSize;
                                 SelectedDish.TotalQuantity = dialog.Dish.TotalQuantity;
                                 SelectedDish.Photos = new List<DishPhoto>(dialog.Dish.Photos);
+                                SelectedDish.DishAllergens = new List<DishAllergen>(dialog.Dish.DishAllergens);
                                 
                                 // Check if LowStockDishes collection needs to be updated
                                 int lowStockThreshold = _appSettingsService.GetLowStockThreshold();

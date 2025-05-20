@@ -101,6 +101,41 @@
                          Text="{Binding Dish.TotalQuantity, UpdateSourceTrigger=PropertyChanged}" 
                          Style="{StaticResource InputFieldStyle}" />
 
+                <!-- Allergens Selection -->
+                <TextBlock Text="Allergens:" Style="{StaticResource LabelStyle}" />
+                <Border BorderThickness="1" 
+                        BorderBrush="#E0E0E0" 
+                        Background="#F8F8F8" 
+                        Margin="0,0,0,15" 
+                        Padding="5">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="Select all allergens that apply to this dish" 
+                                   Margin="5" 
+                                   Foreground="#707070" 
+                                   FontStyle="Italic" />
+                        
+                        <ScrollViewer Grid.Row="1" 
+                                      Height="120" 
+                                      VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Allergens}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Content="{Binding Name}" 
+                                                  Margin="5,3" 
+                                                  IsChecked="{Binding IsSelected}" 
+                                                  Tag="{Binding IdAllergen}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
                 <!-- Photo Upload Section -->
                 <TextBlock Text="Dish Photo:" Style="{StaticResource LabelStyle}" />
                 <Grid Margin="0,0,0,15">
