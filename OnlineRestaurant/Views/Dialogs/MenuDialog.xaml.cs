@@ -12,7 +12,7 @@ using Microsoft.Extensions.Configuration;
 using OnlineRestaurant.Models;
 using OnlineRestaurant.Services;
 
-namespace OnlineRestaurant.Views
+namespace OnlineRestaurant.Views.Dialogs
 {
     public partial class MenuDialog : Window, INotifyPropertyChanged
     {
@@ -66,34 +66,34 @@ namespace OnlineRestaurant.Views
             InitializeComponent();
             Owner = owner;
             _isEditMode = false;
-            
+
             // Get configuration from App
             var config = App.Configuration;
             _appSettingsService = new AppSettingsService(config);
-            
+
             // Default discount percentage
             DiscountPercentage = _appSettingsService.GetMenuDiscountPercentage();
-            
+
             Categories = categories;
             Menu = new OnlineRestaurant.Models.Menu();
-            
+
             // Set a default category if available
             if (Categories.Count > 0)
             {
                 Menu.IdCategory = Categories[0].IdCategory;
             }
-            
+
             // Initialize empty lists
             _allDishes = new List<Dish>();
             AvailableDishes = new ObservableCollection<Dish>();
             SelectedDishes = new ObservableCollection<MenuDishViewModel>();
-            
+
             // Add an "All Categories" category to the category filter
             var tempCategories = new List<Category>(Categories);
             tempCategories.Insert(0, new Category { Name = "All Categories", IdCategory = -1 });
             cmbDishCategory.ItemsSource = tempCategories;
             cmbDishCategory.SelectedIndex = 0;
-            
+
             DataContext = this;
         }
 
@@ -103,16 +103,16 @@ namespace OnlineRestaurant.Views
             InitializeComponent();
             Owner = owner;
             _isEditMode = true;
-            
+
             // Get configuration from App
             var config = App.Configuration;
             _appSettingsService = new AppSettingsService(config);
-            
+
             // Default discount percentage
             DiscountPercentage = _appSettingsService.GetMenuDiscountPercentage();
-            
+
             Categories = categories;
-            
+
             // Create a copy of the menu to edit
             Menu = new OnlineRestaurant.Models.Menu
             {
@@ -120,18 +120,18 @@ namespace OnlineRestaurant.Views
                 Name = menuToEdit.Name,
                 IdCategory = menuToEdit.IdCategory
             };
-            
+
             // Initialize empty lists
             _allDishes = new List<Dish>();
             AvailableDishes = new ObservableCollection<Dish>();
             SelectedDishes = new ObservableCollection<MenuDishViewModel>();
-            
+
             // Add an "All Categories" category to the category filter
             var tempCategories = new List<Category>(Categories);
             tempCategories.Insert(0, new Category { Name = "All Categories", IdCategory = -1 });
             cmbDishCategory.ItemsSource = tempCategories;
             cmbDishCategory.SelectedIndex = 0;
-            
+
             DataContext = this;
         }
 
@@ -142,38 +142,38 @@ namespace OnlineRestaurant.Views
             Owner = owner;
             _isEditMode = false;
             _appSettingsService = appSettingsService;
-            
+
             // Get discount percentage from settings
             DiscountPercentage = _appSettingsService.GetMenuDiscountPercentage();
-            
+
             Categories = categories;
             Menu = new OnlineRestaurant.Models.Menu();
-            
+
             // Set a default category if available
             if (Categories.Count > 0)
             {
                 Menu.IdCategory = Categories[0].IdCategory;
             }
-            
+
             // Store all dishes
             _allDishes = dishes;
-            
+
             // Initialize collections
             AvailableDishes = new ObservableCollection<Dish>();
             SelectedDishes = new ObservableCollection<MenuDishViewModel>();
-            
+
             // Add an "All Categories" category to the category filter
             var tempCategories = new List<Category>(Categories);
             tempCategories.Insert(0, new Category { Name = "All Categories", IdCategory = -1 });
             cmbDishCategory.ItemsSource = tempCategories;
             cmbDishCategory.SelectedIndex = 0;
-            
+
             // Initialize available dishes with all dishes
             foreach (var dish in _allDishes)
             {
                 AvailableDishes.Add(dish);
             }
-            
+
             DataContext = this;
         }
 
@@ -184,12 +184,12 @@ namespace OnlineRestaurant.Views
             Owner = owner;
             _isEditMode = true;
             _appSettingsService = appSettingsService;
-            
+
             // Get discount percentage from settings
             DiscountPercentage = _appSettingsService.GetMenuDiscountPercentage();
-            
+
             Categories = categories;
-            
+
             // Create a copy of the menu to edit
             Menu = new OnlineRestaurant.Models.Menu
             {
@@ -197,20 +197,20 @@ namespace OnlineRestaurant.Views
                 Name = menuToEdit.Name,
                 IdCategory = menuToEdit.IdCategory
             };
-            
+
             // Store all dishes
             _allDishes = dishes;
-            
+
             // Initialize collections
             AvailableDishes = new ObservableCollection<Dish>();
             SelectedDishes = new ObservableCollection<MenuDishViewModel>();
-            
+
             // Add an "All Categories" category to the category filter
             var tempCategories = new List<Category>(Categories);
             tempCategories.Insert(0, new Category { Name = "All Categories", IdCategory = -1 });
             cmbDishCategory.ItemsSource = tempCategories;
             cmbDishCategory.SelectedIndex = 0;
-            
+
             // Add existing menu dishes
             foreach (var menuDish in menuDishes.Where(md => md.IdMenu == menuToEdit.IdMenu))
             {
@@ -224,7 +224,7 @@ namespace OnlineRestaurant.Views
                     });
                 }
             }
-            
+
             // Initialize available dishes with dishes not in the menu
             foreach (var dish in _allDishes)
             {
@@ -233,10 +233,10 @@ namespace OnlineRestaurant.Views
                     AvailableDishes.Add(dish);
                 }
             }
-            
+
             // Calculate initial price
             RecalculatePrice();
-            
+
             DataContext = this;
         }
 
@@ -291,10 +291,10 @@ namespace OnlineRestaurant.Views
         {
             // Clear current available dishes
             AvailableDishes.Clear();
-            
+
             // Get dishes of the selected category
             var dishesInCategory = _allDishes.Where(d => d.IdCategory == categoryId);
-            
+
             // Add dishes that are not already selected
             foreach (var dish in dishesInCategory)
             {
@@ -309,30 +309,30 @@ namespace OnlineRestaurant.Views
         {
             var button = (Button)sender;
             var dish = (Dish)button.DataContext;
-            
+
             // Check if dish is already in the selected dishes
             if (SelectedDishes.Any(sd => sd.Dish.IdDish == dish.IdDish))
             {
                 MessageBox.Show("This dish is already added to the menu.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            
+
             // Add to selected dishes
             var menuDish = new MenuDishViewModel
             {
                 Dish = dish,
                 Quantity = 1 // Default quantity
             };
-            
+
             SelectedDishes.Add(menuDish);
-            
+
             // Remove from available dishes
             var dishToRemove = AvailableDishes.FirstOrDefault(d => d.IdDish == dish.IdDish);
             if (dishToRemove != null)
             {
                 AvailableDishes.Remove(dishToRemove);
             }
-            
+
             // Recalculate price
             RecalculatePrice();
         }
@@ -341,42 +341,42 @@ namespace OnlineRestaurant.Views
         {
             var button = (Button)sender;
             var menuDish = (MenuDishViewModel)button.DataContext;
-            
+
             // Remove from selected dishes
             SelectedDishes.Remove(menuDish);
-            
+
             // Add back to available dishes if it matches the current category filter
             Category selectedCategory = cmbDishCategory.SelectedItem as Category;
-            
-            if (selectedCategory == null || 
+
+            if (selectedCategory == null ||
                 selectedCategory.IdCategory == -1 || // "All Categories"
                 menuDish.Dish.IdCategory == selectedCategory.IdCategory)
             {
                 AvailableDishes.Add(menuDish.Dish);
             }
-            
+
             // Recalculate price
             RecalculatePrice();
         }
-        
+
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
         }
-        
+
         private void QuantityTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             var textBox = (TextBox)sender;
             var menuDish = (MenuDishViewModel)textBox.DataContext;
-            
+
             // If textbox is empty, default quantity to 1
             if (string.IsNullOrWhiteSpace(textBox.Text))
             {
                 menuDish.Quantity = 1;
                 textBox.Text = "1";
             }
-            
+
             // Ensure quantity is at least 1
             int quantity;
             if (!int.TryParse(textBox.Text, out quantity) || quantity < 1)
@@ -384,24 +384,24 @@ namespace OnlineRestaurant.Views
                 menuDish.Quantity = 1;
                 textBox.Text = "1";
             }
-            
+
             // Recalculate price
             RecalculatePrice();
         }
-        
+
         private void RecalculatePrice()
         {
             decimal total = 0;
-            
+
             foreach (var menuDish in SelectedDishes)
             {
                 menuDish.CalculateTotalPrice();
                 total += menuDish.TotalPrice;
             }
-            
+
             OriginalPrice = total;
         }
-        
+
         private void CalculateFinalPrice()
         {
             FinalPrice = OriginalPrice * (1 - (DiscountPercentage / 100));
@@ -409,7 +409,7 @@ namespace OnlineRestaurant.Views
 
         // INotifyPropertyChanged implementation
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -467,4 +467,4 @@ namespace OnlineRestaurant.Views
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-} 
+}

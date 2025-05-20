@@ -9,16 +9,16 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using OnlineRestaurant.Models;
 
-namespace OnlineRestaurant.Views
+namespace OnlineRestaurant.Views.Dialogs
 {
     // Helper class for allergen selection in the UI
     public class AllergenViewModel : INotifyPropertyChanged
     {
         private bool _isSelected;
-        
+
         public int IdAllergen { get; set; }
         public string Name { get; set; }
-        
+
         public bool IsSelected
         {
             get => _isSelected;
@@ -28,9 +28,9 @@ namespace OnlineRestaurant.Views
                 OnPropertyChanged();
             }
         }
-        
+
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -47,6 +47,7 @@ namespace OnlineRestaurant.Views
 
         public Dish Dish { get; private set; }
         public List<Category> Categories { get; set; }
+
         public List<AllergenViewModel> Allergens
         {
             get => _allergens;
@@ -56,8 +57,9 @@ namespace OnlineRestaurant.Views
                 OnPropertyChanged();
             }
         }
+
         public string DialogTitle => _isEditMode ? "Edit Dish" : "Add Dish";
-        
+
         public string SelectedPhotoUrl
         {
             get => _selectedPhotoUrl;
@@ -68,7 +70,7 @@ namespace OnlineRestaurant.Views
                 HasSelectedPhoto = !string.IsNullOrEmpty(value);
             }
         }
-        
+
         public bool HasSelectedPhoto
         {
             get => _hasSelectedPhoto;
@@ -85,23 +87,23 @@ namespace OnlineRestaurant.Views
             InitializeComponent();
             Owner = owner;
             _isEditMode = false;
-            
+
             Categories = categories;
             Dish = new Dish();
-            
+
             // Set a default category if available
             if (Categories.Count > 0)
             {
                 Dish.IdCategory = Categories[0].IdCategory;
             }
-            
+
             // Initialize allergens list
             InitializeAllergens(allergens, new List<DishAllergen>());
-            
+
             // Initialize photo properties
             SelectedPhotoUrl = null;
             HasSelectedPhoto = false;
-            
+
             DataContext = this;
         }
 
@@ -111,9 +113,9 @@ namespace OnlineRestaurant.Views
             InitializeComponent();
             Owner = owner;
             _isEditMode = true;
-            
+
             Categories = categories;
-            
+
             // Create a copy of the dish to edit
             Dish = new Dish
             {
@@ -125,10 +127,10 @@ namespace OnlineRestaurant.Views
                 TotalQuantity = dishToEdit.TotalQuantity,
                 Photos = new List<DishPhoto>() // Initialize Photos collection
             };
-            
+
             // Initialize allergens list with pre-selected items
             InitializeAllergens(allergens, dishToEdit.DishAllergens?.ToList() ?? new List<DishAllergen>());
-            
+
             // Load dish photo if available
             if (dishToEdit.Photos != null && dishToEdit.Photos.Any())
             {
@@ -140,7 +142,7 @@ namespace OnlineRestaurant.Views
                 SelectedPhotoUrl = null;
                 HasSelectedPhoto = false;
             }
-            
+
             DataContext = this;
         }
 
@@ -233,7 +235,7 @@ namespace OnlineRestaurant.Views
             {
                 Dish.Photos.Clear();
             }
-            
+
             // If a photo is selected, add it to the dish
             if (HasSelectedPhoto && !string.IsNullOrEmpty(SelectedPhotoUrl))
             {
@@ -244,7 +246,7 @@ namespace OnlineRestaurant.Views
                     Url = SelectedPhotoUrl
                 });
             }
-            
+
             // Update the dish allergens based on selected items
             if (Dish.DishAllergens == null)
             {
@@ -254,7 +256,7 @@ namespace OnlineRestaurant.Views
             {
                 Dish.DishAllergens.Clear();
             }
-            
+
             // Add selected allergens to the dish
             foreach (var allergen in Allergens.Where(a => a.IsSelected))
             {
@@ -277,10 +279,10 @@ namespace OnlineRestaurant.Views
 
         // INotifyPropertyChanged implementation
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-} 
+}

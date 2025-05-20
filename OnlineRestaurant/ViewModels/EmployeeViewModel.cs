@@ -482,7 +482,7 @@ namespace OnlineRestaurant.ViewModels
                 var mainWindow = System.Windows.Application.Current.MainWindow;
 
                 // Create and show the dialog for adding a new category
-                var dialog = new Views.CategoryDialog(mainWindow);
+                var dialog = new Views.Dialogs.CategoryDialog(mainWindow);
                 bool? result = dialog.ShowDialog();
 
                 if (result == true)
@@ -525,7 +525,7 @@ namespace OnlineRestaurant.ViewModels
                 };
 
                 // Create and show the dialog for editing the category
-                var dialog = new Views.CategoryDialog(mainWindow, categoryToEdit);
+                var dialog = new Views.Dialogs.CategoryDialog(mainWindow, categoryToEdit);
                 bool? result = dialog.ShowDialog();
 
                 if (result == true && dialog.Category.Name != originalName)
@@ -655,7 +655,7 @@ namespace OnlineRestaurant.ViewModels
                 var allergens = new List<Allergen>(Allergens);
                 
                 // Create and show the dialog for adding a new dish
-                var dialog = new Views.DishDialog(mainWindow, categories, allergens);
+                var dialog = new Views.Dialogs.DishDialog(mainWindow, categories, allergens);
                 bool? result = dialog.ShowDialog();
                 
                 if (result == true)
@@ -707,7 +707,7 @@ namespace OnlineRestaurant.ViewModels
                 var allergens = new List<Allergen>(Allergens);
                 
                 // Create and show the dialog for editing the dish
-                var dialog = new Views.DishDialog(mainWindow, SelectedDish, categories, allergens);
+                var dialog = new Views.Dialogs.DishDialog(mainWindow, SelectedDish, categories, allergens);
                 bool? result = dialog.ShowDialog();
                 
                 if (result == true)
@@ -981,7 +981,7 @@ namespace OnlineRestaurant.ViewModels
                 var dishes = new List<Dish>(Dishes);
                 
                 // Create and show the dialog for adding a new menu
-                var dialog = new Views.MenuDialog(mainWindow, categories, dishes, _appSettingsService);
+                var dialog = new Views.Dialogs.MenuDialog(mainWindow, categories, dishes, _appSettingsService);
                 bool? result = dialog.ShowDialog();
                 
                 if (result == true)
@@ -1065,7 +1065,7 @@ namespace OnlineRestaurant.ViewModels
                 }
                 
                 // Create and show the dialog for editing the menu
-                var dialog = new Views.MenuDialog(mainWindow, SelectedMenu, categories, dishes, menuDishes, _appSettingsService);
+                var dialog = new Views.Dialogs.MenuDialog(mainWindow, SelectedMenu, categories, dishes, menuDishes, _appSettingsService);
                 bool? result = dialog.ShowDialog();
                 
                 if (result == true)
@@ -1237,7 +1237,7 @@ namespace OnlineRestaurant.ViewModels
                 var mainWindow = System.Windows.Application.Current.MainWindow;
                 
                 // Create and show the dialog for adding a new allergen
-                var dialog = new Views.AllergenDialog(mainWindow);
+                var dialog = new Views.Dialogs.AllergenDialog(mainWindow);
                 bool? result = dialog.ShowDialog();
                 
                 if (result == true)
@@ -1280,7 +1280,7 @@ namespace OnlineRestaurant.ViewModels
                 };
                 
                 // Create and show the dialog for editing the allergen
-                var dialog = new Views.AllergenDialog(mainWindow, allergenToEdit);
+                var dialog = new Views.Dialogs.AllergenDialog(mainWindow, allergenToEdit);
                 bool? result = dialog.ShowDialog();
                 
                 if (result == true && dialog.Allergen.Name != originalName)

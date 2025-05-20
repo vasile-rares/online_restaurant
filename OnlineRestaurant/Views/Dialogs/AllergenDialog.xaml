@@ -1,4 +1,4 @@
-<Window x:Class="OnlineRestaurant.Views.CategoryDialog"
+<Window x:Class="OnlineRestaurant.Views.Dialogs.AllergenDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:OnlineRestaurant.Views"
         mc:Ignorable="d"
         Title="{Binding DialogTitle}"
-        Height="250" 
+        Height="250"
         Width="400"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -31,48 +31,58 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Input Field Style -->
+        <Style x:Key="InputFieldStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#E0E0E0" />
+            <Setter Property="Margin" Value="0,0,0,15" />
+        </Style>
+
+        <!-- Label Style -->
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="Margin" Value="0,0,0,5" />
+        </Style>
     </Window.Resources>
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <TextBlock Grid.Row="0" 
-                   Text="{Binding DialogTitle}" 
-                   FontSize="18" 
-                   FontWeight="SemiBold" 
+        <TextBlock Grid.Row="0"
+                   Text="{Binding DialogTitle}"
+                   FontSize="18"
+                   FontWeight="SemiBold"
                    Margin="0,0,0,15" />
 
-        <!-- Category Name Input -->
-        <StackPanel Grid.Row="1" Margin="0,0,0,20">
-            <TextBlock Text="Category Name:" 
-                       FontWeight="Medium" 
-                       Margin="0,0,0,5" />
-            <TextBox x:Name="txtCategoryName" 
-                     Text="{Binding Category.Name, UpdateSourceTrigger=PropertyChanged}" 
-                     Padding="8" 
-                     BorderThickness="1" 
-                     BorderBrush="#E0E0E0" />
+        <!-- Allergen Form Fields -->
+        <StackPanel Grid.Row="1">
+            <!-- Allergen Name Input -->
+            <TextBlock Text="Allergen Name:" Style="{StaticResource LabelStyle}" />
+            <TextBox x:Name="txtAllergenName"
+                     Text="{Binding Allergen.Name, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource InputFieldStyle}" />
         </StackPanel>
 
         <!-- Action Buttons -->
-        <StackPanel Grid.Row="3" 
-                    Orientation="Horizontal" 
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Bottom">
-            <Button x:Name="btnCancel" 
-                    Content="Cancel" 
+            <Button x:Name="btnCancel"
+                    Content="Cancel"
                     IsCancel="True"
                     Background="#9E9E9E"
                     Style="{StaticResource DialogButtonStyle}"
                     Click="BtnCancel_Click" />
-            <Button x:Name="btnSave" 
-                    Content="Save" 
+            <Button x:Name="btnSave"
+                    Content="Save"
                     IsDefault="True"
                     Background="#4CAF50"
                     Style="{StaticResource DialogButtonStyle}"

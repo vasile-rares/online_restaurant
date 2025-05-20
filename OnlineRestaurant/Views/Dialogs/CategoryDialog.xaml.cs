@@ -1,7 +1,7 @@
 using System.Windows;
 using OnlineRestaurant.Models;
 
-namespace OnlineRestaurant.Views
+namespace OnlineRestaurant.Views.Dialogs
 {
     public partial class CategoryDialog : Window
     {
@@ -50,4 +50,4 @@ namespace OnlineRestaurant.Views
             Close();
         }
     }
-} 
+}

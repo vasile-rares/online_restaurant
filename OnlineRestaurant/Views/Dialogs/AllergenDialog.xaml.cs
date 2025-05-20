@@ -1,7 +1,7 @@
 using System.Windows;
 using OnlineRestaurant.Models;
 
-namespace OnlineRestaurant.Views
+namespace OnlineRestaurant.Views.Dialogs
 {
     public partial class AllergenDialog : Window
     {
@@ -26,14 +26,14 @@ namespace OnlineRestaurant.Views
             InitializeComponent();
             Owner = owner;
             _isEditMode = true;
-            
+
             // Create a copy of the allergen to edit
             Allergen = new Allergen
             {
                 IdAllergen = allergenToEdit.IdAllergen,
                 Name = allergenToEdit.Name
             };
-            
+
             DataContext = this;
         }
 
@@ -57,4 +57,4 @@ namespace OnlineRestaurant.Views
             Close();
         }
     }
-} 
+}
