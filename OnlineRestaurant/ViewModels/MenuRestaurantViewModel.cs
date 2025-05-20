@@ -11,8 +11,8 @@ namespace OnlineRestaurant.ViewModels
 {
     public class MenuRestaurantViewModel : BaseVM
     {
-        private readonly DishService _dishService;
-        private readonly CategoryService _categoryService;
+        private readonly IRestaurantDataService<Dish> _dishService;
+        private readonly IRestaurantDataService<Category> _categoryService;
         private readonly IRestaurantDataService<Menu> _menuService;
         private readonly IRestaurantDataService<Allergen> _allergenService;
         private ShoppingCartViewModel _shoppingCart;
@@ -128,8 +128,8 @@ namespace OnlineRestaurant.ViewModels
         public ICommand ResetSearchCommand { get; }
 
         public MenuRestaurantViewModel(
-            DishService dishService,
-            CategoryService categoryService,
+            IRestaurantDataService<Dish> dishService,
+            IRestaurantDataService<Category> categoryService,
             IRestaurantDataService<Menu> menuService,
             IRestaurantDataService<Allergen> allergenService)
         {

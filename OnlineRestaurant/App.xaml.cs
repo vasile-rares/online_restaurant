@@ -105,16 +105,14 @@ public partial class App : Application
                 }, ServiceLifetime.Transient); // Folosim Transient în loc de Scoped pentru a evita refolosirea aceluiași context
 
                 // Servicii pentru entități
-                services.AddTransient<IRestaurantDataService<Dish>, DishService>();
-                services.AddTransient<IRestaurantDataService<Category>, CategoryService>();
+                services.AddTransient<IRestaurantDataService<Dish>, RestaurantDataService<Dish>>();
+                services.AddTransient<IRestaurantDataService<Category>, RestaurantDataService<Category>>();
                 services.AddTransient<IRestaurantDataService<Allergen>, RestaurantDataService<Allergen>>();
                 services.AddTransient<IRestaurantDataService<Menu>, RestaurantDataService<Menu>>();
                 services.AddTransient<IRestaurantDataService<User>, UserService>();
                 services.AddTransient<IRestaurantDataService<Order>, OrderService>();
 
                 // Servicii specializate
-                services.AddTransient<DishService>();
-                services.AddTransient<CategoryService>();
                 services.AddTransient<OrderService>();
                 services.AddTransient<UserService>();
 
