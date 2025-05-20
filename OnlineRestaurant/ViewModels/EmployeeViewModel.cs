@@ -740,8 +740,37 @@ namespace OnlineRestaurant.ViewModels
                                 context.Entry(updatedDish).Property(d => d.PortionSize).IsModified = true;
                                 context.Entry(updatedDish).Property(d => d.TotalQuantity).IsModified = true;
                                 
-                                // Save changes
+                                // Save dish changes
                                 await context.SaveChangesAsync();
+                                
+                                // Handle photo updates
+                                if (dialog.Dish.Photos != null && dialog.Dish.Photos.Any())
+                                {
+                                    // Delete existing photos
+                                    var existingPhotos = await context.DishPhotos
+                                        .Where(dp => dp.IdDish == SelectedDish.IdDish)
+                                        .ToListAsync();
+                                        
+                                    if (existingPhotos.Any())
+                                    {
+                                        context.DishPhotos.RemoveRange(existingPhotos);
+                                        await context.SaveChangesAsync();
+                                    }
+                                    
+                                    // Add the new photo
+                                    foreach (var photo in dialog.Dish.Photos)
+                                    {
+                                        var newPhoto = new DishPhoto
+                                        {
+                                            IdDish = SelectedDish.IdDish,
+                                            Url = photo.Url
+                                        };
+                                        
+                                        context.DishPhotos.Add(newPhoto);
+                                    }
+                                    
+                                    await context.SaveChangesAsync();
+                                }
                                 
                                 // Update the UI model
                                 SelectedDish.Name = dialog.Dish.Name;
@@ -749,6 +778,7 @@ namespace OnlineRestaurant.ViewModels
                                 SelectedDish.Price = dialog.Dish.Price;
                                 SelectedDish.PortionSize = dialog.Dish.PortionSize;
                                 SelectedDish.TotalQuantity = dialog.Dish.TotalQuantity;
+                                SelectedDish.Photos = new List<DishPhoto>(dialog.Dish.Photos);
                                 
                                 // Check if LowStockDishes collection needs to be updated
                                 int lowStockThreshold = _appSettingsService.GetLowStockThreshold();
@@ -778,12 +808,14 @@ namespace OnlineRestaurant.ViewModels
                     catch (Exception ex)
                     {
                         ErrorMessage = $"Error updating dish in database: {ex.Message}";
+                        System.Diagnostics.Debug.WriteLine($"Edit Dish Error: {ex}");
                     }
                 }
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Error editing dish: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"Edit Dish Outer Error: {ex}");
             }
         }
 
@@ -819,7 +851,40 @@ namespace OnlineRestaurant.ViewModels
                             var dish = await context.Dishes.FindAsync(dishId);
                             if (dish != null)
                             {
-                                // Remove from context and save changes
+                                // First delete related DishPhoto entities
+                                var dishPhotos = await context.DishPhotos
+                                    .Where(dp => dp.IdDish == dishId)
+                                    .ToListAsync();
+
+                                if (dishPhotos.Any())
+                                {
+                                    context.DishPhotos.RemoveRange(dishPhotos);
+                                    await context.SaveChangesAsync();
+                                }
+
+                                // Then delete related DishAllergen entities
+                                var dishAllergens = await context.DishAllergens
+                                    .Where(da => da.IdDish == dishId)
+                                    .ToListAsync();
+
+                                if (dishAllergens.Any())
+                                {
+                                    context.DishAllergens.RemoveRange(dishAllergens);
+                                    await context.SaveChangesAsync();
+                                }
+
+                                // Then delete related MenuDish entities
+                                var menuDishes = await context.MenuDishes
+                                    .Where(md => md.IdDish == dishId)
+                                    .ToListAsync();
+
+                                if (menuDishes.Any())
+                                {
+                                    context.MenuDishes.RemoveRange(menuDishes);
+                                    await context.SaveChangesAsync();
+                                }
+
+                                // Finally remove the dish itself
                                 context.Dishes.Remove(dish);
                                 await context.SaveChangesAsync();
                                 
@@ -833,7 +898,14 @@ namespace OnlineRestaurant.ViewModels
                                     LowStockDishes.Remove(dishInLowStock);
                                 }
 
+                                // Reset selected dish
                 SelectedDish = null;
+                                
+                                // Refresh the dishes list
+                                await LoadDishesAsync();
+                                
+                                // Also refresh related lists
+                                await LoadMenusAsync();
                             }
                             else
                             {
@@ -844,12 +916,14 @@ namespace OnlineRestaurant.ViewModels
                     catch (Exception dbEx)
                     {
                         ErrorMessage = $"Database error: {dbEx.Message}";
+                        System.Diagnostics.Debug.WriteLine($"DELETE ERROR DETAILS: {dbEx}");
                     }
                 }
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Error deleting dish: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"DELETE ERROR OUTER: {ex}");
             }
             finally
             {
@@ -1065,7 +1139,29 @@ namespace OnlineRestaurant.ViewModels
                             var menu = await context.Menus.FindAsync(menuId);
                             if (menu != null)
                             {
-                                // Remove from context and save changes
+                                // First delete related MenuDish entities
+                                var menuDishes = await context.MenuDishes
+                                    .Where(md => md.IdMenu == menuId)
+                                    .ToListAsync();
+
+                                if (menuDishes.Any())
+                                {
+                                    context.MenuDishes.RemoveRange(menuDishes);
+                                    await context.SaveChangesAsync();
+                                }
+
+                                // Then delete related OrderMenu entities if any
+                                var orderMenus = await context.OrderMenus
+                                    .Where(om => om.IdMenu == menuId)
+                                    .ToListAsync();
+
+                                if (orderMenus.Any())
+                                {
+                                    context.OrderMenus.RemoveRange(orderMenus);
+                                    await context.SaveChangesAsync();
+                                }
+
+                                // Finally remove the menu itself
                                 context.Menus.Remove(menu);
                                 await context.SaveChangesAsync();
                                 
@@ -1082,12 +1178,14 @@ namespace OnlineRestaurant.ViewModels
                     catch (Exception dbEx)
                     {
                         ErrorMessage = $"Database error: {dbEx.Message}";
+                        System.Diagnostics.Debug.WriteLine($"DELETE MENU ERROR DETAILS: {dbEx}");
                     }
                 }
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Error deleting menu: {ex.Message}";
+                System.Diagnostics.Debug.WriteLine($"DELETE MENU ERROR OUTER: {ex}");
             }
             finally
             {

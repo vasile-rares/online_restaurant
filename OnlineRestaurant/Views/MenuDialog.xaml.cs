@@ -456,7 +456,7 @@ namespace OnlineRestaurant.Views
 
         public void CalculateTotalPrice()
         {
-            TotalPrice = Dish?.Price * Quantity ?? 0;
+            TotalPrice = Dish?.Price ?? 0;
         }
 
         // INotifyPropertyChanged implementation
