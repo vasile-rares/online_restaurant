@@ -934,7 +934,7 @@ namespace OnlineRestaurant.ViewModels
                                 }
 
                                 // Reset selected dish
-                SelectedDish = null;
+                                SelectedDish = null;
                                 
                                 // Refresh the dishes list
                                 await LoadDishesAsync();

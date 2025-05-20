@@ -13,9 +13,9 @@ namespace OnlineRestaurant.ViewModels
     public class MainViewModel : BaseVM
     {
         private readonly IServiceProvider _serviceProvider;
-        private BaseVM _currentViewModel;
         private readonly UserViewModel _userViewModel;
         private readonly ShoppingCartViewModel _shoppingCart;
+        private BaseVM _currentViewModel;
 
         public BaseVM CurrentViewModel
         {
@@ -145,35 +145,8 @@ namespace OnlineRestaurant.ViewModels
                 NavigateToProfile();
             };
             
-            // Set handler for navigation to registration
-            if (loginViewModel is LoginViewModel login)
-            {
-                // Use reflection to access private NavigateToCreateAccount method
-                var navigateMethod = login.GetType().GetMethod("NavigateToCreateAccount", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                
-                if (navigateMethod != null)
-                {
-                    var originalAction = navigateMethod.CreateDelegate(typeof(Action), login) as Action;
-                    
-                    // Redefine action to include navigation to RegisterViewModel
-                    Action newAction = () =>
-                    {
-                        originalAction?.Invoke();
-                        NavigateToRegister();
-                    };
-                    
-                    // Set new delegate for CreateAccountCommand
-                    var command = login.CreateAccountCommand as RelayCommand;
-                    var field = typeof(RelayCommand).GetField("_execute", 
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    
-                    if (field != null && command != null)
-                    {
-                        field.SetValue(command, newAction);
-                    }
-                }
-            }
+            // Subscribe to register navigation request
+            loginViewModel.NavigateToRegisterRequest += (sender, args) => NavigateToRegister();
         }
         
         private void NavigateToRegister()

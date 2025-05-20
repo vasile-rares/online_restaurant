@@ -21,6 +21,9 @@ namespace OnlineRestaurant.ViewModels
 
         // Eveniment pentru a notifica autentificarea reușită
         public event EventHandler LoginSuccessful;
+        
+        // Eveniment pentru a notifica cererea de navigare la ecranul de înregistrare
+        public event EventHandler NavigateToRegisterRequest;
 
         public string Email
         {
@@ -147,7 +150,8 @@ namespace OnlineRestaurant.ViewModels
 
         private void NavigateToCreateAccount()
         {
-            // Va fi implementat în MainViewModel prin eveniment
+            // Declanșăm evenimentul pentru a notifica că utilizatorul dorește să navigheze la ecranul de înregistrare
+            NavigateToRegisterRequest?.Invoke(this, EventArgs.Empty);
         }
 
         private void ClearErrorMessage()
