@@ -5,8 +5,10 @@ using System.Runtime.CompilerServices;
 
 namespace OnlineRestaurant.ViewModels
 {
-    public class BaseVM : INotifyPropertyChanged
+    public class BaseVM : INotifyPropertyChanged, IDisposable
     {
+        private bool _isDisposed;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -22,6 +24,40 @@ namespace OnlineRestaurant.ViewModels
             field = value;
             OnPropertyChanged(propertyName);
             return true;
+        }
+
+        // IDisposable Implementation
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_isDisposed) return;
+
+            if (disposing)
+            {
+                // Cleanup managed resources
+                OnDispose();
+            }
+
+            // Cleanup unmanaged resources
+
+            _isDisposed = true;
+        }
+
+        // This is called by Dispose(bool) to allow derived classes to override disposal logic
+        // without having to override the entire Dispose pattern
+        protected virtual void OnDispose()
+        {
+            // No resources to clean up in the base class
+        }
+
+        ~BaseVM()
+        {
+            Dispose(false);
         }
     }
 }

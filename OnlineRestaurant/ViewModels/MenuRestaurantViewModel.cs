@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 namespace OnlineRestaurant.ViewModels
 {
-    public class MenuRestaurantViewModel : BaseVM, IDisposable
+    public class MenuRestaurantViewModel : BaseVM
     {
         private readonly DishService _dishService;
         private readonly CategoryService _categoryService;
@@ -17,7 +17,6 @@ namespace OnlineRestaurant.ViewModels
         private readonly IRestaurantDataService<Allergen> _allergenService;
         private ShoppingCartViewModel _shoppingCart;
         private UserViewModel _userViewModel;
-        private bool _isDisposed;
 
         private ObservableCollection<CategoryViewModel> _categories;
         private string _searchKeyword = string.Empty;
@@ -479,53 +478,34 @@ namespace OnlineRestaurant.ViewModels
             );
         }
         
-        // Implement IDisposable pattern correctly
-        public void Dispose()
+        // Override OnDispose to clean up resources
+        protected override void OnDispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_isDisposed)
+            // Clean up managed resources
+            if (_userViewModel != null)
             {
-                if (disposing)
+                _userViewModel.PropertyChanged -= OnUserViewModelPropertyChanged;
+            }
+            
+            // Clear collections
+            if (Categories != null)
+            {
+                foreach (var category in Categories)
                 {
-                    // Clean up managed resources
-                    if (_userViewModel != null)
+                    if (category?.Items != null)
                     {
-                        _userViewModel.PropertyChanged -= OnUserViewModelPropertyChanged;
-                    }
-                    
-                    // Clear collections
-                    if (Categories != null)
-                    {
-                        foreach (var category in Categories)
-                        {
-                            if (category?.Items != null)
-                            {
-                                category.Items.Clear();
-                            }
-                        }
-                        Categories.Clear();
-                    }
-                    
-                    if (CategoryFilter != null)
-                    {
-                        CategoryFilter.Clear();
+                        category.Items.Clear();
                     }
                 }
-                
-                // Clean up unmanaged resources
-                
-                _isDisposed = true;
+                Categories.Clear();
             }
-        }
-        
-        ~MenuRestaurantViewModel()
-        {
-            Dispose(false);
+            
+            if (CategoryFilter != null)
+            {
+                CategoryFilter.Clear();
+            }
+            
+            base.OnDispose();
         }
     }
 } 

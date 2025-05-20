@@ -10,13 +10,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace OnlineRestaurant.ViewModels
 {
-    public class MainViewModel : BaseVM, IDisposable
+    public class MainViewModel : BaseVM
     {
         private readonly IServiceProvider _serviceProvider;
         private BaseVM _currentViewModel;
         private readonly UserViewModel _userViewModel;
         private readonly ShoppingCartViewModel _shoppingCart;
-        private bool _isDisposed;
 
         public BaseVM CurrentViewModel
         {
@@ -279,35 +278,16 @@ namespace OnlineRestaurant.ViewModels
             return UserViewModel.IsLoggedIn && isEmployee;
         }
 
-        // Implement IDisposable pattern correctly
-        public void Dispose()
+        // Override OnDispose to clean up resources
+        protected override void OnDispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_isDisposed)
+            // Clean up managed resources
+            if (_currentViewModel is IDisposable disposable)
             {
-                if (disposing)
-                {
-                    // Clean up managed resources
-                    if (_currentViewModel is IDisposable disposable)
-                    {
-                        disposable.Dispose();
-                    }
-                }
-                
-                // Clean up unmanaged resources
-                
-                _isDisposed = true;
+                disposable.Dispose();
             }
-        }
-        
-        ~MainViewModel()
-        {
-            Dispose(false);
+            
+            base.OnDispose();
         }
     }
 } 

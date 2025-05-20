@@ -10,7 +10,7 @@ using OnlineRestaurant.Services;
 
 namespace OnlineRestaurant.ViewModels
 {
-    public class EmployeeViewModel : BaseVM, IDisposable
+    public class EmployeeViewModel : BaseVM
     {
         private readonly IRestaurantDataService<Order> _orderService;
         private readonly IRestaurantDataService<Dish> _dishService;
@@ -36,7 +36,6 @@ namespace OnlineRestaurant.ViewModels
 
         private bool _isLoading;
         private string _errorMessage;
-        private bool _isDisposed;
 
         // Constructor
         public EmployeeViewModel(
@@ -1396,22 +1395,13 @@ namespace OnlineRestaurant.ViewModels
             }
         }
 
-        public void Dispose()
+        // Override OnDispose to clean up resources
+        protected override void OnDispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_isDisposed) return;
-
-            if (disposing)
-            {
-                // Cleanup
-            }
-
-            _isDisposed = true;
+            // Cleanup resources
+            // We don't actually need cleanup code here as there are no resources
+            // that need explicit disposal, but the method is here for future use
+            base.OnDispose();
         }
     }
 }
