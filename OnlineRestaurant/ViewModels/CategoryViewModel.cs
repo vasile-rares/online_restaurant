@@ -6,7 +6,7 @@ namespace OnlineRestaurant.ViewModels
     {
         private int _idCategory;
         private string _name = string.Empty;
-        private ObservableCollection<ItemMenuViewModel> _items;
+        private ObservableCollection<MenuRestaurantViewModel.ItemMenuViewModel> _items;
 
         public int IdCategory
         {
@@ -20,7 +20,7 @@ namespace OnlineRestaurant.ViewModels
             set => SetProperty(ref _name, value);
         }
 
-        public ObservableCollection<ItemMenuViewModel> Items
+        public ObservableCollection<MenuRestaurantViewModel.ItemMenuViewModel> Items
         {
             get => _items;
             set => SetProperty(ref _items, value);
@@ -28,7 +28,7 @@ namespace OnlineRestaurant.ViewModels
 
         public CategoryViewModel()
         {
-            Items = new ObservableCollection<ItemMenuViewModel>();
+            Items = new ObservableCollection<MenuRestaurantViewModel.ItemMenuViewModel>();
         }
     }
 } 

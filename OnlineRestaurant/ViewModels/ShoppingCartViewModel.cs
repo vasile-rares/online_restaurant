@@ -13,7 +13,7 @@ namespace OnlineRestaurant.ViewModels
     public class CartItemViewModel : BaseVM
     {
         private int _id;
-        private ItemMenuType _type;
+        private MenuRestaurantViewModel.ItemMenuType _type;
         private string _name;
         private decimal _price;
         private int _quantity;
@@ -25,7 +25,7 @@ namespace OnlineRestaurant.ViewModels
             set => SetProperty(ref _id, value);
         }
 
-        public ItemMenuType Type
+        public MenuRestaurantViewModel.ItemMenuType Type
         {
             get => _type;
             set => SetProperty(ref _type, value);
@@ -169,7 +169,7 @@ namespace OnlineRestaurant.ViewModels
             _ = UpdateCartSummary();
         }
 
-        public void AddToCart(ItemMenuViewModel item)
+        public void AddToCart(MenuRestaurantViewModel.ItemMenuViewModel item)
         {
             if (item == null || !item.Available)
                 return;
@@ -346,7 +346,7 @@ namespace OnlineRestaurant.ViewModels
                 // Add dishes to the order
                 foreach (var item in Items)
                 {
-                    if (item.Type == ItemMenuType.Dish)
+                    if (item.Type == MenuRestaurantViewModel.ItemMenuType.Dish)
                     {
                         order.OrderDishes.Add(new OrderDish
                         {
@@ -354,7 +354,7 @@ namespace OnlineRestaurant.ViewModels
                             Quantity = item.Quantity
                         });
                     }
-                    else if (item.Type == ItemMenuType.Menu)
+                    else if (item.Type == MenuRestaurantViewModel.ItemMenuType.Menu)
                     {
                         order.OrderMenus.Add(new OrderMenu
                         {
