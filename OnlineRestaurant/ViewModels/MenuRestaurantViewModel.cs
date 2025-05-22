@@ -139,6 +139,14 @@ namespace OnlineRestaurant.ViewModels
             }
         }
 
+        // Clasă simplă pentru categoria de meniu - doar pentru a facilita binding-ul în UI
+        public class CategoryGroup : BaseVM
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public ObservableCollection<ItemMenuViewModel> Items { get; set; } = new();
+        }
+
         private readonly IRestaurantDataService<Dish> _dishService;
         private readonly IRestaurantDataService<Category> _categoryService;
         private readonly IRestaurantDataService<Menu> _menuService;
@@ -146,28 +154,28 @@ namespace OnlineRestaurant.ViewModels
         private ShoppingCartViewModel _shoppingCart;
         private UserViewModel _userViewModel;
 
-        private ObservableCollection<CategoryViewModel> _categories;
+        private ObservableCollection<CategoryGroup> _categories;
         private string _searchKeyword = string.Empty;
         private bool _searchInverse;
         private bool _searchByAllergen;
         private bool _isSearching;
-        private ObservableCollection<CategoryViewModel> _categoryFilter;
-        private CategoryViewModel _selectedCategory;
+        private ObservableCollection<CategoryGroup> _categoryFilter;
+        private CategoryGroup _selectedCategory;
         private bool _isResetting;
 
-        public ObservableCollection<CategoryViewModel> Categories
+        public ObservableCollection<CategoryGroup> Categories
         {
             get => _categories;
             set => SetProperty(ref _categories, value);
         }
 
-        public ObservableCollection<CategoryViewModel> CategoryFilter
+        public ObservableCollection<CategoryGroup> CategoryFilter
         {
             get => _categoryFilter;
             set => SetProperty(ref _categoryFilter, value);
         }
 
-        public CategoryViewModel SelectedCategory
+        public CategoryGroup SelectedCategory
         {
             get => _selectedCategory;
             set
@@ -266,8 +274,8 @@ namespace OnlineRestaurant.ViewModels
             _menuService = menuService;
             _allergenService = allergenService;
 
-            Categories = new ObservableCollection<CategoryViewModel>();
-            CategoryFilter = new ObservableCollection<CategoryViewModel>();
+            Categories = new ObservableCollection<CategoryGroup>();
+            CategoryFilter = new ObservableCollection<CategoryGroup>();
             ResetSearchCommand = new RelayCommand(ResetSearch);
 
             // Încărcăm datele inițiale
@@ -329,23 +337,23 @@ namespace OnlineRestaurant.ViewModels
                 var allergens = await _allergenService.GetAllAsync();
 
                 // Adăugăm o opțiune "Toate categoriile" la începutul listei de filtre
-                CategoryFilter.Add(new CategoryViewModel
+                CategoryFilter.Add(new CategoryGroup
                 {
-                    IdCategory = 0,
+                    Id = 0,
                     Name = "Toate categoriile"
                 });
 
             // Grupăm datele pe categorii pentru afișare
                 foreach (var category in categories)
             {
-                    var categoryVM = new CategoryViewModel
+                    var categoryGroup = new CategoryGroup
                 {
-                        IdCategory = category.IdCategory,
+                        Id = category.IdCategory,
                         Name = category.Name
                 };
 
                     // Adaugă categoria în lista de filtre
-                    CategoryFilter.Add(categoryVM);
+                    CategoryFilter.Add(categoryGroup);
 
                 // Adăugăm preparatele din această categorie
                     var dishesInCategory = dishes.Where(p => p.IdCategory == category.IdCategory).ToList();
@@ -364,7 +372,7 @@ namespace OnlineRestaurant.ViewModels
                             Allergens = new ObservableCollection<string>(
                                 dish.DishAllergens.Select(pa => pa.Allergen.Name).ToList())
                     };
-                        categoryVM.Items.Add(dishVM);
+                        categoryGroup.Items.Add(dishVM);
                         InitializeAddToCartCommands(dishVM);
                 }
 
@@ -397,13 +405,13 @@ namespace OnlineRestaurant.ViewModels
                     // Adăugăm o imagine implicită pentru meniu
                         menuVM.Images.Add("/Images/default.jpg");
                     
-                        categoryVM.Items.Add(menuVM);
+                        categoryGroup.Items.Add(menuVM);
                         InitializeAddToCartCommands(menuVM);
                 }
 
-                    if (categoryVM.Items.Count > 0)
+                    if (categoryGroup.Items.Count > 0)
                 {
-                        Categories.Add(categoryVM);
+                        Categories.Add(categoryGroup);
                 }
             }
 
@@ -426,7 +434,7 @@ namespace OnlineRestaurant.ViewModels
 
         private void ExecuteSearch()
         {
-            IsSearching = !string.IsNullOrWhiteSpace(SearchKeyword) || (SelectedCategory != null && SelectedCategory.IdCategory != 0);
+            IsSearching = !string.IsNullOrWhiteSpace(SearchKeyword) || (SelectedCategory != null && SelectedCategory.Id != 0);
             // Run the filter operation directly
             FilterDishesAndMenusAsync();
         }
@@ -453,7 +461,7 @@ namespace OnlineRestaurant.ViewModels
                 }
 
                     // Filter by category if a specific category is selected
-                    bool matchesCategory = SelectedCategory == null || SelectedCategory.IdCategory == 0 || p.IdCategory == SelectedCategory.IdCategory;
+                    bool matchesCategory = SelectedCategory == null || SelectedCategory.Id == 0 || p.IdCategory == SelectedCategory.Id;
 
                     return matchesSearch && matchesCategory;
             }).ToList();
@@ -470,7 +478,7 @@ namespace OnlineRestaurant.ViewModels
                     }
 
                     // Filter by category if a specific category is selected
-                    bool matchesCategory = SelectedCategory == null || SelectedCategory.IdCategory == 0 || m.IdCategory == SelectedCategory.IdCategory;
+                    bool matchesCategory = SelectedCategory == null || SelectedCategory.Id == 0 || m.IdCategory == SelectedCategory.Id;
 
                     return matchesSearch && matchesCategory;
                 }).ToList();
@@ -480,9 +488,9 @@ namespace OnlineRestaurant.ViewModels
 
                 // Procesare categorii - dacă e selectată o categorie anume, arată doar acea categorie
                 IEnumerable<Category> categoriesToShow;
-                if (SelectedCategory != null && SelectedCategory.IdCategory != 0)
+                if (SelectedCategory != null && SelectedCategory.Id != 0)
                 {
-                    categoriesToShow = categories.Where(c => c.IdCategory == SelectedCategory.IdCategory);
+                    categoriesToShow = categories.Where(c => c.IdCategory == SelectedCategory.Id);
                 }
                 else
                 {
@@ -495,9 +503,9 @@ namespace OnlineRestaurant.ViewModels
 
                 foreach (var category in categoriesToShow)
             {
-                    var categoryVM = new CategoryViewModel
+                    var categoryGroup = new CategoryGroup
                 {
-                        IdCategory = category.IdCategory,
+                        Id = category.IdCategory,
                         Name = category.Name
                 };
 
@@ -518,7 +526,7 @@ namespace OnlineRestaurant.ViewModels
                             Allergens = new ObservableCollection<string>(
                                 dish.DishAllergens.Select(pa => pa.Allergen.Name).ToList())
                     };
-                        categoryVM.Items.Add(dishVM);
+                        categoryGroup.Items.Add(dishVM);
                         InitializeAddToCartCommands(dishVM);
                 }
 
@@ -546,13 +554,13 @@ namespace OnlineRestaurant.ViewModels
                     };
                     
                         menuVM.Images.Add("/Images/default.jpg");
-                        categoryVM.Items.Add(menuVM);
+                        categoryGroup.Items.Add(menuVM);
                         InitializeAddToCartCommands(menuVM);
                 }
 
-                    if (categoryVM.Items.Count > 0)
+                    if (categoryGroup.Items.Count > 0)
                 {
-                        Categories.Add(categoryVM);
+                        Categories.Add(categoryGroup);
                     }
                 }
                 
