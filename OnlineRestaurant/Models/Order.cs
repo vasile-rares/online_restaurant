@@ -55,6 +55,9 @@ namespace OnlineRestaurant.Models
 
         [NotMapped]
         public decimal TotalOrder => CalculateTotal();
+        
+        [NotMapped]
+        public string ShortId => IdOrder.ToString().Substring(0, 8).ToUpper();
 
         private decimal CalculateTotal()
         {

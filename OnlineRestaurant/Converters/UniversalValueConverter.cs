@@ -8,14 +8,13 @@ namespace OnlineRestaurant.Converters
     {
         public enum OperationType
         {
-            LessThan,       // Verifică dacă valoarea este mai mică decât un parametru
-            TruncateText    // Truncheazã textul la un anumit număr de caractere
+            LessThan       // Verifică dacă valoarea este mai mică decât un parametru
         }
 
         // Tipul operației
         public OperationType Operation { get; set; } = OperationType.LessThan;
         
-        // Parametru pentru operație (ex. limita pentru comparație sau lungimea pentru truncare)
+        // Parametru pentru operație (ex. limita pentru comparație)
         public object OperationParameter { get; set; }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -51,9 +50,6 @@ namespace OnlineRestaurant.Converters
                 case OperationType.LessThan:
                     return ProcessLessThan(value);
                     
-                case OperationType.TruncateText:
-                    return ProcessTruncateText(value);
-                    
                 default:
                     return value;
             }
@@ -83,27 +79,6 @@ namespace OnlineRestaurant.Converters
             }
             
             return false;
-        }
-
-        private object ProcessTruncateText(object value)
-        {
-            if (value == null)
-                return string.Empty;
-                
-            string stringValue = value.ToString();
-            int length = 8; // Lungime implicită
-            
-            if (OperationParameter != null && int.TryParse(OperationParameter.ToString(), out int paramLength))
-            {
-                length = paramLength;
-            }
-            
-            if (stringValue.Length > length)
-            {
-                return stringValue.Substring(0, length);
-            }
-            
-            return stringValue;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

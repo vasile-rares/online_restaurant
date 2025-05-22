@@ -30,10 +30,6 @@ namespace OnlineRestaurant.Converters
         public static IValueConverter LessThanConverter =>
             new UniversalValueConverter { Operation = UniversalValueConverter.OperationType.LessThan };
             
-        // TruncateText - pentru truncarea textului
-        public static IValueConverter TextTruncateConverter =>
-            new UniversalValueConverter { Operation = UniversalValueConverter.OperationType.TruncateText };
-            
         // Metode utilitare pentru configurarea rapidă a converterelor
         
         // UniversalVisibilityConverter configurat pentru string-uri

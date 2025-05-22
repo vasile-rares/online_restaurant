@@ -230,7 +230,7 @@
             <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="200"/>
             </Grid.ColumnDefinitions>
             
             <StackPanel Grid.Column="0">
@@ -306,8 +306,12 @@
                         Padding="20,12" 
                         Background="#4CAF50" 
                     Foreground="White" 
-                    BorderThickness="0" 
+                    BorderThickness="0"
                         FontSize="16"
+                        Width="Auto"
+                        Height="50"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
                         IsEnabled="{Binding HasItems}">
                 <Button.Resources>
                     <Style TargetType="Border">
