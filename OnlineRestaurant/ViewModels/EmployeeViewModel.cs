@@ -427,24 +427,30 @@ namespace OnlineRestaurant.ViewModels
 
                 try
                 {
-                    // Direct database approach with minimal entity tracking
+                    // Direct database approach using stored procedure
                     using (var context = new Data.RestaurantDbContext(
                         new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
                             .UseSqlServer(_appSettingsService.ConnectionString)
                             .Options))
                     {
-                        var order = await context.Orders.FindAsync(SelectedOrder.IdOrder);
-                        if (order != null)
+                        // Convertim enumerația la string pentru procedura stocată
+                        string statusText = newStatus.ToString();
+                        if (newStatus == OrderStatus.out_for_delivery)
                         {
-                            order.Status = newStatus;
-                            await context.SaveChangesAsync();
-
-                            // Update the UI model
-                            SelectedOrder.Status = newStatus;
+                            statusText = "out for delivery"; // Folosim textul corect pentru procedura stocată
                         }
+
+                        // Apelăm procedura stocată pentru actualizarea statusului
+                        await context.Database.ExecuteSqlRawAsync(
+                            "EXEC UpdateOrderStatus @IdOrder, @NewStatus",
+                            new Microsoft.Data.SqlClient.SqlParameter("@IdOrder", SelectedOrder.IdOrder),
+                            new Microsoft.Data.SqlClient.SqlParameter("@NewStatus", statusText));
+
+                        // Actualizăm și modelul UI
+                        SelectedOrder.Status = newStatus;
                     }
 
-                    // Refresh lists after successful update
+                    // Reîmprospătăm listele după actualizarea cu succes
                     await LoadActiveOrdersAsync();
                     await LoadAllOrdersAsync();
                 }
