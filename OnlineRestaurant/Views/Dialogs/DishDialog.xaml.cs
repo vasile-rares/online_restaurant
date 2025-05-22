@@ -200,28 +200,28 @@ namespace OnlineRestaurant.Views.Dialogs
             // Validate inputs
             if (string.IsNullOrWhiteSpace(Dish.Name))
             {
-                MessageBox.Show("Dish name cannot be empty.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Numele preparatului nu poate fi gol.", "Eroare de validare", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtDishName.Focus();
                 return;
             }
 
             if (Dish.Price <= 0)
             {
-                MessageBox.Show("Please enter a valid price.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Vă rugăm să introduceți un preț valid.", "Eroare de validare", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtPrice.Focus();
                 return;
             }
 
             if (Dish.PortionSize <= 0)
             {
-                MessageBox.Show("Portion size must be greater than zero.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Mărimea porției trebuie să fie mai mare decât zero.", "Eroare de validare", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtPortionSize.Focus();
                 return;
             }
 
             if (Dish.TotalQuantity < 0)
             {
-                MessageBox.Show("Total quantity cannot be negative.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Cantitatea totală nu poate fi negativă.", "Eroare de validare", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtTotalQuantity.Focus();
                 return;
             }

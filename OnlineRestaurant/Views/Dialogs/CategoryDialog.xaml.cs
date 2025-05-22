@@ -8,7 +8,7 @@ namespace OnlineRestaurant.Views.Dialogs
         private bool _isEditMode;
 
         public Category Category { get; private set; }
-        public string DialogTitle => _isEditMode ? "Edit Category" : "Add Category";
+        public string DialogTitle => _isEditMode ? "Editare Categorie" : "Adăugare Categorie";
 
         // Constructor for adding a new category
         public CategoryDialog(Window owner)
@@ -35,7 +35,7 @@ namespace OnlineRestaurant.Views.Dialogs
             // Validate input
             if (string.IsNullOrWhiteSpace(Category.Name))
             {
-                MessageBox.Show("Category name cannot be empty.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Numele categoriei nu poate fi gol.", "Eroare de validare", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtCategoryName.Focus();
                 return;
             }

@@ -35,6 +35,11 @@ namespace OnlineRestaurant.ViewModels
         public UserViewModel UserViewModel => _userViewModel;
         
         public ShoppingCartViewModel ShoppingCart => _shoppingCart;
+        
+        public bool IsEmployee => 
+            UserViewModel.IsLoggedIn && 
+            UserViewModel.CurrentUser?.Role != null && 
+            UserViewModel.CurrentUser.Role.Equals("Angajat", StringComparison.OrdinalIgnoreCase);
 
         public ICommand NavigateToMenuCommand { get; }
         public ICommand NavigateToLoginCommand { get; }
@@ -74,11 +79,12 @@ namespace OnlineRestaurant.ViewModels
             // Subscribe to property changed event to update commands
             _userViewModel.PropertyChanged += (sender, args) => 
             {
-                if (args.PropertyName == nameof(UserViewModel.IsLoggedIn))
+                if (args.PropertyName == nameof(UserViewModel.IsLoggedIn) || args.PropertyName == nameof(UserViewModel.CurrentUser))
                 {
                     ((RelayCommand)NavigateToProfileCommand).RaiseCanExecuteChanged();
                     ((RelayCommand)NavigateToCartCommand).RaiseCanExecuteChanged();
                     ((RelayCommand)NavigateToEmployeeDashboardCommand).RaiseCanExecuteChanged();
+                    OnPropertyChanged(nameof(IsEmployee));
                 }
             };
             
@@ -106,6 +112,8 @@ namespace OnlineRestaurant.ViewModels
                 // We don't need to navigate anywhere - just update commands
                 ((RelayCommand)NavigateToProfileCommand).RaiseCanExecuteChanged();
                 ((RelayCommand)NavigateToCartCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)NavigateToEmployeeDashboardCommand).RaiseCanExecuteChanged();
+                OnPropertyChanged(nameof(IsEmployee));
             };
         }
 
@@ -142,6 +150,14 @@ namespace OnlineRestaurant.ViewModels
             {
                 // Reset shopping cart when user logs in
                 _shoppingCart.ClearCart();
+                
+                // Actualizăm explicit comenzile și proprietățile relevante pentru UI
+                ((RelayCommand)NavigateToProfileCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)NavigateToCartCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)NavigateToOrdersCommand).RaiseCanExecuteChanged();
+                ((RelayCommand)NavigateToEmployeeDashboardCommand).RaiseCanExecuteChanged();
+                OnPropertyChanged(nameof(IsEmployee));
+                
                 NavigateToProfile();
             };
             

@@ -121,9 +121,14 @@ namespace OnlineRestaurant.ViewModels
                     _credentialsService.SaveCredentials(Email, Password, RememberMe);
                     
                     // Autentificare reușită
+                    System.Diagnostics.Debug.WriteLine("Login successful, setting CurrentUser");
                     _userViewModel.CurrentUser = user;
                     
+                    // Asigurăm notificarea stării de login
+                    _userViewModel.ForceNotifyLoginStatus();
+                    
                     // Declanșăm evenimentul de succes
+                    System.Diagnostics.Debug.WriteLine("Triggering LoginSuccessful event");
                     LoginSuccessful?.Invoke(this, EventArgs.Empty);
                 }
                 else

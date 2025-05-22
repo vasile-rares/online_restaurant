@@ -25,7 +25,7 @@ namespace OnlineRestaurant.Views.Dialogs
 
         public OnlineRestaurant.Models.Menu Menu { get; private set; }
         public List<Category> Categories { get; set; }
-        public string DialogTitle => _isEditMode ? "Edit Menu" : "Add Menu";
+        public string DialogTitle => _isEditMode ? "Editare Meniu" : "Adăugare Meniu";
         public ObservableCollection<Dish> AvailableDishes { get; set; }
         public ObservableCollection<MenuDishViewModel> SelectedDishes { get; set; }
 
@@ -245,14 +245,14 @@ namespace OnlineRestaurant.Views.Dialogs
             // Validate inputs
             if (string.IsNullOrWhiteSpace(Menu.Name))
             {
-                MessageBox.Show("Menu name cannot be empty.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Numele meniului nu poate fi gol.", "Eroare de validare", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtMenuName.Focus();
                 return;
             }
 
             if (SelectedDishes.Count == 0)
             {
-                MessageBox.Show("Please add at least one dish to the menu.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Vă rugăm să adăugați cel puțin un preparat în meniu.", "Eroare de validare", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -313,7 +313,7 @@ namespace OnlineRestaurant.Views.Dialogs
             // Check if dish is already in the selected dishes
             if (SelectedDishes.Any(sd => sd.Dish.IdDish == dish.IdDish))
             {
-                MessageBox.Show("This dish is already added to the menu.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Acest preparat este deja adăugat în meniu.", "Informație", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 

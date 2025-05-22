@@ -99,14 +99,23 @@
                 <!-- User -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
 
-                    <!-- Cart button - visible when user is logged in and has items -->
+                    <!-- Cart button - visible when user is logged in -->
                     <Button Padding="10,5"
                             Margin="0,0,10,0"
                             Background="#E67E22"
                             Foreground="White"
                             BorderThickness="0"
-                            Command="{Binding NavigateToCartCommand}"
-                            Visibility="{Binding UserViewModel.IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            Command="{Binding NavigateToCartCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding UserViewModel.IsLoggedIn}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="6" />
@@ -127,8 +136,17 @@
                             Background="#3498DB"
                             Foreground="White"
                             BorderThickness="0"
-                            Command="{Binding NavigateToOrdersCommand}"
-                            Visibility="{Binding UserViewModel.IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            Command="{Binding NavigateToOrdersCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding UserViewModel.IsLoggedIn}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="6" />
@@ -149,8 +167,17 @@
                             Background="#2ECC71"
                             Foreground="White"
                             BorderThickness="0"
-                            Command="{Binding NavigateToProfileCommand}"
-                            Visibility="{Binding UserViewModel.IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            Command="{Binding NavigateToProfileCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding UserViewModel.IsLoggedIn}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="6" />
@@ -170,8 +197,17 @@
                             Background="#775B00"
                             Foreground="White"
                             BorderThickness="0"
-                            Command="{Binding NavigateToLoginCommand}"
-                            Visibility="{Binding UserViewModel.IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Invert}">
+                            Command="{Binding NavigateToLoginCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding UserViewModel.IsLoggedIn}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="6" />
@@ -193,6 +229,16 @@
                             Foreground="White"
                             BorderThickness="0"
                             Command="{Binding NavigateToEmployeeDashboardCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEmployee}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="6" />

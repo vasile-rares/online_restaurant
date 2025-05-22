@@ -8,7 +8,7 @@ namespace OnlineRestaurant.Views.Dialogs
         private bool _isEditMode;
 
         public Allergen Allergen { get; private set; }
-        public string DialogTitle => _isEditMode ? "Edit Allergen" : "Add Allergen";
+        public string DialogTitle => _isEditMode ? "Editare Alergen" : "Adăugare Alergen";
 
         // Constructor for adding a new allergen
         public AllergenDialog(Window owner)
@@ -42,7 +42,7 @@ namespace OnlineRestaurant.Views.Dialogs
             // Validate inputs
             if (string.IsNullOrWhiteSpace(Allergen.Name))
             {
-                MessageBox.Show("Allergen name cannot be empty.", "Validation Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Numele alergenului nu poate fi gol.", "Eroare de validare", MessageBoxButton.OK, MessageBoxImage.Warning);
                 txtAllergenName.Focus();
                 return;
             }
