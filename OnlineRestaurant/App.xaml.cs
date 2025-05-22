@@ -18,6 +18,9 @@ namespace OnlineRestaurant
     {
         private ServiceProvider serviceProvider;
         public static IConfiguration Configuration { get; private set; }
+        
+        // Proprietate statică pentru a permite accesul la servicii din alte părți ale aplicației
+        public static ServiceProvider ServiceProvider { get; private set; }
 
         public App()
         {
@@ -34,6 +37,14 @@ namespace OnlineRestaurant
             ServiceCollection services = new ServiceCollection();
             ConfigureServices(services);
             serviceProvider = services.BuildServiceProvider();
+            ServiceProvider = serviceProvider;
+            
+            // Inițializăm discount-ul pentru meniuri din configurație
+            var appSettings = serviceProvider.GetService<AppSettingsService>();
+            if (appSettings != null)
+            {
+                Menu.UpdateDiscountPercentage(appSettings.GetMenuDiscountPercentage());
+            }
         }
 
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)

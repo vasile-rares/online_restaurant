@@ -22,6 +22,8 @@ namespace OnlineRestaurant.Services
                     .ThenInclude(cp => cp.Dish)
                 .Include(c => c.OrderMenus)
                     .ThenInclude(om => om.Menu)
+                        .ThenInclude(m => m.MenuDishes)
+                            .ThenInclude(md => md.Dish)
                 .ToListAsync();
         }
 
@@ -33,6 +35,8 @@ namespace OnlineRestaurant.Services
                     .ThenInclude(cp => cp.Dish)
                 .Include(c => c.OrderMenus)
                     .ThenInclude(om => om.Menu)
+                        .ThenInclude(m => m.MenuDishes)
+                            .ThenInclude(md => md.Dish)
                 .FirstOrDefaultAsync(c => c.IdOrder == (Guid)id);
         }
 
@@ -43,6 +47,8 @@ namespace OnlineRestaurant.Services
                     .ThenInclude(cp => cp.Dish)
                 .Include(c => c.OrderMenus)
                     .ThenInclude(om => om.Menu)
+                        .ThenInclude(m => m.MenuDishes)
+                            .ThenInclude(md => md.Dish)
                 .Where(c => c.IdUser == userId)
                 .OrderByDescending(c => c.OrderDate)
                 .ToListAsync();
@@ -56,8 +62,10 @@ namespace OnlineRestaurant.Services
                     .ThenInclude(cp => cp.Dish)
                 .Include(c => c.OrderMenus)
                     .ThenInclude(om => om.Menu)
+                        .ThenInclude(m => m.MenuDishes)
+                            .ThenInclude(md => md.Dish)
                 .Where(c => c.Status != OrderStatus.delivered && c.Status != OrderStatus.canceled)
-                .OrderBy(c => c.OrderDate)
+                .OrderByDescending(c => c.OrderDate)
                 .ToListAsync();
         }
     }

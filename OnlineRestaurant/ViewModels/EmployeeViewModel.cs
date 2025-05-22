@@ -258,7 +258,7 @@ namespace OnlineRestaurant.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la încărcarea comenzilor: {ex.Message}";
+                ErrorMessage = $"Error loading orders: {ex.Message}";
             }
             finally
             {
@@ -275,7 +275,7 @@ namespace OnlineRestaurant.ViewModels
 
                 var allOrders = await _orderService.GetAllAsync();
                 var activeOrders = allOrders.Where(o => o.Status != OrderStatus.delivered && o.Status != OrderStatus.canceled)
-                                           .OrderBy(o => o.OrderDate);
+                                           .OrderByDescending(o => o.OrderDate);
 
                 ActiveOrders.Clear();
                 foreach (var order in activeOrders)
@@ -285,7 +285,7 @@ namespace OnlineRestaurant.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la încărcarea comenzilor active: {ex.Message}";
+                ErrorMessage = $"Error loading active orders: {ex.Message}";
             }
             finally
             {
@@ -312,7 +312,7 @@ namespace OnlineRestaurant.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la încărcarea preparatelor cu stoc limitat: {ex.Message}";
+                ErrorMessage = $"Error loading low stock dishes: {ex.Message}";
             }
             finally
             {
@@ -336,7 +336,7 @@ namespace OnlineRestaurant.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la încărcarea categoriilor: {ex.Message}";
+                ErrorMessage = $"Error loading categories: {ex.Message}";
             }
             finally
             {
@@ -351,35 +351,16 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 
-                using (var context = new Data.RestaurantDbContext(
-                    new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
-                        .UseSqlServer(_appSettingsService.ConnectionString)
-                        .Options))
+                var menus = await _menuService.GetAllAsync();
+                Menus.Clear();
+                foreach (var menu in menus)
                 {
-                    var menus = await context.Menus
-                        .Include(m => m.MenuDishes)
-                            .ThenInclude(md => md.Dish)
-                        .ToListAsync();
-                    
-                    Menus.Clear();
-                    foreach (var menu in menus)
-                    {
-                        // Check if any menu has unavailable dishes, but don't modify the name
-                        // bool hasUnavailableDish = menu.MenuDishes != null && 
-                        //                         menu.MenuDishes.Any(md => md.Dish.TotalQuantity <= 0);
-                        
-                        // if (hasUnavailableDish)
-                        // {
-                        //     menu.Name = $"{menu.Name} - indisponibil";
-                        // }
-                        
-                        Menus.Add(menu);
-                    }
+                    Menus.Add(menu);
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la încărcarea meniurilor: {ex.Message}";
+                ErrorMessage = $"Error loading menus: {ex.Message}";
             }
             finally
             {
@@ -403,7 +384,7 @@ namespace OnlineRestaurant.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la încărcarea alergenilor: {ex.Message}";
+                ErrorMessage = $"Error loading allergens: {ex.Message}";
             }
             finally
             {
@@ -419,21 +400,15 @@ namespace OnlineRestaurant.ViewModels
                 ErrorMessage = string.Empty;
 
                 var dishes = await _dishService.GetAllAsync();
-                
                 Dishes.Clear();
                 foreach (var dish in dishes)
                 {
-                    // Add to collection without modifying the name
-                    // if (dish.TotalQuantity <= 0)
-                    // {
-                    //     dish.Name = $"{dish.Name} - indisponibil";
-                    // }
                     Dishes.Add(dish);
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la încărcarea preparatelor: {ex.Message}";
+                ErrorMessage = $"Error loading dishes: {ex.Message}";
             }
             finally
             {
@@ -458,66 +433,9 @@ namespace OnlineRestaurant.ViewModels
                             .UseSqlServer(_appSettingsService.ConnectionString)
                             .Options))
                     {
-                        var order = await context.Orders
-                            .Include(o => o.OrderDishes) // Include related dishes to update inventory
-                            .Include(o => o.OrderMenus)
-                                .ThenInclude(om => om.Menu)
-                                    .ThenInclude(m => m.MenuDishes)
-                                        .ThenInclude(md => md.Dish)
-                            .FirstOrDefaultAsync(o => o.IdOrder == SelectedOrder.IdOrder);
-
+                        var order = await context.Orders.FindAsync(SelectedOrder.IdOrder);
                         if (order != null)
                         {
-                            // Check if the new status is "preparing" and the old status was different
-                            if (newStatus == OrderStatus.preparing && order.Status != OrderStatus.preparing)
-                            {
-                                // Update dish quantities for individual dishes in the order
-                                if (order.OrderDishes != null)
-                                {
-                                    foreach (var orderDish in order.OrderDishes)
-                                    {
-                                        var dish = await context.Dishes.FindAsync(orderDish.IdDish);
-                                        if (dish != null)
-                                        {
-                                            // Decrease quantity based on ordered amount and portion size
-                                            int quantityToDecrease = orderDish.Quantity * dish.PortionSize;
-                                            dish.TotalQuantity = Math.Max(0, dish.TotalQuantity - quantityToDecrease);
-                                            context.Update(dish);
-                                        }
-                                    }
-                                }
-
-                                // Update dish quantities for dishes in menus that were ordered
-                                if (order.OrderMenus != null)
-                                {
-                                    foreach (var orderMenu in order.OrderMenus)
-                                    {
-                                        if (orderMenu.Menu?.MenuDishes != null)
-                                        {
-                                            foreach (var menuDish in orderMenu.Menu.MenuDishes)
-                                            {
-                                                if (menuDish.Dish != null)
-                                                {
-                                                    // For each ordered menu:
-                                                    // orderMenu.Quantity = number of menus ordered
-                                                    // menuDish.Quantity = custom quantity in grams for this dish in the menu
-                                                    // We don't need to multiply by portion size since Quantity is already in grams
-                                                    int quantityToDecrease = orderMenu.Quantity * menuDish.Quantity;
-                                                    
-                                                    // Get a fresh instance of the dish to update
-                                                    var dish = await context.Dishes.FindAsync(menuDish.IdDish);
-                                                    if (dish != null)
-                                                    {
-                                                        dish.TotalQuantity = Math.Max(0, dish.TotalQuantity - quantityToDecrease);
-                                                        context.Update(dish);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
                             order.Status = newStatus;
                             await context.SaveChangesAsync();
 
@@ -526,21 +444,18 @@ namespace OnlineRestaurant.ViewModels
                         }
                     }
 
-                    // Refresh lists after successful update to show updated quantities and availability
+                    // Refresh lists after successful update
                     await LoadActiveOrdersAsync();
                     await LoadAllOrdersAsync();
-                    await LoadLowStockDishesAsync();
-                    await LoadDishesAsync();
-                    await LoadMenusAsync();
                 }
                 catch (Exception dbEx)
                 {
-                    ErrorMessage = $"Eroare bază de date: {dbEx.Message}";
+                    ErrorMessage = $"Database error: {dbEx.Message}";
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la actualizarea statusului comenzii: {ex.Message}";
+                ErrorMessage = $"Error updating order status: {ex.Message}";
             }
             finally
             {
@@ -584,7 +499,7 @@ namespace OnlineRestaurant.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la adăugarea categoriei: {ex.Message}";
+                ErrorMessage = $"Error adding category: {ex.Message}";
             }
         }
 
@@ -653,13 +568,13 @@ namespace OnlineRestaurant.ViewModels
                     }
                     catch (Exception ex)
                     {
-                        ErrorMessage = $"Eroare la actualizarea categoriei în baza de date: {ex.Message}";
+                        ErrorMessage = $"Error updating category in database: {ex.Message}";
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la editarea categoriei: {ex.Message}";
+                ErrorMessage = $"Error editing category: {ex.Message}";
             }
         }
 
@@ -674,8 +589,8 @@ namespace OnlineRestaurant.ViewModels
 
                 // Ask for confirmation
                 var result = System.Windows.MessageBox.Show(
-                    $"Sunteți sigur că doriți să ștergeți categoria '{SelectedCategory.Name}'?",
-                    "Confirmă ștergerea",
+                    $"Are you sure you want to delete the category '{SelectedCategory.Name}'?",
+                    "Confirm Delete",
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Question);
 
@@ -705,19 +620,19 @@ namespace OnlineRestaurant.ViewModels
                             }
                             else
                             {
-                                ErrorMessage = "Categoria nu a fost găsită în baza de date.";
+                                ErrorMessage = "Category not found in database.";
                             }
                         }
                     }
                     catch (Exception dbEx)
                     {
-                        ErrorMessage = $"Eroare bază de date: {dbEx.Message}";
+                        ErrorMessage = $"Database error: {dbEx.Message}";
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la ștergerea categoriei: {ex.Message}";
+                ErrorMessage = $"Error deleting category: {ex.Message}";
             }
             finally
             {
@@ -764,7 +679,7 @@ namespace OnlineRestaurant.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la adăugarea preparatului: {ex.Message}";
+                ErrorMessage = $"Error adding dish: {ex.Message}";
             }
         }
 
@@ -927,14 +842,14 @@ namespace OnlineRestaurant.ViewModels
                     }
                     catch (Exception ex)
                     {
-                        ErrorMessage = $"Eroare la actualizarea preparatului în baza de date: {ex.Message}";
+                        ErrorMessage = $"Error updating dish in database: {ex.Message}";
                         System.Diagnostics.Debug.WriteLine($"Edit Dish Error: {ex}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la editarea preparatului: {ex.Message}";
+                ErrorMessage = $"Error editing dish: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine($"Edit Dish Outer Error: {ex}");
             }
         }
@@ -950,8 +865,8 @@ namespace OnlineRestaurant.ViewModels
 
                 // Ask for confirmation
                 var result = System.Windows.MessageBox.Show(
-                    $"Sunteți sigur că doriți să ștergeți preparatul '{SelectedDish.Name}'?",
-                    "Confirmă ștergerea",
+                    $"Are you sure you want to delete the dish '{SelectedDish.Name}'?",
+                    "Confirm Delete",
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Question);
 
@@ -1029,20 +944,20 @@ namespace OnlineRestaurant.ViewModels
                             }
                             else
                             {
-                                ErrorMessage = "Preparatul nu a fost găsit în baza de date.";
+                                ErrorMessage = "Dish not found in database.";
                             }
                         }
                     }
                     catch (Exception dbEx)
                     {
-                        ErrorMessage = $"Eroare bază de date: {dbEx.Message}";
+                        ErrorMessage = $"Database error: {dbEx.Message}";
                         System.Diagnostics.Debug.WriteLine($"DELETE ERROR DETAILS: {dbEx}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la ștergerea preparatului: {ex.Message}";
+                ErrorMessage = $"Error deleting dish: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine($"DELETE ERROR OUTER: {ex}");
             }
             finally
@@ -1104,7 +1019,7 @@ namespace OnlineRestaurant.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la adăugarea meniului: {ex.Message}";
+                ErrorMessage = $"Error adding menu: {ex.Message}";
             }
         }
 
@@ -1144,7 +1059,7 @@ namespace OnlineRestaurant.ViewModels
                 }
                 catch (Exception dbEx)
                 {
-                    ErrorMessage = $"Eroare la încărcarea detaliilor meniului: {dbEx.Message}";
+                    ErrorMessage = $"Error loading menu details: {dbEx.Message}";
                     return;
                 }
                 
@@ -1217,13 +1132,13 @@ namespace OnlineRestaurant.ViewModels
                     }
                     catch (Exception ex)
                     {
-                        ErrorMessage = $"Eroare la actualizarea meniului în baza de date: {ex.Message}";
+                        ErrorMessage = $"Error updating menu in database: {ex.Message}";
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la editarea meniului: {ex.Message}";
+                ErrorMessage = $"Error editing menu: {ex.Message}";
             }
         }
 
@@ -1238,8 +1153,8 @@ namespace OnlineRestaurant.ViewModels
 
                 // Ask for confirmation
                 var result = System.Windows.MessageBox.Show(
-                    $"Sunteți sigur că doriți să ștergeți meniul '{SelectedMenu.Name}'?",
-                    "Confirmă ștergerea",
+                    $"Are you sure you want to delete the menu '{SelectedMenu.Name}'?",
+                    "Confirm Delete",
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Question);
 
@@ -1291,20 +1206,20 @@ namespace OnlineRestaurant.ViewModels
                             }
                             else
                             {
-                                ErrorMessage = "Meniul nu a fost găsit în baza de date.";
+                                ErrorMessage = "Menu not found in database.";
                             }
                         }
                     }
                     catch (Exception dbEx)
                     {
-                        ErrorMessage = $"Eroare bază de date: {dbEx.Message}";
+                        ErrorMessage = $"Database error: {dbEx.Message}";
                         System.Diagnostics.Debug.WriteLine($"DELETE MENU ERROR DETAILS: {dbEx}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la ștergerea meniului: {ex.Message}";
+                ErrorMessage = $"Error deleting menu: {ex.Message}";
                 System.Diagnostics.Debug.WriteLine($"DELETE MENU ERROR OUTER: {ex}");
             }
             finally
@@ -1339,7 +1254,7 @@ namespace OnlineRestaurant.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la adăugarea alergenului: {ex.Message}";
+                ErrorMessage = $"Error adding allergen: {ex.Message}";
             }
         }
 
@@ -1408,13 +1323,13 @@ namespace OnlineRestaurant.ViewModels
                     }
                     catch (Exception ex)
                     {
-                        ErrorMessage = $"Eroare la actualizarea alergenului în baza de date: {ex.Message}";
+                        ErrorMessage = $"Error updating allergen in database: {ex.Message}";
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la editarea alergenului: {ex.Message}";
+                ErrorMessage = $"Error editing allergen: {ex.Message}";
             }
         }
 
@@ -1429,8 +1344,8 @@ namespace OnlineRestaurant.ViewModels
 
                 // Ask for confirmation
                 var result = System.Windows.MessageBox.Show(
-                    $"Sunteți sigur că doriți să ștergeți alergenul '{SelectedAllergen.Name}'?",
-                    "Confirmă ștergerea",
+                    $"Are you sure you want to delete the allergen '{SelectedAllergen.Name}'?",
+                    "Confirm Delete",
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Question);
 
@@ -1460,19 +1375,19 @@ namespace OnlineRestaurant.ViewModels
                             }
                             else
                             {
-                                ErrorMessage = "Alergenul nu a fost găsit în baza de date.";
+                                ErrorMessage = "Allergen not found in database.";
                             }
                         }
                     }
                     catch (Exception dbEx)
                     {
-                        ErrorMessage = $"Eroare bază de date: {dbEx.Message}";
+                        ErrorMessage = $"Database error: {dbEx.Message}";
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Eroare la ștergerea alergenului: {ex.Message}";
+                ErrorMessage = $"Error deleting allergen: {ex.Message}";
             }
             finally
             {
