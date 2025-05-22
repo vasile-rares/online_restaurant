@@ -34,10 +34,6 @@ namespace OnlineRestaurant.Converters
         public static IValueConverter TextTruncateConverter =>
             new UniversalValueConverter { Operation = UniversalValueConverter.OperationType.TruncateText };
             
-        // FormatCurrency - pentru formatarea valorilor monetare
-        public static IValueConverter CurrencyConverter =>
-            new UniversalValueConverter { Operation = UniversalValueConverter.OperationType.FormatCurrency };
-            
         // Metode utilitare pentru configurarea rapidă a converterelor
         
         // UniversalVisibilityConverter configurat pentru string-uri
