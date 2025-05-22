@@ -12,10 +12,10 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
-        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <converters:OrderStatusToColorConverter x:Key="OrderStatusToColorConverter" />
-        <converters:OrderStatusToStringConverter x:Key="OrderStatusToStringConverter" />
+        <x:Static x:Key="StringToVisibilityConverter" Member="converters:ConverterHelper.StringVisibilityConverter" />
+        <x:Static x:Key="BooleanToVisibilityConverter" Member="converters:ConverterHelper.BooleanVisibilityConverter" />
+        <x:Static x:Key="OrderStatusToColorConverter" Member="converters:ConverterHelper.OrderStatusColorConverter" />
+        <x:Static x:Key="OrderStatusToStringConverter" Member="converters:ConverterHelper.OrderStatusStringConverter" />
         <DataTemplate DataType="{x:Type viewmodels:MenuRestaurantViewModel}">
             <views:MenuRestaurantView />
         </DataTemplate>

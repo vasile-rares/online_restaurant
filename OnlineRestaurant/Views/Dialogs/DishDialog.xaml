@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OnlineRestaurant.Views"
+        xmlns:converters="clr-namespace:OnlineRestaurant.Converters"
         mc:Ignorable="d"
         Title="{Binding DialogTitle}"
         Height="450"
@@ -47,7 +48,7 @@
         </Style>
 
         <!-- Boolean to Visibility Converter -->
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <x:Static x:Key="BooleanToVisibilityConverter" Member="converters:ConverterHelper.BooleanVisibilityConverter" />
     </Window.Resources>
 
     <Grid Margin="20">

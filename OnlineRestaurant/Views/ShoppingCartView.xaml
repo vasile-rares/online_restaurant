@@ -11,10 +11,10 @@
              RenderOptions.EdgeMode="Aliased">
 
     <UserControl.Resources>
-        <converters:DefaultImageConverter x:Key="DefaultImageConverter" DefaultImagePath="/Images/default.jpg" />
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <converters:StringToVisibilityConverter x:Key="StringVisibilityConverter" />
-        <converters:BooleanInverterConverter x:Key="BooleanInverterConverter" />
+        <x:Static x:Key="DefaultImageConverter" Member="converters:ConverterHelper.ImageConverter" />
+        <x:Static x:Key="BooleanToVisibilityConverter" Member="converters:ConverterHelper.BooleanVisibilityConverter" />
+        <x:Static x:Key="StringVisibilityConverter" Member="converters:ConverterHelper.StringVisibilityConverter" />
+        <x:Static x:Key="BooleanInverterConverter" Member="converters:ConverterHelper.InvertedBooleanVisibilityConverter" />
     </UserControl.Resources>
     
     <Grid>

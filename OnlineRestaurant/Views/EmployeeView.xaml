@@ -14,9 +14,9 @@
     RenderOptions.EdgeMode="Aliased">
 
     <UserControl.Resources>
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-        <converters:StringToVisibilityConverter x:Key="StringVisibilityConverter" />
+        <x:Static x:Key="NullToVisibilityConverter" Member="converters:ConverterHelper.NullVisibilityConverter" />
+        <x:Static x:Key="BooleanToVisibilityConverter" Member="converters:ConverterHelper.BooleanVisibilityConverter" />
+        <x:Static x:Key="StringVisibilityConverter" Member="converters:ConverterHelper.StringVisibilityConverter" />
         <converters:LessThanConverter x:Key="LessThanConverter" />
 
         <!-- Common styles -->

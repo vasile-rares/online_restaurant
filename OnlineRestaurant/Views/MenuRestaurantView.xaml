@@ -13,8 +13,8 @@
     RenderOptions.EdgeMode="Aliased">
 
     <UserControl.Resources>
-        <converters:DefaultImageConverter x:Key="DefaultImageConverter" DefaultImagePath="/Images/default.jpg" />
-        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+        <x:Static x:Key="DefaultImageConverter" Member="converters:ConverterHelper.ImageConverter" />
+        <x:Static x:Key="StringToVisibilityConverter" Member="converters:ConverterHelper.StringVisibilityConverter" />
 
         <Style x:Key="CategoryTitle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="22" />

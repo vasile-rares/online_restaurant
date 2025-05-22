@@ -12,7 +12,7 @@
              RenderOptions.EdgeMode="Aliased">
     
     <UserControl.Resources>
-        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+        <x:Static x:Key="StringToVisibilityConverter" Member="converters:ConverterHelper.StringVisibilityConverter" />
     </UserControl.Resources>
     
     <Grid>
