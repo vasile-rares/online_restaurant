@@ -254,6 +254,10 @@ namespace OnlineRestaurant.ViewModels
 
         private void NavigateToEmployeeDashboard()
         {
+            // Verifică dacă suntem deja în EmployeeView
+            if (CurrentViewModel is EmployeeViewModel)
+                return;
+                
             var employeeViewModel = _serviceProvider.GetRequiredService<EmployeeViewModel>();
             CurrentViewModel = employeeViewModel;
         }
