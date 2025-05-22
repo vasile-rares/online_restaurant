@@ -351,11 +351,32 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 
-                var menus = await _menuService.GetAllAsync();
-                Menus.Clear();
-                foreach (var menu in menus)
+                using (var context = new Data.RestaurantDbContext(
+                    new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
+                        .UseSqlServer(_appSettingsService.ConnectionString)
+                        .Options))
                 {
-                    Menus.Add(menu);
+                    var menus = await context.Menus
+                        .Include(m => m.MenuDishes)
+                            .ThenInclude(md => md.Dish)
+                        .ToListAsync();
+                    
+                    Menus.Clear();
+                    foreach (var menu in menus)
+                    {
+                        // Check if any menu has unavailable dishes
+                        bool hasUnavailableDish = menu.MenuDishes != null && 
+                                                menu.MenuDishes.Any(md => md.Dish.TotalQuantity <= 0);
+                        
+                        if (hasUnavailableDish)
+                        {
+                            // Since Menu doesn't have a DisplayName property, we'll just use the Name property
+                            // and append "indisponibil" to it where needed in the UI binding
+                            menu.Name = $"{menu.Name} - indisponibil";
+                        }
+                        
+                        Menus.Add(menu);
+                    }
                 }
             }
             catch (Exception ex)
@@ -400,9 +421,17 @@ namespace OnlineRestaurant.ViewModels
                 ErrorMessage = string.Empty;
 
                 var dishes = await _dishService.GetAllAsync();
+                
                 Dishes.Clear();
                 foreach (var dish in dishes)
                 {
+                    // Add availability status to dish names for display
+                    if (dish.TotalQuantity <= 0)
+                    {
+                        // Since Dish doesn't have a DisplayName property, we'll just use the Name property
+                        // and append "indisponibil" to it where needed in the UI binding
+                        dish.Name = $"{dish.Name} - indisponibil";
+                    }
                     Dishes.Add(dish);
                 }
             }
@@ -433,9 +462,66 @@ namespace OnlineRestaurant.ViewModels
                             .UseSqlServer(_appSettingsService.ConnectionString)
                             .Options))
                     {
-                        var order = await context.Orders.FindAsync(SelectedOrder.IdOrder);
+                        var order = await context.Orders
+                            .Include(o => o.OrderDishes) // Include related dishes to update inventory
+                            .Include(o => o.OrderMenus)
+                                .ThenInclude(om => om.Menu)
+                                    .ThenInclude(m => m.MenuDishes)
+                                        .ThenInclude(md => md.Dish)
+                            .FirstOrDefaultAsync(o => o.IdOrder == SelectedOrder.IdOrder);
+
                         if (order != null)
                         {
+                            // Check if the new status is "preparing" and the old status was different
+                            if (newStatus == OrderStatus.preparing && order.Status != OrderStatus.preparing)
+                            {
+                                // Update dish quantities for individual dishes in the order
+                                if (order.OrderDishes != null)
+                                {
+                                    foreach (var orderDish in order.OrderDishes)
+                                    {
+                                        var dish = await context.Dishes.FindAsync(orderDish.IdDish);
+                                        if (dish != null)
+                                        {
+                                            // Decrease quantity based on ordered amount and portion size
+                                            int quantityToDecrease = orderDish.Quantity * dish.PortionSize;
+                                            dish.TotalQuantity = Math.Max(0, dish.TotalQuantity - quantityToDecrease);
+                                            context.Update(dish);
+                                        }
+                                    }
+                                }
+
+                                // Update dish quantities for dishes in menus that were ordered
+                                if (order.OrderMenus != null)
+                                {
+                                    foreach (var orderMenu in order.OrderMenus)
+                                    {
+                                        if (orderMenu.Menu?.MenuDishes != null)
+                                        {
+                                            foreach (var menuDish in orderMenu.Menu.MenuDishes)
+                                            {
+                                                if (menuDish.Dish != null)
+                                                {
+                                                    // For each ordered menu:
+                                                    // orderMenu.Quantity = number of menus ordered
+                                                    // menuDish.Quantity = custom quantity in grams for this dish in the menu
+                                                    // We don't need to multiply by portion size since Quantity is already in grams
+                                                    int quantityToDecrease = orderMenu.Quantity * menuDish.Quantity;
+                                                    
+                                                    // Get a fresh instance of the dish to update
+                                                    var dish = await context.Dishes.FindAsync(menuDish.IdDish);
+                                                    if (dish != null)
+                                                    {
+                                                        dish.TotalQuantity = Math.Max(0, dish.TotalQuantity - quantityToDecrease);
+                                                        context.Update(dish);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                             order.Status = newStatus;
                             await context.SaveChangesAsync();
 
@@ -444,9 +530,12 @@ namespace OnlineRestaurant.ViewModels
                         }
                     }
 
-                    // Refresh lists after successful update
+                    // Refresh lists after successful update to show updated quantities and availability
                     await LoadActiveOrdersAsync();
                     await LoadAllOrdersAsync();
+                    await LoadLowStockDishesAsync();
+                    await LoadDishesAsync();
+                    await LoadMenusAsync();
                 }
                 catch (Exception dbEx)
                 {
