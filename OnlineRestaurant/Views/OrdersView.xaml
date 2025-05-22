@@ -19,7 +19,7 @@
         <x:Static x:Key="OrderStatusToColorConverter" Member="converters:ConverterHelper.OrderStatusColorConverter" />
         <x:Static x:Key="OrderStatusToStringConverter" Member="converters:ConverterHelper.OrderStatusStringConverter" />
         <x:Static x:Key="OrderStatusToVisibilityConverter" Member="converters:ConverterHelper.OrderStatusVisibilityConverter" />
-        <x:Static x:Key="IdTruncateConverter" Member="converters:ConverterHelper.IdTruncateConverter" />
+        <x:Static x:Key="IdTruncateConverter" Member="converters:ConverterHelper.TextTruncateConverter" />
 
         <Style x:Key="CancelOrderButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#E74C3C" />

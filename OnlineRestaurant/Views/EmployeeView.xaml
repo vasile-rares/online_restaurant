@@ -17,7 +17,7 @@
         <x:Static x:Key="NullToVisibilityConverter" Member="converters:ConverterHelper.NullVisibilityConverter" />
         <x:Static x:Key="BooleanToVisibilityConverter" Member="converters:ConverterHelper.BooleanVisibilityConverter" />
         <x:Static x:Key="StringVisibilityConverter" Member="converters:ConverterHelper.StringVisibilityConverter" />
-        <converters:LessThanConverter x:Key="LessThanConverter" />
+        <x:Static x:Key="LessThanConverter" Member="converters:ConverterHelper.LessThanConverter" />
 
         <!-- Common styles -->
         <Style x:Key="HeaderTextStyle" TargetType="TextBlock">

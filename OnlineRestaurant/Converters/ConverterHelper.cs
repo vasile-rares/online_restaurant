@@ -13,16 +13,30 @@ namespace OnlineRestaurant.Converters
         private static UniversalOrderStatusConverter _orderStatusConverter;
         public static UniversalOrderStatusConverter OrderStatusConverter =>
             _orderStatusConverter ?? (_orderStatusConverter = new UniversalOrderStatusConverter());
+        
+        // Singleton pentru UniversalValueConverter
+        private static UniversalValueConverter _valueConverter;
+        public static UniversalValueConverter ValueConverter =>
+            _valueConverter ?? (_valueConverter = new UniversalValueConverter());
             
         // Singleton pentru DefaultImageConverter
         private static DefaultImageConverter _imageConverter;
         public static DefaultImageConverter ImageConverter =>
             _imageConverter ?? (_imageConverter = new DefaultImageConverter { DefaultImagePath = "/Images/default.jpg" });
             
-        // Singleton pentru IdTruncateConverter
-        private static IdTruncateConverter _idTruncateConverter;
-        public static IdTruncateConverter IdTruncateConverter =>
-            _idTruncateConverter ?? (_idTruncateConverter = new IdTruncateConverter());
+        // UniversalValueConverter preconfigurate
+        
+        // LessThan - pentru comparații "mai mic decât"
+        public static IValueConverter LessThanConverter =>
+            new UniversalValueConverter { Operation = UniversalValueConverter.OperationType.LessThan };
+            
+        // TruncateText - pentru truncarea textului
+        public static IValueConverter TextTruncateConverter =>
+            new UniversalValueConverter { Operation = UniversalValueConverter.OperationType.TruncateText };
+            
+        // FormatCurrency - pentru formatarea valorilor monetare
+        public static IValueConverter CurrencyConverter =>
+            new UniversalValueConverter { Operation = UniversalValueConverter.OperationType.FormatCurrency };
             
         // Metode utilitare pentru configurarea rapidă a converterelor
         
