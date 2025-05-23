@@ -57,10 +57,8 @@ namespace OnlineRestaurant.ViewModels
             _userViewModel = userViewModel;
             _shoppingCart = shoppingCartViewModel;
 
-            // Set initial view
             CurrentViewModel = menuRestaurantViewModel;
 
-            // Make sure the menu view has access to the shopping cart and user info
             if (menuRestaurantViewModel is MenuRestaurantViewModel menuVM)
             {
                 menuVM.ShoppingCart = _shoppingCart;
@@ -87,28 +85,22 @@ namespace OnlineRestaurant.ViewModels
                 }
             };
 
-            // Subscribe to shopping cart changes
             _shoppingCart.PropertyChanged += (sender, args) =>
             {
                 if (args.PropertyName == nameof(ShoppingCartViewModel.ItemCount))
                 {
-                    // Update any UI that shows cart items count
                     OnPropertyChanged(nameof(ShoppingCart));
                 }
             };
 
-            // Subscribe to logout event to navigate to login page and reset cart
             _userViewModel.LogoutEvent += (sender, args) =>
             {
-                // Reset shopping cart when user logs out
                 _shoppingCart.ClearCart();
                 NavigateToLogin();
             };
 
-            // Subscribe to auto-login event to update UI when auto-login completes
             _userViewModel.AutoLoginCompleted += (sender, args) =>
             {
-                // We don't need to navigate anywhere - just update commands
                 ((RelayCommand)NavigateToProfileCommand).RaiseCanExecuteChanged();
                 ((RelayCommand)NavigateToCartCommand).RaiseCanExecuteChanged();
                 ((RelayCommand)NavigateToEmployeeDashboardCommand).RaiseCanExecuteChanged();
@@ -119,7 +111,6 @@ namespace OnlineRestaurant.ViewModels
         private void NavigateToMenu()
         {
             var menuViewModel = _serviceProvider.GetRequiredService<MenuRestaurantViewModel>();
-            // Ensure the menu has access to the shopping cart and user info
             menuViewModel.ShoppingCart = _shoppingCart;
             menuViewModel.UserViewModel = _userViewModel;
             CurrentViewModel = menuViewModel;
@@ -127,15 +118,11 @@ namespace OnlineRestaurant.ViewModels
 
         private void NavigateToCart()
         {
-            // Creating a CartViewModel that's a wrapper around the ShoppingCart
-            // This is a simplified pattern - in a larger app you might want to create a dedicated CartViewModel
             CurrentViewModel = _shoppingCart;
         }
 
         private bool CanNavigateToCart()
         {
-            // Pentru a naviga în coș, utilizatorul trebuie să fie doar autentificat
-            // Nu mai verificăm dacă coșul are produse
             return UserViewModel.IsLoggedIn;
         }
 
@@ -147,10 +134,8 @@ namespace OnlineRestaurant.ViewModels
             // Subscribe to login success event
             loginViewModel.LoginSuccessful += (sender, args) =>
             {
-                // Reset shopping cart when user logs in
                 _shoppingCart.ClearCart();
 
-                // Actualizăm explicit comenzile și proprietățile relevante pentru UI
                 ((RelayCommand)NavigateToProfileCommand).RaiseCanExecuteChanged();
                 ((RelayCommand)NavigateToCartCommand).RaiseCanExecuteChanged();
                 ((RelayCommand)NavigateToOrdersCommand).RaiseCanExecuteChanged();
@@ -183,7 +168,6 @@ namespace OnlineRestaurant.ViewModels
                 {
                     var originalAction = navigateMethod.CreateDelegate(typeof(Action), register) as Action;
 
-                    // Redefine action to include navigation to LoginViewModel
                     Action newAction = () =>
                     {
                         originalAction?.Invoke();
@@ -206,7 +190,7 @@ namespace OnlineRestaurant.ViewModels
         private void NavigateToProfile()
         {
             var profileViewModel = _serviceProvider.GetRequiredService<UserProfileViewModel>();
-            profileViewModel.UpdateProfileFromUser(); // Update data from user profile
+            profileViewModel.UpdateProfileFromUser();
             CurrentViewModel = profileViewModel;
         }
 
@@ -220,7 +204,6 @@ namespace OnlineRestaurant.ViewModels
             var ordersViewModel = _serviceProvider.GetRequiredService<OrdersViewModel>();
             CurrentViewModel = ordersViewModel;
 
-            // Set handler for back navigation
             if (ordersViewModel is OrdersViewModel orders)
             {
                 // Use reflection to access private NavigateBack method
@@ -253,7 +236,6 @@ namespace OnlineRestaurant.ViewModels
 
         private void NavigateToEmployeeDashboard()
         {
-            // Verifică dacă suntem deja în EmployeeView
             if (CurrentViewModel is EmployeeViewModel)
                 return;
 
@@ -263,14 +245,12 @@ namespace OnlineRestaurant.ViewModels
 
         private bool CanNavigateToEmployeeDashboard()
         {
-            // Make role comparison case insensitive and check for "Angajat" (Romanian for Employee)
             string? role = UserViewModel.CurrentUser?.Role;
             bool isEmployee = role != null && role.Equals("Angajat", StringComparison.OrdinalIgnoreCase);
 
             return UserViewModel.IsLoggedIn && isEmployee;
         }
 
-        // Override OnDispose to clean up resources
         protected override void OnDispose()
         {
             // Clean up managed resources

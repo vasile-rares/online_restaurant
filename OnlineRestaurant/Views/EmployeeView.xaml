@@ -275,28 +275,28 @@
                                       Style="{StaticResource ListViewStyle}">
                                 <ListView.View>
                                     <GridView>
-                                        <GridViewColumn Header="Order Date" Width="150">
+                                        <GridViewColumn Header="Order Date" Width="110">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding OrderDate, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" />
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Header="Order ID" Width="120">
+                                        <GridViewColumn Header="Order ID" Width="75">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding ShortId}" />
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Header="Customer" Width="180">
+                                        <GridViewColumn Header="Customer" Width="80">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding User.FullName}" />
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Header="Status" Width="120">
+                                        <GridViewColumn Header="Status" Width="100">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding Status}">
@@ -326,7 +326,7 @@
                                                 </DataTemplate>
                                             </GridViewColumn.CellTemplate>
                                         </GridViewColumn>
-                                        <GridViewColumn Header="Total" Width="100">
+                                        <GridViewColumn Header="Total" Width="80">
                                             <GridViewColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding TotalAmount, StringFormat='{}{0:F2} Lei'}"

@@ -39,40 +39,69 @@ END
 
 
 
-USE [RestaurantDB]
-GO
-/****** Object:  StoredProcedure [dbo].[UpdateOrderStatus]    Script Date: 5/23/2025 10:14:00 AM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
 
-ALTER PROCEDURE [dbo].[UpdateOrderStatus]
-    @IdOrder UNIQUEIDENTIFIER,
-    @NewStatus NVARCHAR(50)
+
+CREATE OR ALTER PROCEDURE UpdateOrderStatus
+    @OrderId uniqueidentifier,
+    @NewStatus int
 AS
 BEGIN
     SET NOCOUNT ON;
+    
+    BEGIN TRY
+        -- Check if order exists
+        IF NOT EXISTS (SELECT 1 FROM Orders WHERE IdOrder = @OrderId)
+        BEGIN
+            RAISERROR ('Order not found.', 16, 1);
+            RETURN;
+        END
 
-    IF NOT EXISTS (
-        SELECT 1 FROM Orders
-        WHERE IdOrder = @IdOrder
-    )
-    BEGIN
-        RAISERROR('Order not found.', 16, 1);
-        RETURN;
-    END
+        -- Validate the new status value
+        IF @NewStatus NOT IN (0, 1, 2, 3, 4)
+        BEGIN
+            RAISERROR ('Invalid status value. Must be between 0 and 4.', 16, 1);
+            RETURN;
+        END
 
-    IF @NewStatus NOT IN ('registered', 'preparing', 'out for delivery', 'delivered', 'canceled')
-    BEGIN
-        RAISERROR('Invalid status value.', 16, 1);
-        RETURN;
-    END
+        -- Convert numeric status to string representation
+        DECLARE @StatusString nvarchar(20)
+        SET @StatusString = 
+            CASE @NewStatus
+                WHEN 0 THEN 'registered'
+                WHEN 1 THEN 'preparing'
+                WHEN 2 THEN 'out for delivery'
+                WHEN 3 THEN 'delivered'
+                WHEN 4 THEN 'canceled'
+            END
 
-    UPDATE Orders
-    SET Status = @NewStatus
-    WHERE IdOrder = @IdOrder;
-END
+        -- Update the order status
+        UPDATE Orders
+        SET Status = @StatusString
+        WHERE IdOrder = @OrderId;
+
+        -- Return the updated order with user info but avoid column name collisions
+        SELECT 
+            o.IdOrder,
+            o.OrderDate,
+            o.Status,
+            o.TotalAmount,
+            o.IdUser,
+            u.Email as UserEmail,
+            u.FirstName as UserFirstName,
+            u.LastName as UserLastName,
+            u.Phone as UserPhone,
+            u.DeliveryAddress as UserDeliveryAddress,
+            u.Role as UserRole
+        FROM Orders o
+        LEFT JOIN Users u ON o.IdUser = u.IdUser
+        WHERE o.IdOrder = @OrderId;
+
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR (@ErrorMessage, 16, 1);
+    END CATCH
+END 
 
 
 

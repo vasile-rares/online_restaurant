@@ -71,9 +71,9 @@ namespace OnlineRestaurant.ViewModels
                     {
                         _available = value;
                         OnPropertyChanged(nameof(Available));
-                        
+
                         OnPropertyChanged(nameof(AddToCartMessage));
-                        
+
                         OnPropertyChanged(nameof(AvailabilityStatus));
                     }
                 }
@@ -106,7 +106,7 @@ namespace OnlineRestaurant.ViewModels
                     {
                         _canAddToCart = value;
                         OnPropertyChanged(nameof(CanAddToCart));
-                        
+
                         OnPropertyChanged(nameof(AddToCartMessage));
                     }
                 }
@@ -114,18 +114,17 @@ namespace OnlineRestaurant.ViewModels
 
             public string AvailabilityStatus => Available ? "" : "Indisponibil";
 
-            public string AllergenDisplay => Allergens?.Count > 0 
-                ? $"Alergeni: {string.Join(", ", Allergens)}" 
+            public string AllergenDisplay => Allergens?.Count > 0
+                ? $"Alergeni: {string.Join(", ", Allergens)}"
                 : "Fără alergeni";
 
-            // Mesaj pentru utilizator privind adăugarea în coș
             public string AddToCartMessage
             {
                 get
                 {
-                    if (!Available) 
+                    if (!Available)
                         return "Indisponibil";
-                        
+
                     return (!CanAddToCart) ? "Conectați-vă pentru a adăuga în coș" : "";
                 }
             }
@@ -248,12 +247,12 @@ namespace OnlineRestaurant.ViewModels
                     {
                         oldViewModel.PropertyChanged -= OnUserViewModelPropertyChanged;
                     }
-                    
+
                     // Attach events to new instance
                     if (_userViewModel != null)
                     {
                         _userViewModel.PropertyChanged += OnUserViewModelPropertyChanged;
-                        
+
                         // Update all items with the current login state
                         UpdateAllItemsLoginState(_userViewModel.IsLoggedIn);
                     }
@@ -313,7 +312,7 @@ namespace OnlineRestaurant.ViewModels
                     if (item.CanAddToCart != newCanAddToCart)
                     {
                         item.CanAddToCart = newCanAddToCart;
-                        
+
                         // Update command execute state only if needed
                         if (item.AddToCartCommand is RelayCommand command)
                         {
@@ -343,24 +342,24 @@ namespace OnlineRestaurant.ViewModels
                     Name = "Toate categoriile"
                 });
 
-            // Grupăm datele pe categorii pentru afișare
+                // Grupăm datele pe categorii pentru afișare
                 foreach (var category in categories)
-            {
-                    var categoryGroup = new CategoryGroup
                 {
+                    var categoryGroup = new CategoryGroup
+                    {
                         Id = category.IdCategory,
                         Name = category.Name
-                };
+                    };
 
                     // Adaugă categoria în lista de filtre
                     CategoryFilter.Add(categoryGroup);
 
-                // Adăugăm preparatele din această categorie
+                    // Adăugăm preparatele din această categorie
                     var dishesInCategory = dishes.Where(p => p.IdCategory == category.IdCategory).ToList();
                     foreach (var dish in dishesInCategory)
-                {
-                        var dishVM = new ItemMenuViewModel
                     {
+                        var dishVM = new ItemMenuViewModel
+                        {
                             Id = dish.IdDish,
                             Type = ItemMenuType.Dish,
                             Name = dish.Name,
@@ -371,31 +370,31 @@ namespace OnlineRestaurant.ViewModels
                                 dish.Photos.Select(f => f.Url).ToList()),
                             Allergens = new ObservableCollection<string>(
                                 dish.DishAllergens.Select(pa => pa.Allergen.Name).ToList())
-                    };
+                        };
                         categoryGroup.Items.Add(dishVM);
                         InitializeAddToCartCommands(dishVM);
-                }
+                    }
 
-                // Adăugăm meniurile din această categorie
+                    // Adăugăm meniurile din această categorie
                     var menusInCategory = menus.Where(m => m.IdCategory == category.IdCategory).ToList();
                     foreach (var menu in menusInCategory)
-                {
-                    // Verifică dacă toate preparatele din meniu sunt disponibile
+                    {
+                        // Verifică dacă toate preparatele din meniu sunt disponibile
                         bool menuAvailable = menu.MenuDishes
                             .All(mp => mp.Dish.InStock);
 
                         var menuVM = new ItemMenuViewModel
-                    {
+                        {
                             Id = menu.IdMenu,
                             Type = ItemMenuType.Menu,
                             Name = menu.Name,
                             Price = menu.TotalPrice,
                             Available = menuAvailable,
                             PortionSize = menu.MenuDishes.Sum(md => md.Quantity),
-                        // Pentru meniuri, concatenăm cantitățile preparatelor
+                            // Pentru meniuri, concatenăm cantitățile preparatelor
                             ContentDetails = string.Join(", ", menu.MenuDishes
                                 .Select(mp => $"{mp.Dish.Name} ({mp.Quantity} g)")),
-                        // Pentru meniuri, concatenăm alergenii unici din toate preparatele
+                            // Pentru meniuri, concatenăm alergenii unici din toate preparatele
                             Allergens = new ObservableCollection<string>(
                                 menu.MenuDishes
                                     .SelectMany(md => md.Dish.DishAllergens)
@@ -403,25 +402,25 @@ namespace OnlineRestaurant.ViewModels
                                     .Distinct()
                                     .OrderBy(name => name)
                                     .ToList())
-                    };
-                    
-                    // Adăugăm o imagine implicită pentru meniu
+                        };
+
+                        // Adăugăm o imagine implicită pentru meniu
                         menuVM.Images.Add("/Images/default.jpg");
-                    
+
                         categoryGroup.Items.Add(menuVM);
                         InitializeAddToCartCommands(menuVM);
-                }
+                    }
 
                     if (categoryGroup.Items.Count > 0)
-                {
+                    {
                         Categories.Add(categoryGroup);
+                    }
                 }
-            }
 
                 // Selectează implicit "Toate categoriile"
                 _selectedCategory = CategoryFilter[0];
                 OnPropertyChanged(nameof(SelectedCategory));
-                
+
                 // Update login state
                 if (UserViewModel != null)
                 {
@@ -445,46 +444,46 @@ namespace OnlineRestaurant.ViewModels
         private async void FilterDishesAndMenusAsync()
         {
             try
-        {
+            {
                 var categories = await _categoryService.GetAllAsync();
                 var dishes = await _dishService.GetAllAsync();
                 var menus = await _menuService.GetAllAsync();
 
                 string keyword = SearchKeyword?.Trim().ToLower() ?? string.Empty;
 
-            // Filtru pentru preparate
+                // Filtru pentru preparate
                 var filteredDishes = dishes.Where(p =>
             {
-                    bool matchesSearch = true;
-                    
-                    // Filter by search term
-                    if (!string.IsNullOrWhiteSpace(keyword))
-                    {
-                        matchesSearch = p.Name.ToLower().Contains(keyword);
+                bool matchesSearch = true;
+
+                // Filter by search term
+                if (!string.IsNullOrWhiteSpace(keyword))
+                {
+                    matchesSearch = p.Name.ToLower().Contains(keyword);
                 }
 
-                    // Filter by category if a specific category is selected
-                    bool matchesCategory = SelectedCategory == null || SelectedCategory.Id == 0 || p.IdCategory == SelectedCategory.Id;
+                // Filter by category if a specific category is selected
+                bool matchesCategory = SelectedCategory == null || SelectedCategory.Id == 0 || p.IdCategory == SelectedCategory.Id;
 
-                    return matchesSearch && matchesCategory;
+                return matchesSearch && matchesCategory;
             }).ToList();
 
-            // Filtru pentru meniuri
+                // Filtru pentru meniuri
                 var filteredMenus = menus.Where(m =>
             {
-                    bool matchesSearch = true;
-                
-                    // Filter by search term
-                    if (!string.IsNullOrWhiteSpace(keyword))
+                bool matchesSearch = true;
+
+                // Filter by search term
+                if (!string.IsNullOrWhiteSpace(keyword))
                 {
-                        matchesSearch = m.Name.ToLower().Contains(keyword);
-                    }
+                    matchesSearch = m.Name.ToLower().Contains(keyword);
+                }
 
-                    // Filter by category if a specific category is selected
-                    bool matchesCategory = SelectedCategory == null || SelectedCategory.Id == 0 || m.IdCategory == SelectedCategory.Id;
+                // Filter by category if a specific category is selected
+                bool matchesCategory = SelectedCategory == null || SelectedCategory.Id == 0 || m.IdCategory == SelectedCategory.Id;
 
-                    return matchesSearch && matchesCategory;
-                }).ToList();
+                return matchesSearch && matchesCategory;
+            }).ToList();
 
                 // Construim lista de categorii filtrate
                 Categories.Clear();
@@ -497,27 +496,27 @@ namespace OnlineRestaurant.ViewModels
                 }
                 else
                 {
-            // Găsim toate categoriile care au preparate sau meniuri filtrate
+                    // Găsim toate categoriile care au preparate sau meniuri filtrate
                     categoriesToShow = categories
-                .Where(c => 
-                            filteredDishes.Any(p => p.IdCategory == c.IdCategory) || 
+                .Where(c =>
+                            filteredDishes.Any(p => p.IdCategory == c.IdCategory) ||
                             filteredMenus.Any(m => m.IdCategory == c.IdCategory));
                 }
 
                 foreach (var category in categoriesToShow)
-            {
-                    var categoryGroup = new CategoryGroup
                 {
+                    var categoryGroup = new CategoryGroup
+                    {
                         Id = category.IdCategory,
                         Name = category.Name
-                };
+                    };
 
                     // Add filtered dishes for this category
                     var dishesInCategory = filteredDishes.Where(p => p.IdCategory == category.IdCategory).ToList();
                     foreach (var dish in dishesInCategory)
                     {
                         var dishVM = new ItemMenuViewModel
-                    {
+                        {
                             Id = dish.IdDish,
                             Type = ItemMenuType.Dish,
                             Name = dish.Name,
@@ -528,30 +527,30 @@ namespace OnlineRestaurant.ViewModels
                                 dish.Photos.Select(f => f.Url).ToList()),
                             Allergens = new ObservableCollection<string>(
                                 dish.DishAllergens.Select(pa => pa.Allergen.Name).ToList())
-                    };
+                        };
                         categoryGroup.Items.Add(dishVM);
                         InitializeAddToCartCommands(dishVM);
-                }
+                    }
 
                     // Add filtered menus for this category
                     var menusInCategory = filteredMenus.Where(m => m.IdCategory == category.IdCategory).ToList();
                     foreach (var menu in menusInCategory)
-                {
+                    {
                         bool menuAvailable = menu.MenuDishes
                             .All(mp => mp.Dish.InStock);
 
                         var menuVM = new ItemMenuViewModel
-                    {
+                        {
                             Id = menu.IdMenu,
                             Type = ItemMenuType.Menu,
                             Name = menu.Name,
                             Price = menu.TotalPrice,
                             Available = menuAvailable,
                             PortionSize = menu.MenuDishes.Sum(md => md.Quantity),
-                        // Pentru meniuri, concatenăm cantitățile preparatelor
+                            // Pentru meniuri, concatenăm cantitățile preparatelor
                             ContentDetails = string.Join(", ", menu.MenuDishes
                                 .Select(mp => $"{mp.Dish.Name} ({mp.Quantity} g)")),
-                        // Pentru meniuri, concatenăm alergenii unici din toate preparatele
+                            // Pentru meniuri, concatenăm alergenii unici din toate preparatele
                             Allergens = new ObservableCollection<string>(
                                 menu.MenuDishes
                                     .SelectMany(md => md.Dish.DishAllergens)
@@ -559,19 +558,19 @@ namespace OnlineRestaurant.ViewModels
                                     .Distinct()
                                     .OrderBy(name => name)
                                     .ToList())
-                    };
-                    
+                        };
+
                         menuVM.Images.Add("/Images/default.jpg");
                         categoryGroup.Items.Add(menuVM);
                         InitializeAddToCartCommands(menuVM);
-                }
+                    }
 
                     if (categoryGroup.Items.Count > 0)
-                {
+                    {
                         Categories.Add(categoryGroup);
                     }
                 }
-                
+
                 // Update login state for all items
                 if (UserViewModel != null)
                 {
@@ -595,7 +594,7 @@ namespace OnlineRestaurant.ViewModels
                 SearchInverse = false;
                 SearchByAllergen = false;
                 IsSearching = false;
-                
+
                 // Reload data after all properties are reset
                 await Task.Run(() => LoadDataAsync());
             }
@@ -614,14 +613,14 @@ namespace OnlineRestaurant.ViewModels
             // Set the current login state
             bool isLoggedIn = UserViewModel?.IsLoggedIn ?? false;
             item.CanAddToCart = item.Available && isLoggedIn;
-            
+
             // Initialize the command without capturing event handlers
             item.AddToCartCommand = new RelayCommand(
-                () => ShoppingCart?.AddToCart(item), 
+                () => ShoppingCart?.AddToCart(item),
                 () => item.Available && (UserViewModel?.IsLoggedIn ?? false)
             );
         }
-        
+
         // Override OnDispose to clean up resources
         protected override void OnDispose()
         {
@@ -630,7 +629,7 @@ namespace OnlineRestaurant.ViewModels
             {
                 _userViewModel.PropertyChanged -= OnUserViewModelPropertyChanged;
             }
-            
+
             // Clear collections
             if (Categories != null)
             {
@@ -643,13 +642,13 @@ namespace OnlineRestaurant.ViewModels
                 }
                 Categories.Clear();
             }
-            
+
             if (CategoryFilter != null)
             {
                 CategoryFilter.Clear();
             }
-            
+
             base.OnDispose();
         }
     }
-} 
+}
