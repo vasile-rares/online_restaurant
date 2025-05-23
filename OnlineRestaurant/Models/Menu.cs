@@ -9,7 +9,6 @@ namespace OnlineRestaurant.Models
 {
     public class Menu
     {
-        // Câmp static pentru a stoca discount-ul folosit
         private static decimal? _cachedDiscountPercentage;
 
         public Menu()
@@ -34,10 +33,10 @@ namespace OnlineRestaurant.Models
 
         [NotMapped]
         public decimal TotalPrice => CalculateTotalPrice();
-        
+
         [NotMapped]
         public decimal OriginalPrice => CalculateOriginalPrice();
-        
+
         private decimal CalculateOriginalPrice()
         {
             decimal total = 0;
@@ -58,20 +57,20 @@ namespace OnlineRestaurant.Models
         {
             decimal originalPrice = CalculateOriginalPrice();
             decimal discountPercentage = GetDiscountPercentage();
-            
+
             // Aplicăm discountul
             return Math.Round(originalPrice * (1 - discountPercentage / 100), 2);
         }
-        
+
         // Metoda de ajutor pentru a obține procentul de discount
         private static decimal GetDiscountPercentage()
         {
             // Folosim valoarea în cache dacă există
             if (_cachedDiscountPercentage.HasValue)
                 return _cachedDiscountPercentage.Value;
-                
+
             // Încercăm să obținem din servicii
-            try 
+            try
             {
                 // Accesăm AppSettingsService prin ServiceProvider static
                 if (App.ServiceProvider != null)
@@ -88,16 +87,16 @@ namespace OnlineRestaurant.Models
             {
                 // Ignorăm orice eroare
             }
-            
+
             // Valoare implicită dacă nu putem obține din configurație
             _cachedDiscountPercentage = 15.0m;
             return _cachedDiscountPercentage.Value;
         }
-        
+
         // Metodă statică pentru a actualiza discount-ul din exterior
         public static void UpdateDiscountPercentage(decimal newPercentage)
         {
             _cachedDiscountPercentage = newPercentage;
         }
     }
-} 
+}

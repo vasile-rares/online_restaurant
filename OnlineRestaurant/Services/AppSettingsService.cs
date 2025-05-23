@@ -47,18 +47,16 @@ namespace OnlineRestaurant.Services
 
         public int GetLowStockThreshold()
         {
-            // Try to get the value from config; default to 15 if not found
             if (int.TryParse(_configuration["OrderDiscounts:LowStockThreshold"], out int threshold))
                 return threshold;
             return 15;
         }
-        
+
         public decimal GetMenuDiscountPercentage()
         {
-            // Try to get the menu discount percentage; default to 15% if not found
             if (decimal.TryParse(_configuration["OrderDiscounts:MenuDiscountPercentage"], out decimal discount))
                 return discount;
             return 15.0m;
         }
     }
-} 
+}

@@ -36,7 +36,7 @@ namespace OnlineRestaurant.Data
 
             modelBuilder.Entity<OrderDish>()
                 .HasKey(cp => new { cp.IdOrder, cp.IdDish });
-                
+
             modelBuilder.Entity<OrderMenu>()
                 .HasKey(om => new { om.IdOrder, om.IdMenu });
 
@@ -76,7 +76,7 @@ namespace OnlineRestaurant.Data
                 .WithMany()
                 .HasForeignKey(cp => cp.IdDish)
                 .OnDelete(DeleteBehavior.Restrict);
-                
+
             modelBuilder.Entity<OrderMenu>()
                 .HasOne(om => om.Order)
                 .WithMany(o => o.OrderMenus)
@@ -122,12 +122,10 @@ namespace OnlineRestaurant.Data
                     v => (OrderStatus)Enum.Parse(typeof(OrderStatus), v.Replace(' ', '_'))  // Replace spaces with underscores when reading from DB
                 );
 
-            // Configurarea preciziei pentru valorile monetare
             modelBuilder.Entity<Dish>()
                 .Property(p => p.Price)
                 .HasColumnType("decimal(10,2)");
 
-            // Email unic pentru utilizatori
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
@@ -145,4 +143,4 @@ namespace OnlineRestaurant.Data
             modelBuilder.Entity<OrderMenu>().ToTable("OrderMenu");
         }
     }
-} 
+}

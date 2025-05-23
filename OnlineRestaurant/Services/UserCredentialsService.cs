@@ -14,13 +14,12 @@ namespace OnlineRestaurant.Services
             string appDataPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "OnlineRestaurant");
-            
-            // Create directory if it doesn't exist
+
             if (!Directory.Exists(appDataPath))
             {
                 Directory.CreateDirectory(appDataPath);
             }
-            
+
             _credentialsFile = Path.Combine(appDataPath, "user_credentials.json");
         }
 
@@ -28,7 +27,6 @@ namespace OnlineRestaurant.Services
         {
             if (!rememberMe)
             {
-                // If not remembering credentials, delete any existing credentials file
                 if (File.Exists(_credentialsFile))
                 {
                     File.Delete(_credentialsFile);
@@ -39,7 +37,7 @@ namespace OnlineRestaurant.Services
             var credentials = new UserCredentials
             {
                 Email = email,
-                Password = password // Store password in plain text
+                Password = password
             };
 
             string json = JsonSerializer.Serialize(credentials);
@@ -61,7 +59,6 @@ namespace OnlineRestaurant.Services
             }
             catch
             {
-                // If there's any error reading the file, delete it and return null
                 File.Delete(_credentialsFile);
                 return null;
             }
@@ -81,4 +78,4 @@ namespace OnlineRestaurant.Services
             public string Password { get; set; }
         }
     }
-} 
+}

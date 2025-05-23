@@ -20,13 +20,12 @@ namespace OnlineRestaurant.ViewModels
         {
             if (EqualityComparer<T>.Default.Equals(field, value))
                 return false;
-            
+
             field = value;
             OnPropertyChanged(propertyName);
             return true;
         }
 
-        // IDisposable Implementation
         public void Dispose()
         {
             Dispose(true);
@@ -39,20 +38,14 @@ namespace OnlineRestaurant.ViewModels
 
             if (disposing)
             {
-                // Cleanup managed resources
                 OnDispose();
             }
-
-            // Cleanup unmanaged resources
 
             _isDisposed = true;
         }
 
-        // This is called by Dispose(bool) to allow derived classes to override disposal logic
-        // without having to override the entire Dispose pattern
         protected virtual void OnDispose()
         {
-            // No resources to clean up in the base class
         }
 
         ~BaseVM()

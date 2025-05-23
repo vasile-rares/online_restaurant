@@ -21,7 +21,7 @@ namespace OnlineRestaurant.Views.Dialogs
         private decimal _originalPrice;
         private decimal _finalPrice;
         private readonly AppSettingsService _appSettingsService;
-        private List<Dish> _allDishes; // List to keep all dishes
+        private List<Dish> _allDishes;
 
         public OnlineRestaurant.Models.Menu Menu { get; private set; }
         public List<Category> Categories { get; set; }
@@ -60,35 +60,29 @@ namespace OnlineRestaurant.Views.Dialogs
             }
         }
 
-        // Constructor for adding a new menu - simplified version for EmployeeViewModel
         public MenuDialog(Window owner, List<Category> categories)
         {
             InitializeComponent();
             Owner = owner;
             _isEditMode = false;
 
-            // Get configuration from App
             var config = App.Configuration;
             _appSettingsService = new AppSettingsService(config);
 
-            // Default discount percentage
             DiscountPercentage = _appSettingsService.GetMenuDiscountPercentage();
 
             Categories = categories;
             Menu = new OnlineRestaurant.Models.Menu();
 
-            // Set a default category if available
             if (Categories.Count > 0)
             {
                 Menu.IdCategory = Categories[0].IdCategory;
             }
 
-            // Initialize empty lists
             _allDishes = new List<Dish>();
             AvailableDishes = new ObservableCollection<Dish>();
             SelectedDishes = new ObservableCollection<MenuDishViewModel>();
 
-            // Add an "All Categories" category to the category filter
             var tempCategories = new List<Category>(Categories);
             tempCategories.Insert(0, new Category { Name = "All Categories", IdCategory = -1 });
             cmbDishCategory.ItemsSource = tempCategories;
@@ -97,23 +91,19 @@ namespace OnlineRestaurant.Views.Dialogs
             DataContext = this;
         }
 
-        // Constructor for editing an existing menu - simplified version for EmployeeViewModel
         public MenuDialog(Window owner, OnlineRestaurant.Models.Menu menuToEdit, List<Category> categories)
         {
             InitializeComponent();
             Owner = owner;
             _isEditMode = true;
 
-            // Get configuration from App
             var config = App.Configuration;
             _appSettingsService = new AppSettingsService(config);
 
-            // Default discount percentage
             DiscountPercentage = _appSettingsService.GetMenuDiscountPercentage();
 
             Categories = categories;
 
-            // Create a copy of the menu to edit
             Menu = new OnlineRestaurant.Models.Menu
             {
                 IdMenu = menuToEdit.IdMenu,
@@ -121,12 +111,10 @@ namespace OnlineRestaurant.Views.Dialogs
                 IdCategory = menuToEdit.IdCategory
             };
 
-            // Initialize empty lists
             _allDishes = new List<Dish>();
             AvailableDishes = new ObservableCollection<Dish>();
             SelectedDishes = new ObservableCollection<MenuDishViewModel>();
 
-            // Add an "All Categories" category to the category filter
             var tempCategories = new List<Category>(Categories);
             tempCategories.Insert(0, new Category { Name = "All Categories", IdCategory = -1 });
             cmbDishCategory.ItemsSource = tempCategories;
@@ -135,7 +123,6 @@ namespace OnlineRestaurant.Views.Dialogs
             DataContext = this;
         }
 
-        // Constructor for adding a new menu with complete data
         public MenuDialog(Window owner, List<Category> categories, List<Dish> dishes, AppSettingsService appSettingsService)
         {
             InitializeComponent();
@@ -143,32 +130,26 @@ namespace OnlineRestaurant.Views.Dialogs
             _isEditMode = false;
             _appSettingsService = appSettingsService;
 
-            // Get discount percentage from settings
             DiscountPercentage = _appSettingsService.GetMenuDiscountPercentage();
 
             Categories = categories;
             Menu = new OnlineRestaurant.Models.Menu();
 
-            // Set a default category if available
             if (Categories.Count > 0)
             {
                 Menu.IdCategory = Categories[0].IdCategory;
             }
 
-            // Store all dishes
             _allDishes = dishes;
 
-            // Initialize collections
             AvailableDishes = new ObservableCollection<Dish>();
             SelectedDishes = new ObservableCollection<MenuDishViewModel>();
 
-            // Add an "All Categories" category to the category filter
             var tempCategories = new List<Category>(Categories);
             tempCategories.Insert(0, new Category { Name = "All Categories", IdCategory = -1 });
             cmbDishCategory.ItemsSource = tempCategories;
             cmbDishCategory.SelectedIndex = 0;
 
-            // Initialize available dishes with all dishes
             foreach (var dish in _allDishes)
             {
                 AvailableDishes.Add(dish);
@@ -177,7 +158,6 @@ namespace OnlineRestaurant.Views.Dialogs
             DataContext = this;
         }
 
-        // Constructor for editing an existing menu with complete data
         public MenuDialog(Window owner, OnlineRestaurant.Models.Menu menuToEdit, List<Category> categories, List<Dish> dishes, List<MenuDish> menuDishes, AppSettingsService appSettingsService)
         {
             InitializeComponent();
@@ -185,12 +165,10 @@ namespace OnlineRestaurant.Views.Dialogs
             _isEditMode = true;
             _appSettingsService = appSettingsService;
 
-            // Get discount percentage from settings
             DiscountPercentage = _appSettingsService.GetMenuDiscountPercentage();
 
             Categories = categories;
 
-            // Create a copy of the menu to edit
             Menu = new OnlineRestaurant.Models.Menu
             {
                 IdMenu = menuToEdit.IdMenu,
@@ -198,20 +176,16 @@ namespace OnlineRestaurant.Views.Dialogs
                 IdCategory = menuToEdit.IdCategory
             };
 
-            // Store all dishes
             _allDishes = dishes;
 
-            // Initialize collections
             AvailableDishes = new ObservableCollection<Dish>();
             SelectedDishes = new ObservableCollection<MenuDishViewModel>();
 
-            // Add an "All Categories" category to the category filter
             var tempCategories = new List<Category>(Categories);
             tempCategories.Insert(0, new Category { Name = "All Categories", IdCategory = -1 });
             cmbDishCategory.ItemsSource = tempCategories;
             cmbDishCategory.SelectedIndex = 0;
 
-            // Add existing menu dishes
             foreach (var menuDish in menuDishes.Where(md => md.IdMenu == menuToEdit.IdMenu))
             {
                 var dish = dishes.FirstOrDefault(d => d.IdDish == menuDish.IdDish);
@@ -225,7 +199,6 @@ namespace OnlineRestaurant.Views.Dialogs
                 }
             }
 
-            // Initialize available dishes with dishes not in the menu
             foreach (var dish in _allDishes)
             {
                 if (!SelectedDishes.Any(sd => sd.Dish.IdDish == dish.IdDish))
@@ -234,7 +207,6 @@ namespace OnlineRestaurant.Views.Dialogs
                 }
             }
 
-            // Calculate initial price
             RecalculatePrice();
 
             DataContext = this;
@@ -242,7 +214,6 @@ namespace OnlineRestaurant.Views.Dialogs
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            // Validate inputs
             if (string.IsNullOrWhiteSpace(Menu.Name))
             {
                 MessageBox.Show("Numele meniului nu poate fi gol.", "Eroare de validare", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -274,11 +245,9 @@ namespace OnlineRestaurant.Views.Dialogs
             }
             else if (cmbDishCategory.SelectedIndex == 0)
             {
-                // If the first item ("All Categories") is selected, show all dishes
                 AvailableDishes.Clear();
                 foreach (var dish in _allDishes)
                 {
-                    // Skip dishes that are already selected
                     if (!SelectedDishes.Any(sd => sd.Dish.IdDish == dish.IdDish))
                     {
                         AvailableDishes.Add(dish);
@@ -289,13 +258,10 @@ namespace OnlineRestaurant.Views.Dialogs
 
         private void FilterAvailableDishes(int categoryId)
         {
-            // Clear current available dishes
             AvailableDishes.Clear();
 
-            // Get dishes of the selected category
             var dishesInCategory = _allDishes.Where(d => d.IdCategory == categoryId);
 
-            // Add dishes that are not already selected
             foreach (var dish in dishesInCategory)
             {
                 if (!SelectedDishes.Any(sd => sd.Dish.IdDish == dish.IdDish))
@@ -310,30 +276,26 @@ namespace OnlineRestaurant.Views.Dialogs
             var button = (Button)sender;
             var dish = (Dish)button.DataContext;
 
-            // Check if dish is already in the selected dishes
             if (SelectedDishes.Any(sd => sd.Dish.IdDish == dish.IdDish))
             {
                 MessageBox.Show("Acest preparat este deja adăugat în meniu.", "Informație", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
-            // Add to selected dishes
             var menuDish = new MenuDishViewModel
             {
                 Dish = dish,
-                Quantity = 1 // Default quantity
+                Quantity = 1
             };
 
             SelectedDishes.Add(menuDish);
 
-            // Remove from available dishes
             var dishToRemove = AvailableDishes.FirstOrDefault(d => d.IdDish == dish.IdDish);
             if (dishToRemove != null)
             {
                 AvailableDishes.Remove(dishToRemove);
             }
 
-            // Recalculate price
             RecalculatePrice();
         }
 
@@ -342,20 +304,17 @@ namespace OnlineRestaurant.Views.Dialogs
             var button = (Button)sender;
             var menuDish = (MenuDishViewModel)button.DataContext;
 
-            // Remove from selected dishes
             SelectedDishes.Remove(menuDish);
 
-            // Add back to available dishes if it matches the current category filter
             Category selectedCategory = cmbDishCategory.SelectedItem as Category;
 
             if (selectedCategory == null ||
-                selectedCategory.IdCategory == -1 || // "All Categories"
+                selectedCategory.IdCategory == -1 ||
                 menuDish.Dish.IdCategory == selectedCategory.IdCategory)
             {
                 AvailableDishes.Add(menuDish.Dish);
             }
 
-            // Recalculate price
             RecalculatePrice();
         }
 
@@ -370,14 +329,12 @@ namespace OnlineRestaurant.Views.Dialogs
             var textBox = (TextBox)sender;
             var menuDish = (MenuDishViewModel)textBox.DataContext;
 
-            // If textbox is empty, default quantity to 1
             if (string.IsNullOrWhiteSpace(textBox.Text))
             {
                 menuDish.Quantity = 1;
                 textBox.Text = "1";
             }
 
-            // Ensure quantity is at least 1
             int quantity;
             if (!int.TryParse(textBox.Text, out quantity) || quantity < 1)
             {
@@ -385,7 +342,6 @@ namespace OnlineRestaurant.Views.Dialogs
                 textBox.Text = "1";
             }
 
-            // Recalculate price
             RecalculatePrice();
         }
 
@@ -407,7 +363,6 @@ namespace OnlineRestaurant.Views.Dialogs
             FinalPrice = OriginalPrice * (1 - (DiscountPercentage / 100));
         }
 
-        // INotifyPropertyChanged implementation
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -459,7 +414,6 @@ namespace OnlineRestaurant.Views.Dialogs
             TotalPrice = Dish?.Price ?? 0;
         }
 
-        // INotifyPropertyChanged implementation
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

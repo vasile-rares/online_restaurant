@@ -8,18 +8,16 @@ namespace OnlineRestaurant.Converters
     {
         public enum OperationType
         {
-            LessThan       // Verifică dacă valoarea este mai mică decât un parametru
+            LessThan
         }
 
         // Tipul operației
         public OperationType Operation { get; set; } = OperationType.LessThan;
-        
-        // Parametru pentru operație (ex. limita pentru comparație)
+
         public object OperationParameter { get; set; }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // Verifică dacă parametrul specifică operația
             if (parameter is string paramString)
             {
                 foreach (OperationType op in Enum.GetValues(typeof(OperationType)))
@@ -30,8 +28,7 @@ namespace OnlineRestaurant.Converters
                         break;
                     }
                 }
-                
-                // Încearcă să extragă parametrul numeric din string
+
                 string[] parts = paramString.Split(':');
                 if (parts.Length > 1 && double.TryParse(parts[1], out double paramValue))
                 {
@@ -44,12 +41,11 @@ namespace OnlineRestaurant.Converters
                 OperationParameter = parameter;
             }
 
-            // Procesează valoarea în funcție de operație
             switch (Operation)
             {
                 case OperationType.LessThan:
                     return ProcessLessThan(value);
-                    
+
                 default:
                     return value;
             }
@@ -63,7 +59,7 @@ namespace OnlineRestaurant.Converters
             try
             {
                 double compareValue = System.Convert.ToDouble(OperationParameter);
-                
+
                 if (value is int intValue)
                     return intValue < compareValue;
                 else if (value is double doubleValue)
@@ -77,7 +73,7 @@ namespace OnlineRestaurant.Converters
             {
                 return false;
             }
-            
+
             return false;
         }
 

@@ -149,12 +149,11 @@ namespace OnlineRestaurant.ViewModels
             _orderService = orderService;
             _userViewModel = userViewModel;
             _appSettings = appSettings;
-            
+
             Items = new ObservableCollection<CartItemViewModel>();
             ClearCartCommand = new RelayCommand(ClearCart);
             CheckoutCommand = new RelayCommand(async () => await CheckoutAsync(), CanCheckout);
-            
-            // Inițializăm timer-ul pentru mesaje
+
             _messageTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(3)
@@ -164,8 +163,7 @@ namespace OnlineRestaurant.ViewModels
                 Message = string.Empty;
                 _messageTimer.Stop();
             };
-            
-            // Initialize cart summary
+
             _ = UpdateCartSummary();
         }
 
@@ -174,29 +172,28 @@ namespace OnlineRestaurant.ViewModels
             if (item == null || !item.Available)
                 return;
 
-            var existingItem = Items.FirstOrDefault(i => 
+            var existingItem = Items.FirstOrDefault(i =>
                 i.Id == item.Id && i.Type == item.Type);
 
             if (existingItem != null)
             {
-                // Incrementează cantitatea dacă produsul există deja în coș
+                // Incrementeaza cantitatea daca produsul există deja in cos
                 existingItem.Quantity++;
             }
             else
             {
                 // Adaugă un nou produs în coș
                 string imagePath = "/Images/default.jpg";
-                
+
                 if (item.Images != null && item.Images.Count > 0)
                 {
-                    // Asigură-te că avem calea relativă corectă către imagine
                     imagePath = item.Images[0];
                     if (!imagePath.StartsWith("/"))
                     {
                         imagePath = "/" + imagePath;
                     }
                 }
-                
+
                 var cartItem = new CartItemViewModel
                 {
                     Id = item.Id,
@@ -261,29 +258,25 @@ namespace OnlineRestaurant.ViewModels
                 try
                 {
                     var userOrders = await _orderService.GetByUserAsync(_userViewModel.CurrentUser.IdUser);
-                    
-                    // Calculează numărul de comenzi din perioada specificată
+
                     var timeInterval = _appSettings.GetTimeIntervalDays();
                     var orderThreshold = _appSettings.GetOrderCountThreshold();
-                    
+
                     var orderCount = userOrders
-                        .Count(o => o.OrderDate >= DateTime.Now.AddDays(-timeInterval) && 
+                        .Count(o => o.OrderDate >= DateTime.Now.AddDays(-timeInterval) &&
                                o.Status != OrderStatus.canceled);
-                    
+
                     IsEligibleForLoyaltyDiscount = orderCount >= orderThreshold;
-                    
-                    // Verificăm dacă valoarea comenzii depășește pragul pentru discount
+
                     var valueThreshold = _appSettings.GetValueThreshold();
                     IsEligibleForValueDiscount = OriginalPrice >= valueThreshold;
-                    
-                    // Aplicăm discount doar dacă utilizatorul este eligibil pentru cel puțin unul din discounturi
+
                     if (IsEligibleForValueDiscount || IsEligibleForLoyaltyDiscount)
                     {
                         var discountPercentage = _appSettings.GetDiscountPercentage();
                         DiscountAmount = Math.Round(OriginalPrice * discountPercentage / 100, 2);
                     }
-                    
-                    // Determinăm costul de livrare
+
                     var freeShippingThreshold = _appSettings.GetFreeShippingThreshold();
                     if (OriginalPrice < freeShippingThreshold)
                     {
@@ -292,58 +285,51 @@ namespace OnlineRestaurant.ViewModels
                 }
                 catch (Exception)
                 {
-                    // În caz de eroare, nu aplicăm niciun discount
                     IsEligibleForValueDiscount = false;
                     IsEligibleForLoyaltyDiscount = false;
                 }
             }
             else
             {
-                // Determinăm doar costul de livrare pentru utilizatori neautentificați
                 var freeShippingThreshold = _appSettings.GetFreeShippingThreshold();
                 if (OriginalPrice < freeShippingThreshold)
                 {
                     ShippingCost = _appSettings.GetShippingCost();
                 }
             }
-            
-            // Calculăm prețul total inclusiv discount și livrare
+
             TotalPrice = OriginalPrice - DiscountAmount + ShippingCost;
             ItemCount = Items.Sum(i => i.Quantity);
-            
-            // Notifică schimbarea proprietății HasItems
+
             OnPropertyChanged(nameof(HasItems));
-            
-            // Actualizează starea comenzii de Checkout
+
             ((RelayCommand)CheckoutCommand).RaiseCanExecuteChanged();
         }
-        
+
         private bool CanCheckout()
         {
             return Items.Count > 0 && !IsProcessing && _userViewModel.IsLoggedIn;
         }
-        
+
         private async Task CheckoutAsync()
         {
             try
             {
                 IsProcessing = true;
-                
+
                 if (!_userViewModel.IsLoggedIn)
                 {
                     ShowTimedMessage("Trebuie să fiți autentificat pentru a finaliza comanda.");
                     return;
                 }
-                
-                // Create a new order
+
                 var order = new Order
                 {
                     IdUser = _userViewModel.CurrentUser.IdUser,
                     OrderDate = DateTime.Now,
                     Status = OrderStatus.registered
                 };
-                
-                // Add dishes to the order
+
                 foreach (var item in Items)
                 {
                     if (item.Type == MenuRestaurantViewModel.ItemMenuType.Dish)
@@ -363,15 +349,12 @@ namespace OnlineRestaurant.ViewModels
                         });
                     }
                 }
-                
-                // Setăm suma totală a comenzii cu discount și taxe aplicate
+
                 order.TotalAmount = TotalPrice;
-                
-                // Save the order to database
+
                 await _orderService.AddAsync(order);
                 await _orderService.SaveChangesAsync();
-                
-                // Clear the cart after successful checkout
+
                 ClearCart();
                 ShowTimedMessage("Comanda a fost plasată cu succes!");
             }
@@ -385,7 +368,7 @@ namespace OnlineRestaurant.ViewModels
                 ((RelayCommand)CheckoutCommand).RaiseCanExecuteChanged();
             }
         }
-        
+
         private void ShowTimedMessage(string message)
         {
             Message = message;
@@ -393,4 +376,4 @@ namespace OnlineRestaurant.ViewModels
             _messageTimer.Start();
         }
     }
-} 
+}

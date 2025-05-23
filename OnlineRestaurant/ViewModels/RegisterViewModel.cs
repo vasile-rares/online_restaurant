@@ -163,18 +163,12 @@ namespace OnlineRestaurant.ViewModels
 
                 if (createdUser != null)
                 {
-                    // Înregistrare reușită și logare automată
                     _userViewModel.CurrentUser = createdUser;
 
-                    // Declanșăm evenimentul de succes
                     RegisterSuccessful?.Invoke(this, EventArgs.Empty);
-
-                    // Nu mai navigăm înapoi deoarece vom naviga la profil
-                    // NavigateBack();
                 }
                 else
                 {
-                    // Înregistrare eșuată
                     ErrorMessage = "Acest email este deja folosit. Vă rugăm să folosiți alt email.";
                 }
             }
@@ -206,9 +200,8 @@ namespace OnlineRestaurant.ViewModels
             return true;
         }
 
-        private void NavigateBack()
+        private void NavigateBack() // Implementat în MainViewModel prin eveniment
         {
-            // Va fi implementat în MainViewModel prin eveniment
         }
 
         private void ClearErrorMessage()

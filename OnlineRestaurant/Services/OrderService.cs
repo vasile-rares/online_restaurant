@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace OnlineRestaurant.Services
 {
@@ -42,14 +43,12 @@ namespace OnlineRestaurant.Services
 
                 if (order != null)
                 {
-                    // Load OrderDishes with their Dishes
                     var orderDishes = await _context.Set<OrderDish>()
                         .Include(od => od.Dish)
                         .Where(od => od.IdOrder == orderId)
                         .ToListAsync();
                     order.OrderDishes = orderDishes;
 
-                    // Load OrderMenus with their Menus and MenuDishes
                     var orderMenus = await _context.Set<OrderMenu>()
                         .Include(om => om.Menu)
                             .ThenInclude(m => m.MenuDishes)
@@ -89,24 +88,20 @@ namespace OnlineRestaurant.Services
             {
                 System.Diagnostics.Debug.WriteLine("Starting GetActiveOrdersAsync");
 
-                // Get the base orders from stored procedure
                 var orders = await _context.Set<Order>()
                     .FromSqlRaw("EXEC GetActiveOrders")
                     .ToListAsync();
 
-                // Load related data using the DbContext
                 foreach (var order in orders)
                 {
                     await _context.Entry(order).Reference(o => o.User).LoadAsync();
-                    
-                    // Load OrderDishes with their Dishes
+
                     var orderDishes = await _context.Set<OrderDish>()
                         .Include(od => od.Dish)
                         .Where(od => od.IdOrder == order.IdOrder)
                         .ToListAsync();
                     order.OrderDishes = orderDishes;
 
-                    // Load OrderMenus with their Menus and MenuDishes
                     var orderMenus = await _context.Set<OrderMenu>()
                         .Include(om => om.Menu)
                             .ThenInclude(m => m.MenuDishes)
@@ -126,5 +121,48 @@ namespace OnlineRestaurant.Services
                 throw;
             }
         }
+
+        public async Task<Order?> UpdateOrderStatusAsync(Guid orderId, OrderStatus newStatus)
+        {
+            try
+            {
+                var parameters = new[]
+                {
+                    new SqlParameter("@OrderId", SqlDbType.UniqueIdentifier) { Value = orderId },
+                    new SqlParameter("@NewStatus", SqlDbType.Int) { Value = (int)newStatus }
+                };
+
+                var result = _context.Set<Order>()
+                    .FromSqlRaw("EXEC UpdateOrderStatus @OrderId, @NewStatus", parameters)
+                    .AsEnumerable()
+                    .FirstOrDefault();
+
+                if (result != null)
+                {
+                    // Load related entities
+                    var orderDishes = await _context.Set<OrderDish>()
+                        .Include(od => od.Dish)
+                        .Where(od => od.IdOrder == orderId)
+                        .ToListAsync();
+                    result.OrderDishes = orderDishes;
+
+                    var orderMenus = await _context.Set<OrderMenu>()
+                        .Include(om => om.Menu)
+                            .ThenInclude(m => m.MenuDishes)
+                                .ThenInclude(md => md.Dish)
+                        .Where(om => om.IdOrder == orderId)
+                        .ToListAsync();
+                    result.OrderMenus = orderMenus;
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in UpdateOrderStatusAsync: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw;
+            }
+        }
     }
-} 
+}

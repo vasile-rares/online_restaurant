@@ -33,7 +33,6 @@ namespace OnlineRestaurant.Services
 
         public virtual async Task<IEnumerable<T>> GetAllAsync()
         {
-            // Special handling for each entity type
             if (typeof(T) == typeof(Category))
             {
                 return (IEnumerable<T>)await _context.Categories
@@ -75,14 +74,12 @@ namespace OnlineRestaurant.Services
             }
             else
             {
-                // Default implementation for other types
                 return await _dbSet.ToListAsync();
             }
         }
 
         public virtual async Task<T> GetByIdAsync(object id)
         {
-            // Special handling for each entity type
             if (typeof(T) == typeof(Category) && id is int categoryId)
             {
                 return (T)(object)await _context.Categories
@@ -109,7 +106,6 @@ namespace OnlineRestaurant.Services
             }
             else
             {
-                // Default implementation for other types
                 return await _dbSet.FindAsync(id);
             }
         }
@@ -139,10 +135,10 @@ namespace OnlineRestaurant.Services
         {
             await _context.SaveChangesAsync();
         }
-        
+
         public void DetachEntity(T entity)
         {
             _context.Entry(entity).State = EntityState.Detached;
         }
     }
-} 
+}

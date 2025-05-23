@@ -51,7 +51,6 @@ namespace OnlineRestaurant.ViewModels
             BackCommand = new RelayCommand(NavigateBack);
             CancelOrderCommand = new RelayCommand<Order>(async (order) => await CancelOrderAsync(order), CanCancelOrder);
 
-            // Inițializăm timer-ul pentru mesaje
             _messageTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(3)
@@ -62,14 +61,11 @@ namespace OnlineRestaurant.ViewModels
                 _messageTimer.Stop();
             };
 
-            // Încărcăm comenzile utilizatorului curent - utilizăm Dispatcher.InvokeAsync
-            // în loc de Task.Run pentru a evita eroarea de thread
             Application.Current.Dispatcher.InvokeAsync(async () => await LoadOrdersAsync());
         }
 
         private bool CanCancelOrder(Order order)
         {
-            // O comandă poate fi anulată doar dacă este în starea "registered" sau "preparing"
             return order != null &&
                    (order.Status == OrderStatus.registered ||
                     order.Status == OrderStatus.preparing);
@@ -85,17 +81,10 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = true;
                 StatusMessage = string.Empty;
 
-                // Setăm starea comenzii la "canceled"
-                order.Status = OrderStatus.canceled;
+                await _orderService.UpdateOrderStatusAsync(order.IdOrder, OrderStatus.canceled);
 
-                // Actualizăm comanda în baza de date
-                await _orderService.UpdateAsync(order);
-                await _orderService.SaveChangesAsync();
-
-                // Reîncărcăm lista de comenzi
                 await LoadOrdersAsync();
 
-                // Afișăm un mesaj de succes temporar
                 ShowTimedMessage("Comanda a fost anulată cu succes.");
             }
             catch (Exception ex)
@@ -136,7 +125,6 @@ namespace OnlineRestaurant.ViewModels
 
                 var userOrders = await _orderService.GetByUserAsync(_userViewModel.CurrentUser.IdUser);
 
-                // Ne asigurăm că actualizăm colecția pe thread-ul UI
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Orders.Clear();
@@ -165,8 +153,7 @@ namespace OnlineRestaurant.ViewModels
         }
 
         private void NavigateBack()
-        {
-            // Va fi implementat în MainViewModel
+        { // Implementat in MainViewModel prin eveniment
         }
     }
 }

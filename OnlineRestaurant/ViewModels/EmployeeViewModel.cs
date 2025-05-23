@@ -37,7 +37,6 @@ namespace OnlineRestaurant.ViewModels
         private bool _isLoading;
         private string _errorMessage;
 
-        // Constructor
         public EmployeeViewModel(
             OrderService orderService,
             IRestaurantDataService<Dish> dishService,
@@ -250,7 +249,7 @@ namespace OnlineRestaurant.ViewModels
                 ErrorMessage = string.Empty;
 
                 var orders = await _orderService.GetAllAsync();
-                
+
                 await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     AllOrders.Clear();
@@ -462,21 +461,11 @@ namespace OnlineRestaurant.ViewModels
 
                 try
                 {
-                    // Direct database approach with minimal entity tracking
-                    using (var context = new Data.RestaurantDbContext(
-                        new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
-                            .UseSqlServer(_appSettingsService.ConnectionString)
-                            .Options))
+                    var updatedOrder = await _orderService.UpdateOrderStatusAsync(SelectedOrder.IdOrder, newStatus);
+                    if (updatedOrder != null)
                     {
-                        var order = await context.Orders.FindAsync(SelectedOrder.IdOrder);
-                        if (order != null)
-                        {
-                            order.Status = newStatus;
-                            await context.SaveChangesAsync();
-
-                            // Update the UI model
-                            SelectedOrder.Status = newStatus;
-                        }
+                        // Update the UI model
+                        SelectedOrder.Status = newStatus;
                     }
 
                     // Refresh lists after successful update
@@ -589,15 +578,15 @@ namespace OnlineRestaurant.ViewModels
                                 // Attach with modified state
                                 context.Categories.Attach(updatedCategory);
                                 context.Entry(updatedCategory).Property(c => c.Name).IsModified = true;
-                                
+
                                 // Save changes
                                 await context.SaveChangesAsync();
-                            
-                            // Update the UI model
-                            SelectedCategory.Name = dialog.Category.Name;
-                            
+
+                                // Update the UI model
+                                SelectedCategory.Name = dialog.Category.Name;
+
                                 // Refresh the categories list
-                            await LoadCategoriesAsync();
+                                await LoadCategoriesAsync();
                             }
                         }
                     }
@@ -648,10 +637,10 @@ namespace OnlineRestaurant.ViewModels
                                 // Remove from context and save changes
                                 context.Categories.Remove(category);
                                 await context.SaveChangesAsync();
-                                
+
                                 // Remove from UI collection
-                Categories.Remove(SelectedCategory);
-                SelectedCategory = null;
+                                Categories.Remove(SelectedCategory);
+                                SelectedCategory = null;
                             }
                             else
                             {
@@ -681,33 +670,33 @@ namespace OnlineRestaurant.ViewModels
             {
                 // Get the MainWindow as the owner for the dialog
                 var mainWindow = System.Windows.Application.Current.MainWindow;
-                
+
                 // Get categories for the dish dialog
                 var categories = new List<Category>(Categories);
-                
+
                 // Get allergens for the dish dialog
                 var allergens = new List<Allergen>(Allergens);
-                
+
                 // Create and show the dialog for adding a new dish
                 var dialog = new Views.Dialogs.DishDialog(mainWindow, categories, allergens);
                 bool? result = dialog.ShowDialog();
-                
+
                 if (result == true)
                 {
                     // Add the new dish to the database
                     await _dishService.AddAsync(dialog.Dish);
                     await _dishService.SaveChangesAsync();
-                    
+
                     // Add the new dish to the collection
                     Dishes.Add(dialog.Dish);
-                    
+
                     // Also check if it should be added to low stock dishes
                     int lowStockThreshold = _appSettingsService.GetLowStockThreshold();
                     if (dialog.Dish.TotalQuantity <= lowStockThreshold)
                     {
                         LowStockDishes.Add(dialog.Dish);
                     }
-                    
+
                     // Select the newly added dish
                     SelectedDish = dialog.Dish;
                 }
@@ -730,20 +719,20 @@ namespace OnlineRestaurant.ViewModels
                 decimal originalPrice = SelectedDish.Price;
                 int originalPortionSize = SelectedDish.PortionSize;
                 int originalTotalQuantity = SelectedDish.TotalQuantity;
-                
+
                 // Get the MainWindow as the owner for the dialog
                 var mainWindow = System.Windows.Application.Current.MainWindow;
-                
+
                 // Get categories for the dish dialog
                 var categories = new List<Category>(Categories);
-                
+
                 // Get allergens for the dish dialog
                 var allergens = new List<Allergen>(Allergens);
-                
+
                 // Create and show the dialog for editing the dish
                 var dialog = new Views.Dialogs.DishDialog(mainWindow, SelectedDish, categories, allergens);
                 bool? result = dialog.ShowDialog();
-                
+
                 if (result == true)
                 {
                     try
@@ -758,7 +747,7 @@ namespace OnlineRestaurant.ViewModels
                             var dishFromDb = await context.Dishes
                                 .AsNoTracking()
                                 .FirstOrDefaultAsync(d => d.IdDish == SelectedDish.IdDish);
-                                
+
                             if (dishFromDb != null)
                             {
                                 // Create a new instance to update
@@ -771,7 +760,7 @@ namespace OnlineRestaurant.ViewModels
                                     PortionSize = dialog.Dish.PortionSize,
                                     TotalQuantity = dialog.Dish.TotalQuantity
                                 };
-                                
+
                                 // Attach with modified state
                                 context.Dishes.Attach(updatedDish);
                                 context.Entry(updatedDish).Property(d => d.Name).IsModified = true;
@@ -779,10 +768,10 @@ namespace OnlineRestaurant.ViewModels
                                 context.Entry(updatedDish).Property(d => d.Price).IsModified = true;
                                 context.Entry(updatedDish).Property(d => d.PortionSize).IsModified = true;
                                 context.Entry(updatedDish).Property(d => d.TotalQuantity).IsModified = true;
-                                
+
                                 // Save dish changes
                                 await context.SaveChangesAsync();
-                                
+
                                 // Handle photo updates
                                 if (dialog.Dish.Photos != null && dialog.Dish.Photos.Any())
                                 {
@@ -790,13 +779,13 @@ namespace OnlineRestaurant.ViewModels
                                     var existingPhotos = await context.DishPhotos
                                         .Where(dp => dp.IdDish == SelectedDish.IdDish)
                                         .ToListAsync();
-                                        
+
                                     if (existingPhotos.Any())
                                     {
                                         context.DishPhotos.RemoveRange(existingPhotos);
                                         await context.SaveChangesAsync();
                                     }
-                                    
+
                                     // Add the new photo
                                     foreach (var photo in dialog.Dish.Photos)
                                     {
@@ -805,13 +794,13 @@ namespace OnlineRestaurant.ViewModels
                                             IdDish = SelectedDish.IdDish,
                                             Url = photo.Url
                                         };
-                                        
+
                                         context.DishPhotos.Add(newPhoto);
                                     }
-                                    
+
                                     await context.SaveChangesAsync();
                                 }
-                                
+
                                 // Handle allergen updates
                                 if (dialog.Dish.DishAllergens != null)
                                 {
@@ -819,13 +808,13 @@ namespace OnlineRestaurant.ViewModels
                                     var existingAllergens = await context.DishAllergens
                                         .Where(da => da.IdDish == SelectedDish.IdDish)
                                         .ToListAsync();
-                                    
+
                                     if (existingAllergens.Any())
                                     {
                                         context.DishAllergens.RemoveRange(existingAllergens);
                                         await context.SaveChangesAsync();
                                     }
-                                    
+
                                     // Add new allergen associations
                                     foreach (var allergen in dialog.Dish.DishAllergens)
                                     {
@@ -834,13 +823,13 @@ namespace OnlineRestaurant.ViewModels
                                             IdDish = SelectedDish.IdDish,
                                             IdAllergen = allergen.IdAllergen
                                         };
-                                        
+
                                         context.DishAllergens.Add(newDishAllergen);
                                     }
-                                    
+
                                     await context.SaveChangesAsync();
                                 }
-                                
+
                                 // Update the UI model
                                 SelectedDish.Name = dialog.Dish.Name;
                                 SelectedDish.IdCategory = dialog.Dish.IdCategory;
@@ -849,19 +838,19 @@ namespace OnlineRestaurant.ViewModels
                                 SelectedDish.TotalQuantity = dialog.Dish.TotalQuantity;
                                 SelectedDish.Photos = new List<DishPhoto>(dialog.Dish.Photos);
                                 SelectedDish.DishAllergens = new List<DishAllergen>(dialog.Dish.DishAllergens);
-                                
+
                                 // Check if LowStockDishes collection needs to be updated
                                 int lowStockThreshold = _appSettingsService.GetLowStockThreshold();
                                 bool wasLowStock = originalTotalQuantity <= lowStockThreshold;
                                 bool isLowStock = SelectedDish.TotalQuantity <= lowStockThreshold;
-                                
+
                                 if (wasLowStock && !isLowStock)
                                 {
                                     // Remove from low stock collection
-                var dishToRemove = LowStockDishes.FirstOrDefault(d => d.IdDish == SelectedDish.IdDish);
-                if (dishToRemove != null)
+                                    var dishToRemove = LowStockDishes.FirstOrDefault(d => d.IdDish == SelectedDish.IdDish);
+                                    if (dishToRemove != null)
                                     {
-                    LowStockDishes.Remove(dishToRemove);
+                                        LowStockDishes.Remove(dishToRemove);
                                     }
                                 }
                                 else if (!wasLowStock && isLowStock)
@@ -869,7 +858,7 @@ namespace OnlineRestaurant.ViewModels
                                     // Add to low stock collection
                                     LowStockDishes.Add(SelectedDish);
                                 }
-                                
+
                                 // Refresh the dishes list
                                 await LoadDishesAsync();
                             }
@@ -957,10 +946,10 @@ namespace OnlineRestaurant.ViewModels
                                 // Finally remove the dish itself
                                 context.Dishes.Remove(dish);
                                 await context.SaveChangesAsync();
-                                
+
                                 // Remove from UI collections
                                 Dishes.Remove(SelectedDish);
-                                
+
                                 // Remove from low stock dishes if present
                                 var dishInLowStock = LowStockDishes.FirstOrDefault(d => d.IdDish == dishId);
                                 if (dishInLowStock != null)
@@ -970,10 +959,10 @@ namespace OnlineRestaurant.ViewModels
 
                                 // Reset selected dish
                                 SelectedDish = null;
-                                
+
                                 // Refresh the dishes list
                                 await LoadDishesAsync();
-                                
+
                                 // Also refresh related lists
                                 await LoadMenusAsync();
                             }
@@ -1007,17 +996,17 @@ namespace OnlineRestaurant.ViewModels
             {
                 // Get the MainWindow as the owner for the dialog
                 var mainWindow = System.Windows.Application.Current.MainWindow;
-                
+
                 // Get categories for the menu dialog
                 var categories = new List<Category>(Categories);
-                
+
                 // Get dishes for the menu dialog
                 var dishes = new List<Dish>(Dishes);
-                
+
                 // Create and show the dialog for adding a new menu
                 var dialog = new Views.Dialogs.MenuDialog(mainWindow, categories, dishes, _appSettingsService);
                 bool? result = dialog.ShowDialog();
-                
+
                 if (result == true)
                 {
                     // Use direct database approach to handle both menu and menu-dish relationships
@@ -1029,7 +1018,7 @@ namespace OnlineRestaurant.ViewModels
                         // Add the new menu
                         context.Menus.Add(dialog.Menu);
                         await context.SaveChangesAsync(); // Save to get the generated menu ID
-                        
+
                         // Add the menu-dish relationships
                         foreach (var menuDish in dialog.SelectedDishes)
                         {
@@ -1040,13 +1029,13 @@ namespace OnlineRestaurant.ViewModels
                                 Quantity = menuDish.Quantity
                             });
                         }
-                        
+
                         // Save the relationships
                         await context.SaveChangesAsync();
-                        
+
                         // Add the new menu to the collection
                         Menus.Add(dialog.Menu);
-                        
+
                         // Select the newly added menu
                         SelectedMenu = dialog.Menu;
                     }
@@ -1063,20 +1052,20 @@ namespace OnlineRestaurant.ViewModels
             try
             {
                 if (SelectedMenu == null) return;
-                
+
                 // Store the original values for comparison
                 string originalName = SelectedMenu.Name;
                 int originalCategoryId = SelectedMenu.IdCategory;
-                
+
                 // Get the MainWindow as the owner for the dialog
                 var mainWindow = System.Windows.Application.Current.MainWindow;
-                
+
                 // Get categories for the menu dialog
                 var categories = new List<Category>(Categories);
-                
+
                 // Get dishes for the menu dialog
                 var dishes = new List<Dish>(Dishes);
-                
+
                 // Get menu-dish relationships for this menu
                 List<MenuDish> menuDishes = new List<MenuDish>();
                 try
@@ -1097,11 +1086,11 @@ namespace OnlineRestaurant.ViewModels
                     ErrorMessage = $"Error loading menu details: {dbEx.Message}";
                     return;
                 }
-                
+
                 // Create and show the dialog for editing the menu
                 var dialog = new Views.Dialogs.MenuDialog(mainWindow, SelectedMenu, categories, dishes, menuDishes, _appSettingsService);
                 bool? result = dialog.ShowDialog();
-                
+
                 if (result == true)
                 {
                     try
@@ -1116,7 +1105,7 @@ namespace OnlineRestaurant.ViewModels
                             var menuFromDb = await context.Menus
                                 .AsNoTracking()
                                 .FirstOrDefaultAsync(m => m.IdMenu == SelectedMenu.IdMenu);
-                                
+
                             if (menuFromDb != null)
                             {
                                 // Create a new instance to update
@@ -1126,22 +1115,22 @@ namespace OnlineRestaurant.ViewModels
                                     Name = dialog.Menu.Name,
                                     IdCategory = dialog.Menu.IdCategory
                                 };
-                                
+
                                 // Attach with modified state
                                 context.Menus.Attach(updatedMenu);
                                 context.Entry(updatedMenu).Property(m => m.Name).IsModified = true;
                                 context.Entry(updatedMenu).Property(m => m.IdCategory).IsModified = true;
-                                
+
                                 // Handle menu dishes - first remove existing relationships
                                 var existingMenuDishes = await context.MenuDishes
                                     .Where(md => md.IdMenu == SelectedMenu.IdMenu)
                                     .ToListAsync();
-                                    
+
                                 if (existingMenuDishes.Any())
                                 {
                                     context.MenuDishes.RemoveRange(existingMenuDishes);
                                 }
-                                
+
                                 // Add selected dishes
                                 foreach (var menuDish in dialog.SelectedDishes)
                                 {
@@ -1152,14 +1141,14 @@ namespace OnlineRestaurant.ViewModels
                                         Quantity = menuDish.Quantity
                                     });
                                 }
-                                
+
                                 // Save changes
                                 await context.SaveChangesAsync();
-                                
+
                                 // Update the UI model
                                 SelectedMenu.Name = dialog.Menu.Name;
                                 SelectedMenu.IdCategory = dialog.Menu.IdCategory;
-                                
+
                                 // Refresh the menus list
                                 await LoadMenusAsync();
                             }
@@ -1234,10 +1223,10 @@ namespace OnlineRestaurant.ViewModels
                                 // Finally remove the menu itself
                                 context.Menus.Remove(menu);
                                 await context.SaveChangesAsync();
-                                
+
                                 // Remove from UI collection
-                Menus.Remove(SelectedMenu);
-                SelectedMenu = null;
+                                Menus.Remove(SelectedMenu);
+                                SelectedMenu = null;
                             }
                             else
                             {
@@ -1269,20 +1258,20 @@ namespace OnlineRestaurant.ViewModels
             {
                 // Get the MainWindow as the owner for the dialog
                 var mainWindow = System.Windows.Application.Current.MainWindow;
-                
+
                 // Create and show the dialog for adding a new allergen
                 var dialog = new Views.Dialogs.AllergenDialog(mainWindow);
                 bool? result = dialog.ShowDialog();
-                
+
                 if (result == true)
                 {
                     // Add the new allergen to the database
                     await _allergenService.AddAsync(dialog.Allergen);
                     await _allergenService.SaveChangesAsync();
-                    
+
                     // Add the new allergen to the collection
                     Allergens.Add(dialog.Allergen);
-                    
+
                     // Select the newly added allergen
                     SelectedAllergen = dialog.Allergen;
                 }
@@ -1298,25 +1287,25 @@ namespace OnlineRestaurant.ViewModels
             try
             {
                 if (SelectedAllergen == null) return;
-                
+
                 // Store the original name and ID
                 string originalName = SelectedAllergen.Name;
                 int allergenId = SelectedAllergen.IdAllergen;
-                
+
                 // Get the MainWindow as the owner for the dialog
                 var mainWindow = System.Windows.Application.Current.MainWindow;
-                
+
                 // Create a detached copy of the selected allergen to edit
                 var allergenToEdit = new Allergen
                 {
                     IdAllergen = allergenId,
                     Name = originalName
                 };
-                
+
                 // Create and show the dialog for editing the allergen
                 var dialog = new Views.Dialogs.AllergenDialog(mainWindow, allergenToEdit);
                 bool? result = dialog.ShowDialog();
-                
+
                 if (result == true && dialog.Allergen.Name != originalName)
                 {
                     try
@@ -1331,7 +1320,7 @@ namespace OnlineRestaurant.ViewModels
                             var allergen = await context.Allergens
                                 .AsNoTracking()
                                 .FirstOrDefaultAsync(a => a.IdAllergen == allergenId);
-                                
+
                             if (allergen != null)
                             {
                                 // Create a new instance to update
@@ -1340,17 +1329,17 @@ namespace OnlineRestaurant.ViewModels
                                     IdAllergen = allergenId,
                                     Name = dialog.Allergen.Name
                                 };
-                                
+
                                 // Attach with modified state
                                 context.Allergens.Attach(updatedAllergen);
                                 context.Entry(updatedAllergen).Property(a => a.Name).IsModified = true;
-                                
+
                                 // Save changes
                                 await context.SaveChangesAsync();
-                                
+
                                 // Update the UI model
                                 SelectedAllergen.Name = dialog.Allergen.Name;
-                                
+
                                 // Refresh the allergens list
                                 await LoadAllergensAsync();
                             }
@@ -1403,10 +1392,10 @@ namespace OnlineRestaurant.ViewModels
                                 // Remove from context and save changes
                                 context.Allergens.Remove(allergen);
                                 await context.SaveChangesAsync();
-                                
+
                                 // Remove from UI collection
-                            Allergens.Remove(SelectedAllergen);
-                            SelectedAllergen = null;
+                                Allergens.Remove(SelectedAllergen);
+                                SelectedAllergen = null;
                             }
                             else
                             {

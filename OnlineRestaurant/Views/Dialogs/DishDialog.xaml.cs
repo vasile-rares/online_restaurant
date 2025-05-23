@@ -81,7 +81,6 @@ namespace OnlineRestaurant.Views.Dialogs
             }
         }
 
-        // Constructor for adding a new dish
         public DishDialog(Window owner, List<Category> categories, List<Allergen> allergens)
         {
             InitializeComponent();
@@ -91,23 +90,19 @@ namespace OnlineRestaurant.Views.Dialogs
             Categories = categories;
             Dish = new Dish();
 
-            // Set a default category if available
             if (Categories.Count > 0)
             {
                 Dish.IdCategory = Categories[0].IdCategory;
             }
 
-            // Initialize allergens list
             InitializeAllergens(allergens, new List<DishAllergen>());
 
-            // Initialize photo properties
             SelectedPhotoUrl = null;
             HasSelectedPhoto = false;
 
             DataContext = this;
         }
 
-        // Constructor for editing an existing dish
         public DishDialog(Window owner, Dish dishToEdit, List<Category> categories, List<Allergen> allergens)
         {
             InitializeComponent();
@@ -116,7 +111,6 @@ namespace OnlineRestaurant.Views.Dialogs
 
             Categories = categories;
 
-            // Create a copy of the dish to edit
             Dish = new Dish
             {
                 IdDish = dishToEdit.IdDish,
@@ -125,10 +119,9 @@ namespace OnlineRestaurant.Views.Dialogs
                 Price = dishToEdit.Price,
                 PortionSize = dishToEdit.PortionSize,
                 TotalQuantity = dishToEdit.TotalQuantity,
-                Photos = new List<DishPhoto>() // Initialize Photos collection
+                Photos = new List<DishPhoto>()
             };
 
-            // Initialize allergens list with pre-selected items
             InitializeAllergens(allergens, dishToEdit.DishAllergens?.ToList() ?? new List<DishAllergen>());
 
             // Load dish photo if available
@@ -170,16 +163,10 @@ namespace OnlineRestaurant.Views.Dialogs
             {
                 try
                 {
-                    // Get the selected file path
                     string selectedFilePath = openFileDialog.FileName;
-
-                    // Extract just the filename
                     string fileName = Path.GetFileName(selectedFilePath);
-
-                    // Format the path in the specified format
                     string formattedPath = $"/Images/Dishes/{fileName}";
 
-                    // Update the UI with the formatted path
                     SelectedPhotoUrl = formattedPath;
                 }
                 catch (Exception ex)
@@ -191,13 +178,11 @@ namespace OnlineRestaurant.Views.Dialogs
 
         private void BtnRemovePhoto_Click(object sender, RoutedEventArgs e)
         {
-            // Clear the selected photo - just remove the reference, don't delete the file
             SelectedPhotoUrl = null;
         }
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            // Validate inputs
             if (string.IsNullOrWhiteSpace(Dish.Name))
             {
                 MessageBox.Show("Numele preparatului nu poate fi gol.", "Eroare de validare", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -226,7 +211,6 @@ namespace OnlineRestaurant.Views.Dialogs
                 return;
             }
 
-            // Clear existing photos before adding the new one
             if (Dish.Photos == null)
             {
                 Dish.Photos = new List<DishPhoto>();
@@ -236,18 +220,15 @@ namespace OnlineRestaurant.Views.Dialogs
                 Dish.Photos.Clear();
             }
 
-            // If a photo is selected, add it to the dish
             if (HasSelectedPhoto && !string.IsNullOrEmpty(SelectedPhotoUrl))
             {
-                // Add the photo to the dish
                 Dish.Photos.Add(new DishPhoto
                 {
-                    IdDish = Dish.IdDish, // Set the dish ID for new photos
+                    IdDish = Dish.IdDish,
                     Url = SelectedPhotoUrl
                 });
             }
 
-            // Update the dish allergens based on selected items
             if (Dish.DishAllergens == null)
             {
                 Dish.DishAllergens = new List<DishAllergen>();
@@ -257,7 +238,6 @@ namespace OnlineRestaurant.Views.Dialogs
                 Dish.DishAllergens.Clear();
             }
 
-            // Add selected allergens to the dish
             foreach (var allergen in Allergens.Where(a => a.IsSelected))
             {
                 Dish.DishAllergens.Add(new DishAllergen
@@ -277,7 +257,6 @@ namespace OnlineRestaurant.Views.Dialogs
             Close();
         }
 
-        // INotifyPropertyChanged implementation
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

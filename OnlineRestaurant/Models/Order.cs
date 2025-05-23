@@ -11,8 +11,10 @@ namespace OnlineRestaurant.Models
     {
         registered,
         preparing,
+
         [EnumMember(Value = "out for delivery")]
         out_for_delivery,
+
         delivered,
         canceled
     }
@@ -55,15 +57,15 @@ namespace OnlineRestaurant.Models
 
         [NotMapped]
         public decimal TotalOrder => CalculateTotal();
-        
+
         [NotMapped]
         public string ShortId => IdOrder.ToString().Substring(0, 8).ToUpper();
 
         private decimal CalculateTotal()
         {
             decimal total = 0;
-            
-            // Calculate total for individual dishes
+
+            // Calcul pentru preparate
             if (OrderDishes != null)
             {
                 foreach (var orderDish in OrderDishes)
@@ -74,8 +76,8 @@ namespace OnlineRestaurant.Models
                     }
                 }
             }
-            
-            // Calculate total for menus
+
+            // Calcul pentru meniuri
             if (OrderMenus != null)
             {
                 foreach (var orderMenu in OrderMenus)
@@ -86,7 +88,7 @@ namespace OnlineRestaurant.Models
                     }
                 }
             }
-            
+
             return total;
         }
 
@@ -95,4 +97,4 @@ namespace OnlineRestaurant.Models
             TotalAmount = CalculateTotal();
         }
     }
-} 
+}

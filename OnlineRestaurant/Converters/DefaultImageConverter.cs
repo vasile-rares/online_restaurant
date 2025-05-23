@@ -17,10 +17,9 @@ namespace OnlineRestaurant.Converters
             try
             {
                 string imagePath = null;
-                
+
                 if (value is ObservableCollection<string> images && images.Count > 0)
                 {
-                    // Returnează prima imagine din colecție
                     imagePath = images[0];
                     Debug.WriteLine($"Încercăm să încărcăm imaginea din colecție: {imagePath}");
                 }
@@ -37,16 +36,14 @@ namespace OnlineRestaurant.Converters
                     Debug.WriteLine($"Folosim imaginea implicită: {imagePath}");
                 }
 
-                // Eliminăm primul slash dacă există, pentru a trata calea relativ la rădăcina aplicației
                 if (imagePath.StartsWith("/"))
                 {
                     imagePath = imagePath.Substring(1);
                 }
 
-                // Verifică dacă fișierul există
                 string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, imagePath);
                 Debug.WriteLine($"Calea completă a imaginii: {fullPath}");
-                
+
                 if (File.Exists(fullPath))
                 {
                     Debug.WriteLine("Fișierul imaginii există!");
@@ -55,10 +52,9 @@ namespace OnlineRestaurant.Converters
                 else
                 {
                     Debug.WriteLine($"ATENȚIE: Fișierul imaginii nu există la calea: {fullPath}");
-                    // Încearcă să folosească imaginea implicită dacă prima a eșuat
-                    string defaultFullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, 
+                    string defaultFullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
                         DefaultImagePath.TrimStart('/'));
-                    
+
                     if (File.Exists(defaultFullPath))
                     {
                         Debug.WriteLine($"Folosim imaginea implicită: {defaultFullPath}");
@@ -80,8 +76,7 @@ namespace OnlineRestaurant.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            // Nu este necesară conversia inversă
             throw new NotImplementedException();
         }
     }
-} 
+}

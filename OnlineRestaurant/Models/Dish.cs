@@ -24,10 +24,10 @@ namespace OnlineRestaurant.Models
         public decimal Price { get; set; }
 
         [Required]
-        public int PortionSize { get; set; } // in grams
+        public int PortionSize { get; set; } // in grame
 
         [Required]
-        public int TotalQuantity { get; set; } // in grams
+        public int TotalQuantity { get; set; } // in grame
 
         [Required]
         public int IdCategory { get; set; }

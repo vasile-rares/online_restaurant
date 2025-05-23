@@ -16,10 +16,9 @@ namespace OnlineRestaurant.Views
         {
             if (DataContext is RegisterViewModel viewModel)
             {
-                // Conectăm PasswordBox-urile cu ViewModel-ul
                 PasswordBox.Password = viewModel.Password;
                 PasswordBox.PasswordChanged += PasswordBox_PasswordChanged;
-                
+
                 ConfirmPasswordBox.Password = viewModel.ConfirmPassword;
                 ConfirmPasswordBox.PasswordChanged += ConfirmPasswordBox_PasswordChanged;
             }
@@ -41,4 +40,4 @@ namespace OnlineRestaurant.Views
             }
         }
     }
-} 
+}

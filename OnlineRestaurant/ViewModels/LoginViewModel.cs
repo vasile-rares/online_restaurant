@@ -12,17 +12,15 @@ namespace OnlineRestaurant.ViewModels
         private readonly UserService _userService;
         private readonly UserViewModel _userViewModel;
         private readonly UserCredentialsService _credentialsService;
-        
+
         private string _email = string.Empty;
         private string _password = string.Empty;
         private string _errorMessage = string.Empty;
         private bool _isLoading;
         private bool _rememberMe;
 
-        // Eveniment pentru a notifica autentificarea reușită
         public event EventHandler LoginSuccessful;
-        
-        // Eveniment pentru a notifica cererea de navigare la ecranul de înregistrare
+
         public event EventHandler NavigateToRegisterRequest;
 
         public string Email
@@ -71,34 +69,9 @@ namespace OnlineRestaurant.ViewModels
             _userService = userService;
             _userViewModel = userViewModel;
             _credentialsService = credentialsService;
-            
+
             LoginCommand = new RelayCommand(Login, CanLogin);
             CreateAccountCommand = new RelayCommand(NavigateToCreateAccount);
-            
-            // We don't need to load credentials here anymore since UserViewModel handles auto-login now
-            // LoadSavedCredentials();
-        }
-
-        private void LoadSavedCredentials()
-        {
-            try
-            {
-                var savedCredentials = _credentialsService.LoadCredentials();
-                if (savedCredentials != null)
-                {
-                    Email = savedCredentials.Email;
-                    Password = savedCredentials.Password;
-                    RememberMe = true;
-                    
-                    // Auto login if credentials are available
-                    Login();
-                }
-            }
-            catch (Exception ex)
-            {
-                // If there's an error loading credentials, just continue without auto-login
-                System.Diagnostics.Debug.WriteLine($"Error loading credentials: {ex.Message}");
-            }
         }
 
         private bool CanLogin()
@@ -112,31 +85,26 @@ namespace OnlineRestaurant.ViewModels
             {
                 IsLoading = true;
                 ClearErrorMessage();
-                
+
                 var user = await _userService.Authenticate(Email, Password);
-                
+
                 if (user != null)
                 {
                     // Save credentials if RememberMe is checked
                     _credentialsService.SaveCredentials(Email, Password, RememberMe);
-                    
-                    // Autentificare reușită
+
                     System.Diagnostics.Debug.WriteLine("Login successful, setting CurrentUser");
                     _userViewModel.CurrentUser = user;
-                    
-                    // Asigurăm notificarea stării de login
+
                     _userViewModel.ForceNotifyLoginStatus();
-                    
-                    // Declanșăm evenimentul de succes
+
                     System.Diagnostics.Debug.WriteLine("Triggering LoginSuccessful event");
                     LoginSuccessful?.Invoke(this, EventArgs.Empty);
                 }
                 else
                 {
-                    // Autentificare eșuată
                     ErrorMessage = "Email sau parolă incorecte. Vă rugăm să încercați din nou.";
-                    
-                    // Clear saved credentials if authentication failed
+
                     if (RememberMe == false)
                     {
                         _credentialsService.ClearCredentials();
@@ -155,7 +123,6 @@ namespace OnlineRestaurant.ViewModels
 
         private void NavigateToCreateAccount()
         {
-            // Declanșăm evenimentul pentru a notifica că utilizatorul dorește să navigheze la ecranul de înregistrare
             NavigateToRegisterRequest?.Invoke(this, EventArgs.Empty);
         }
 
@@ -164,4 +131,4 @@ namespace OnlineRestaurant.ViewModels
             ErrorMessage = string.Empty;
         }
     }
-} 
+}

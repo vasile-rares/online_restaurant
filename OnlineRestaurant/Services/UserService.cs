@@ -23,18 +23,18 @@ namespace OnlineRestaurant.Services
                     .Include(u => u.Orders)
                     .FirstOrDefaultAsync(u => u.IdUser == userId);
             }
-            
+
             return null;
         }
 
         public async Task<User?> GetByEmailAsync(string email)
         {
             var emailParam = new SqlParameter("@Email", SqlDbType.NVarChar, 255) { Value = email };
-            
+
             var result = await _context.Set<User>()
                 .FromSqlRaw("EXEC GetUserByEmail @Email", emailParam)
                 .ToListAsync();
-                
+
             return result.FirstOrDefault();
         }
 
@@ -58,7 +58,6 @@ namespace OnlineRestaurant.Services
             var user = await GetByEmailAsync(email);
             if (user == null) return null;
 
-            // Check password directly
             if (password == user.Password)
                 return user;
 
@@ -67,17 +66,14 @@ namespace OnlineRestaurant.Services
 
         public async Task<User?> Register(User user, string password)
         {
-            // Check if a user with this email already exists
             if (!await VerifyUniqueEmailAsync(user.Email))
                 return null;
 
-            // Store the password in plain text
             user.Password = password;
 
-            // Save the user
             await AddAsync(user);
             await SaveChangesAsync();
             return user;
         }
     }
-} 
+}

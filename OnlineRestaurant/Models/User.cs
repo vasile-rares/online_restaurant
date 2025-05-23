@@ -38,10 +38,10 @@ namespace OnlineRestaurant.Models
 
         [Required]
         [MaxLength(20)]
-        public string Role { get; set; } = "Client"; // "Client", "Employee", etc.
+        public string Role { get; set; } = "Client"; // "Client" sau "Angajat"
 
         public virtual ObservableCollection<Order> Orders { get; set; }
 
         public string FullName => $"{LastName} {FirstName}";
     }
-} 
+}

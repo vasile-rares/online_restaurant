@@ -18,8 +18,6 @@ namespace OnlineRestaurant
     {
         private ServiceProvider serviceProvider;
         public static IConfiguration Configuration { get; private set; }
-
-        // Proprietate statică pentru a permite accesul la servicii din alte părți ale aplicației
         public static ServiceProvider ServiceProvider { get; private set; }
 
         public App()
@@ -38,7 +36,7 @@ namespace OnlineRestaurant
             ConfigureServices(services);
             serviceProvider = services.BuildServiceProvider();
             ServiceProvider = serviceProvider;
-            
+
             // Inițializăm discount-ul pentru meniuri din configurație
             var appSettings = serviceProvider.GetService<AppSettingsService>();
             if (appSettings != null)
@@ -54,11 +52,10 @@ namespace OnlineRestaurant
                 string errorMessage = $"A apărut o eroare neașteptată: {e.Exception.Message}";
                 string detailsMessage = $"Detalii: {e.Exception.StackTrace}";
 
-                // Log error to debug output
+                // Log
                 System.Diagnostics.Debug.WriteLine($"[ERROR] {errorMessage}");
                 System.Diagnostics.Debug.WriteLine($"[ERROR] {detailsMessage}");
 
-                // If there's an inner exception, show that too
                 if (e.Exception.InnerException != null)
                 {
                     string innerErrorMessage = $"Eroare internă: {e.Exception.InnerException.Message}";
@@ -70,19 +67,16 @@ namespace OnlineRestaurant
                     detailsMessage += $"\n\n{innerErrorMessage}\n{innerDetailsMessage}";
                 }
 
-                // Afișăm un mesaj de eroare utilizatorului
                 MessageBox.Show($"{errorMessage}\n\n{detailsMessage}",
                     "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch
             {
-                // If an error occurs in our error handler, show a simpler message
                 MessageBox.Show("A apărut o eroare neașteptată în aplicație.",
                     "Eroare", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
-                // Marcăm excepția ca tratată pentru a preveni închiderea aplicației
                 e.Handled = true;
             }
         }
@@ -91,14 +85,13 @@ namespace OnlineRestaurant
         {
             try
             {
-                // Adăugăm configurația
+                // Adăugăm configurația, seviciu global
                 services.AddSingleton<IConfiguration>(Configuration);
 
                 // Înregistrare servicii pentru aplicație
                 services.AddSingleton<AppSettingsService>();
                 services.AddSingleton<UserCredentialsService>();
 
-                // Obținem o instanță a AppSettingsService pentru a accesa ConnectionString
                 var serviceProvider = services.BuildServiceProvider();
                 var appSettingsService = serviceProvider.GetRequiredService<AppSettingsService>();
 
@@ -106,17 +99,14 @@ namespace OnlineRestaurant
                 services.AddDbContext<RestaurantDbContext>(options =>
                         {
                             options.UseSqlServer(appSettingsService.ConnectionString);
+                            options.EnableSensitiveDataLogging(true);
 
-                            // Permite accesul simultan la context
-                            options.EnableSensitiveDataLogging(true); // Pentru debugging
-
-                            // Configurăm context-ul pentru a nu urmări modificările entităților,
-                            // ceea ce îl face mai potrivit pentru operațiuni de doar citire
+                            // Configurăm context-ul pentru a nu urmări modificările entităților, ceea ce îl face mai potrivit pentru operațiuni de doar citire
                             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-                        }, ServiceLifetime.Transient); // Folosim Transient în loc de Scoped pentru a evita refolosirea aceluiași context
+                        }, ServiceLifetime.Transient);
 
                 // Servicii pentru entități
-                services.AddTransient<IRestaurantDataService<Dish>, RestaurantDataService<Dish>>();
+                services.AddTransient<IRestaurantDataService<Dish>, RestaurantDataService<Dish>>(); // Instantă nouă
                 services.AddTransient<IRestaurantDataService<Category>, RestaurantDataService<Category>>();
                 services.AddTransient<IRestaurantDataService<Allergen>, RestaurantDataService<Allergen>>();
                 services.AddTransient<IRestaurantDataService<Menu>, RestaurantDataService<Menu>>();

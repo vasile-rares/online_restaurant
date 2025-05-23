@@ -10,7 +10,6 @@ namespace OnlineRestaurant.Views.Dialogs
         public Allergen Allergen { get; private set; }
         public string DialogTitle => _isEditMode ? "Editare Alergen" : "Adăugare Alergen";
 
-        // Constructor for adding a new allergen
         public AllergenDialog(Window owner)
         {
             InitializeComponent();
@@ -20,14 +19,12 @@ namespace OnlineRestaurant.Views.Dialogs
             DataContext = this;
         }
 
-        // Constructor for editing an existing allergen
         public AllergenDialog(Window owner, Allergen allergenToEdit)
         {
             InitializeComponent();
             Owner = owner;
             _isEditMode = true;
 
-            // Create a copy of the allergen to edit
             Allergen = new Allergen
             {
                 IdAllergen = allergenToEdit.IdAllergen,
@@ -39,7 +36,6 @@ namespace OnlineRestaurant.Views.Dialogs
 
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            // Validate inputs
             if (string.IsNullOrWhiteSpace(Allergen.Name))
             {
                 MessageBox.Show("Numele alergenului nu poate fi gol.", "Eroare de validare", MessageBoxButton.OK, MessageBoxImage.Warning);
