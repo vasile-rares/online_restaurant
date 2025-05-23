@@ -391,15 +391,18 @@ namespace OnlineRestaurant.ViewModels
                             Name = menu.Name,
                             Price = menu.TotalPrice,
                             Available = menuAvailable,
+                            PortionSize = menu.MenuDishes.Sum(md => md.Quantity),
                         // Pentru meniuri, concatenăm cantitățile preparatelor
                             ContentDetails = string.Join(", ", menu.MenuDishes
                                 .Select(mp => $"{mp.Dish.Name} ({mp.Quantity} g)")),
                         // Pentru meniuri, concatenăm alergenii unici din toate preparatele
                             Allergens = new ObservableCollection<string>(
                                 menu.MenuDishes
-                                    .SelectMany(mp => mp.Dish.DishAllergens.Select(pa => pa.Allergen.Name))
-                                .Distinct()
-                                .ToList())
+                                    .SelectMany(md => md.Dish.DishAllergens)
+                                    .Select(da => da.Allergen.Name)
+                                    .Distinct()
+                                    .OrderBy(name => name)
+                                    .ToList())
                     };
                     
                     // Adăugăm o imagine implicită pentru meniu
@@ -544,13 +547,18 @@ namespace OnlineRestaurant.ViewModels
                             Name = menu.Name,
                             Price = menu.TotalPrice,
                             Available = menuAvailable,
+                            PortionSize = menu.MenuDishes.Sum(md => md.Quantity),
+                        // Pentru meniuri, concatenăm cantitățile preparatelor
                             ContentDetails = string.Join(", ", menu.MenuDishes
                                 .Select(mp => $"{mp.Dish.Name} ({mp.Quantity} g)")),
+                        // Pentru meniuri, concatenăm alergenii unici din toate preparatele
                             Allergens = new ObservableCollection<string>(
                                 menu.MenuDishes
-                                    .SelectMany(mp => mp.Dish.DishAllergens.Select(pa => pa.Allergen.Name))
-                                .Distinct()
-                                .ToList())
+                                    .SelectMany(md => md.Dish.DishAllergens)
+                                    .Select(da => da.Allergen.Name)
+                                    .Distinct()
+                                    .OrderBy(name => name)
+                                    .ToList())
                     };
                     
                         menuVM.Images.Add("/Images/default.jpg");

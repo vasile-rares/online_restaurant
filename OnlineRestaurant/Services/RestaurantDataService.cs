@@ -57,6 +57,8 @@ namespace OnlineRestaurant.Services
                 return (IEnumerable<T>)await _context.Menus
                     .Include(m => m.MenuDishes)
                         .ThenInclude(md => md.Dish)
+                            .ThenInclude(d => d.DishAllergens)
+                                .ThenInclude(da => da.Allergen)
                     .ToListAsync();
             }
             else if (typeof(T) == typeof(Order))
