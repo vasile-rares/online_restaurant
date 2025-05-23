@@ -242,18 +242,15 @@ namespace OnlineRestaurant.ViewModels
                 var oldViewModel = _userViewModel;
                 if (SetProperty(ref _userViewModel, value))
                 {
-                    // Detach events from old instance
                     if (oldViewModel != null)
                     {
                         oldViewModel.PropertyChanged -= OnUserViewModelPropertyChanged;
                     }
 
-                    // Attach events to new instance
                     if (_userViewModel != null)
                     {
                         _userViewModel.PropertyChanged += OnUserViewModelPropertyChanged;
 
-                        // Update all items with the current login state
                         UpdateAllItemsLoginState(_userViewModel.IsLoggedIn);
                     }
                 }
@@ -277,7 +274,6 @@ namespace OnlineRestaurant.ViewModels
             CategoryFilter = new ObservableCollection<CategoryGroup>();
             ResetSearchCommand = new RelayCommand(ResetSearch);
 
-            // Încărcăm datele inițiale
             LoadDataAsync();
         }
 
@@ -313,7 +309,6 @@ namespace OnlineRestaurant.ViewModels
                     {
                         item.CanAddToCart = newCanAddToCart;
 
-                        // Update command execute state only if needed
                         if (item.AddToCartCommand is RelayCommand command)
                         {
                             command.RaiseCanExecuteChanged();
@@ -335,7 +330,6 @@ namespace OnlineRestaurant.ViewModels
                 var menus = await _menuService.GetAllAsync();
                 var allergens = await _allergenService.GetAllAsync();
 
-                // Adăugăm o opțiune "Toate categoriile" la începutul listei de filtre
                 CategoryFilter.Add(new CategoryGroup
                 {
                     Id = 0,
@@ -351,7 +345,6 @@ namespace OnlineRestaurant.ViewModels
                         Name = category.Name
                     };
 
-                    // Adaugă categoria în lista de filtre
                     CategoryFilter.Add(categoryGroup);
 
                     // Adăugăm preparatele din această categorie
@@ -379,7 +372,6 @@ namespace OnlineRestaurant.ViewModels
                     var menusInCategory = menus.Where(m => m.IdCategory == category.IdCategory).ToList();
                     foreach (var menu in menusInCategory)
                     {
-                        // Verifică dacă toate preparatele din meniu sunt disponibile
                         bool menuAvailable = menu.MenuDishes
                             .All(mp => mp.Dish.InStock);
 
@@ -391,10 +383,10 @@ namespace OnlineRestaurant.ViewModels
                             Price = menu.TotalPrice,
                             Available = menuAvailable,
                             PortionSize = menu.MenuDishes.Sum(md => md.Quantity),
-                            // Pentru meniuri, concatenăm cantitățile preparatelor
+
                             ContentDetails = string.Join(", ", menu.MenuDishes
                                 .Select(mp => $"{mp.Dish.Name} ({mp.Quantity} g)")),
-                            // Pentru meniuri, concatenăm alergenii unici din toate preparatele
+
                             Allergens = new ObservableCollection<string>(
                                 menu.MenuDishes
                                     .SelectMany(md => md.Dish.DishAllergens)
@@ -404,7 +396,6 @@ namespace OnlineRestaurant.ViewModels
                                     .ToList())
                         };
 
-                        // Adăugăm o imagine implicită pentru meniu
                         menuVM.Images.Add("/Images/default.jpg");
 
                         categoryGroup.Items.Add(menuVM);
@@ -417,11 +408,9 @@ namespace OnlineRestaurant.ViewModels
                     }
                 }
 
-                // Selectează implicit "Toate categoriile"
                 _selectedCategory = CategoryFilter[0];
                 OnPropertyChanged(nameof(SelectedCategory));
 
-                // Update login state
                 if (UserViewModel != null)
                 {
                     UpdateAllItemsLoginState(UserViewModel.IsLoggedIn);
@@ -429,7 +418,6 @@ namespace OnlineRestaurant.ViewModels
             }
             catch (Exception ex)
             {
-                // Log or handle the exception
                 System.Diagnostics.Debug.WriteLine($"Error loading data: {ex.Message}");
             }
         }
@@ -437,7 +425,6 @@ namespace OnlineRestaurant.ViewModels
         private void ExecuteSearch()
         {
             IsSearching = !string.IsNullOrWhiteSpace(SearchKeyword) || (SelectedCategory != null && SelectedCategory.Id != 0);
-            // Run the filter operation directly
             FilterDishesAndMenusAsync();
         }
 
@@ -451,44 +438,36 @@ namespace OnlineRestaurant.ViewModels
 
                 string keyword = SearchKeyword?.Trim().ToLower() ?? string.Empty;
 
-                // Filtru pentru preparate
                 var filteredDishes = dishes.Where(p =>
             {
                 bool matchesSearch = true;
 
-                // Filter by search term
                 if (!string.IsNullOrWhiteSpace(keyword))
                 {
                     matchesSearch = p.Name.ToLower().Contains(keyword);
                 }
 
-                // Filter by category if a specific category is selected
                 bool matchesCategory = SelectedCategory == null || SelectedCategory.Id == 0 || p.IdCategory == SelectedCategory.Id;
 
                 return matchesSearch && matchesCategory;
             }).ToList();
 
-                // Filtru pentru meniuri
                 var filteredMenus = menus.Where(m =>
             {
                 bool matchesSearch = true;
 
-                // Filter by search term
                 if (!string.IsNullOrWhiteSpace(keyword))
                 {
                     matchesSearch = m.Name.ToLower().Contains(keyword);
                 }
 
-                // Filter by category if a specific category is selected
                 bool matchesCategory = SelectedCategory == null || SelectedCategory.Id == 0 || m.IdCategory == SelectedCategory.Id;
 
                 return matchesSearch && matchesCategory;
             }).ToList();
 
-                // Construim lista de categorii filtrate
                 Categories.Clear();
 
-                // Procesare categorii - dacă e selectată o categorie anume, arată doar acea categorie
                 IEnumerable<Category> categoriesToShow;
                 if (SelectedCategory != null && SelectedCategory.Id != 0)
                 {
@@ -496,7 +475,6 @@ namespace OnlineRestaurant.ViewModels
                 }
                 else
                 {
-                    // Găsim toate categoriile care au preparate sau meniuri filtrate
                     categoriesToShow = categories
                 .Where(c =>
                             filteredDishes.Any(p => p.IdCategory == c.IdCategory) ||
@@ -547,10 +525,10 @@ namespace OnlineRestaurant.ViewModels
                             Price = menu.TotalPrice,
                             Available = menuAvailable,
                             PortionSize = menu.MenuDishes.Sum(md => md.Quantity),
-                            // Pentru meniuri, concatenăm cantitățile preparatelor
+
                             ContentDetails = string.Join(", ", menu.MenuDishes
                                 .Select(mp => $"{mp.Dish.Name} ({mp.Quantity} g)")),
-                            // Pentru meniuri, concatenăm alergenii unici din toate preparatele
+
                             Allergens = new ObservableCollection<string>(
                                 menu.MenuDishes
                                     .SelectMany(md => md.Dish.DishAllergens)
@@ -590,12 +568,11 @@ namespace OnlineRestaurant.ViewModels
             {
                 _isResetting = true;
                 SearchKeyword = string.Empty;
-                SelectedCategory = CategoryFilter[0]; // Reset to "All categories"
+                SelectedCategory = CategoryFilter[0];
                 SearchInverse = false;
                 SearchByAllergen = false;
                 IsSearching = false;
 
-                // Reload data after all properties are reset
                 await Task.Run(() => LoadDataAsync());
             }
             catch (Exception ex)
@@ -610,27 +587,22 @@ namespace OnlineRestaurant.ViewModels
 
         private void InitializeAddToCartCommands(ItemMenuViewModel item)
         {
-            // Set the current login state
             bool isLoggedIn = UserViewModel?.IsLoggedIn ?? false;
             item.CanAddToCart = item.Available && isLoggedIn;
 
-            // Initialize the command without capturing event handlers
             item.AddToCartCommand = new RelayCommand(
                 () => ShoppingCart?.AddToCart(item),
                 () => item.Available && (UserViewModel?.IsLoggedIn ?? false)
             );
         }
 
-        // Override OnDispose to clean up resources
         protected override void OnDispose()
         {
-            // Clean up managed resources
             if (_userViewModel != null)
             {
                 _userViewModel.PropertyChanged -= OnUserViewModelPropertyChanged;
             }
 
-            // Clear collections
             if (Categories != null)
             {
                 foreach (var category in Categories)

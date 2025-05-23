@@ -5,7 +5,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER PROCEDURE [dbo].[GetActiveOrders]
+CREATE PROCEDURE [dbo].[GetActiveOrders]
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -26,7 +26,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER PROCEDURE [dbo].[GetUserByEmail]
+CREATE PROCEDURE [dbo].[GetUserByEmail]
     @Email nvarchar(255)
 AS
 BEGIN
@@ -116,7 +116,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER PROCEDURE [dbo].[VerifyUniqueEmail]
+CREATE PROCEDURE [dbo].[VerifyUniqueEmail]
     @Email nvarchar(255),
     @UserId int = NULL
 AS
@@ -154,7 +154,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER PROCEDURE [dbo].[GetOrderById]
+CREATE PROCEDURE [dbo].[GetOrderById]
     @OrderId uniqueidentifier
 AS
 BEGIN
