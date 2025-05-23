@@ -18,7 +18,7 @@ namespace OnlineRestaurant
     {
         private ServiceProvider serviceProvider;
         public static IConfiguration Configuration { get; private set; }
-        
+
         // Proprietate statică pentru a permite accesul la servicii din alte părți ale aplicației
         public static ServiceProvider ServiceProvider { get; private set; }
 

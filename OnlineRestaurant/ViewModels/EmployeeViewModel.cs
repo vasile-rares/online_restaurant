@@ -12,7 +12,7 @@ namespace OnlineRestaurant.ViewModels
 {
     public class EmployeeViewModel : BaseVM
     {
-        private readonly IRestaurantDataService<Order> _orderService;
+        private readonly OrderService _orderService;
         private readonly IRestaurantDataService<Dish> _dishService;
         private readonly IRestaurantDataService<Category> _categoryService;
         private readonly IRestaurantDataService<Menu> _menuService;
@@ -39,7 +39,7 @@ namespace OnlineRestaurant.ViewModels
 
         // Constructor
         public EmployeeViewModel(
-            IRestaurantDataService<Order> orderService,
+            OrderService orderService,
             IRestaurantDataService<Dish> dishService,
             IRestaurantDataService<Category> categoryService,
             IRestaurantDataService<Menu> menuService,
@@ -250,11 +250,15 @@ namespace OnlineRestaurant.ViewModels
                 ErrorMessage = string.Empty;
 
                 var orders = await _orderService.GetAllAsync();
-                AllOrders.Clear();
-                foreach (var order in orders.OrderByDescending(o => o.OrderDate))
+                
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    AllOrders.Add(order);
-                }
+                    AllOrders.Clear();
+                    foreach (var order in orders.OrderByDescending(o => o.OrderDate))
+                    {
+                        AllOrders.Add(order);
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -272,19 +276,32 @@ namespace OnlineRestaurant.ViewModels
             {
                 IsLoading = true;
                 ErrorMessage = string.Empty;
+                System.Diagnostics.Debug.WriteLine("Starting LoadActiveOrdersAsync");
 
-                var allOrders = await _orderService.GetAllAsync();
-                var activeOrders = allOrders.Where(o => o.Status != OrderStatus.delivered && o.Status != OrderStatus.canceled)
-                                           .OrderByDescending(o => o.OrderDate);
+                var activeOrders = await _orderService.GetActiveOrdersAsync();
+                System.Diagnostics.Debug.WriteLine($"Received {(activeOrders?.Count() ?? 0)} orders from service");
 
-                ActiveOrders.Clear();
-                foreach (var order in activeOrders)
+                // Get the dispatcher from the current application
+                var dispatcher = System.Windows.Application.Current.Dispatcher;
+
+                // Update collection on UI thread
+                await dispatcher.InvokeAsync(() =>
                 {
-                    ActiveOrders.Add(order);
-                }
+                    ActiveOrders.Clear();
+                    if (activeOrders != null)
+                    {
+                        foreach (var order in activeOrders)
+                        {
+                            ActiveOrders.Add(order);
+                        }
+                    }
+                    System.Diagnostics.Debug.WriteLine($"Added {ActiveOrders.Count} orders to collection");
+                });
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error in LoadActiveOrdersAsync: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 ErrorMessage = $"Error loading active orders: {ex.Message}";
             }
             finally
@@ -300,15 +317,17 @@ namespace OnlineRestaurant.ViewModels
                 IsLoading = true;
                 ErrorMessage = string.Empty;
 
-                // Retrieve the threshold value from appsettings.json
                 int lowStockThreshold = _appSettingsService.GetLowStockThreshold();
-
                 var dishes = await _dishService.GetAllAsync();
-                LowStockDishes.Clear();
-                foreach (var dish in dishes.Where(d => d.TotalQuantity <= lowStockThreshold))
+
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    LowStockDishes.Add(dish);
-                }
+                    LowStockDishes.Clear();
+                    foreach (var dish in dishes.Where(d => d.TotalQuantity <= lowStockThreshold))
+                    {
+                        LowStockDishes.Add(dish);
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -328,11 +347,15 @@ namespace OnlineRestaurant.ViewModels
                 ErrorMessage = string.Empty;
 
                 var categories = await _categoryService.GetAllAsync();
-                Categories.Clear();
-                foreach (var category in categories)
+
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    Categories.Add(category);
-                }
+                    Categories.Clear();
+                    foreach (var category in categories)
+                    {
+                        Categories.Add(category);
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -352,11 +375,15 @@ namespace OnlineRestaurant.ViewModels
                 ErrorMessage = string.Empty;
 
                 var menus = await _menuService.GetAllAsync();
-                Menus.Clear();
-                foreach (var menu in menus)
+
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    Menus.Add(menu);
-                }
+                    Menus.Clear();
+                    foreach (var menu in menus)
+                    {
+                        Menus.Add(menu);
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -376,11 +403,15 @@ namespace OnlineRestaurant.ViewModels
                 ErrorMessage = string.Empty;
 
                 var allergens = await _allergenService.GetAllAsync();
-                Allergens.Clear();
-                foreach (var allergen in allergens)
+
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    Allergens.Add(allergen);
-                }
+                    Allergens.Clear();
+                    foreach (var allergen in allergens)
+                    {
+                        Allergens.Add(allergen);
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -400,11 +431,15 @@ namespace OnlineRestaurant.ViewModels
                 ErrorMessage = string.Empty;
 
                 var dishes = await _dishService.GetAllAsync();
-                Dishes.Clear();
-                foreach (var dish in dishes)
+
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
-                    Dishes.Add(dish);
-                }
+                    Dishes.Clear();
+                    foreach (var dish in dishes)
+                    {
+                        Dishes.Add(dish);
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -427,30 +462,24 @@ namespace OnlineRestaurant.ViewModels
 
                 try
                 {
-                    // Direct database approach using stored procedure
+                    // Direct database approach with minimal entity tracking
                     using (var context = new Data.RestaurantDbContext(
                         new Microsoft.EntityFrameworkCore.DbContextOptionsBuilder<Data.RestaurantDbContext>()
                             .UseSqlServer(_appSettingsService.ConnectionString)
                             .Options))
                     {
-                        // Convertim enumerația la string pentru procedura stocată
-                        string statusText = newStatus.ToString();
-                        if (newStatus == OrderStatus.out_for_delivery)
+                        var order = await context.Orders.FindAsync(SelectedOrder.IdOrder);
+                        if (order != null)
                         {
-                            statusText = "out for delivery"; // Folosim textul corect pentru procedura stocată
+                            order.Status = newStatus;
+                            await context.SaveChangesAsync();
+
+                            // Update the UI model
+                            SelectedOrder.Status = newStatus;
                         }
-
-                        // Apelăm procedura stocată pentru actualizarea statusului
-                        await context.Database.ExecuteSqlRawAsync(
-                            "EXEC UpdateOrderStatus @IdOrder, @NewStatus",
-                            new Microsoft.Data.SqlClient.SqlParameter("@IdOrder", SelectedOrder.IdOrder),
-                            new Microsoft.Data.SqlClient.SqlParameter("@NewStatus", statusText));
-
-                        // Actualizăm și modelul UI
-                        SelectedOrder.Status = newStatus;
                     }
 
-                    // Reîmprospătăm listele după actualizarea cu succes
+                    // Refresh lists after successful update
                     await LoadActiveOrdersAsync();
                     await LoadAllOrdersAsync();
                 }
@@ -1376,8 +1405,8 @@ namespace OnlineRestaurant.ViewModels
                                 await context.SaveChangesAsync();
                                 
                                 // Remove from UI collection
-                Allergens.Remove(SelectedAllergen);
-                SelectedAllergen = null;
+                            Allergens.Remove(SelectedAllergen);
+                            SelectedAllergen = null;
                             }
                             else
                             {

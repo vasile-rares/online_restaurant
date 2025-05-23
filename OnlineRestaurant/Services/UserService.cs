@@ -4,6 +4,8 @@ using OnlineRestaurant.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace OnlineRestaurant.Services
 {
@@ -27,18 +29,28 @@ namespace OnlineRestaurant.Services
 
         public async Task<User?> GetByEmailAsync(string email)
         {
-            return await _dbSet
-                .FirstOrDefaultAsync(u => u.Email == email);
+            var emailParam = new SqlParameter("@Email", SqlDbType.NVarChar, 255) { Value = email };
+            
+            var result = await _context.Set<User>()
+                .FromSqlRaw("EXEC GetUserByEmail @Email", emailParam)
+                .ToListAsync();
+                
+            return result.FirstOrDefault();
         }
 
         public async Task<bool> VerifyUniqueEmailAsync(string email, int? userId = null)
         {
-            if (userId.HasValue)
+            var parameters = new[]
             {
-                return !await _dbSet.AnyAsync(u => u.Email == email && u.IdUser != userId.Value);
-            }
-            
-            return !await _dbSet.AnyAsync(u => u.Email == email);
+                new SqlParameter("@Email", SqlDbType.NVarChar, 255) { Value = email },
+                new SqlParameter("@UserId", SqlDbType.Int) { Value = (object?)userId ?? DBNull.Value }
+            };
+
+            var results = await _context.Database
+                .SqlQueryRaw<int>("EXEC VerifyUniqueEmail @Email, @UserId", parameters)
+                .ToListAsync();
+
+            return results.FirstOrDefault() == 1;
         }
 
         public async Task<User?> Authenticate(string email, string password)
@@ -56,7 +68,7 @@ namespace OnlineRestaurant.Services
         public async Task<User?> Register(User user, string password)
         {
             // Check if a user with this email already exists
-            if (await GetByEmailAsync(user.Email) != null)
+            if (!await VerifyUniqueEmailAsync(user.Email))
                 return null;
 
             // Store the password in plain text

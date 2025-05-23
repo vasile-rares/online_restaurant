@@ -35,7 +35,7 @@ namespace OnlineRestaurant.ViewModels
         public UserViewModel UserViewModel => _userViewModel;
         
         public ShoppingCartViewModel ShoppingCart => _shoppingCart;
-        
+
         public bool IsEmployee => 
             UserViewModel.IsLoggedIn && 
             UserViewModel.CurrentUser?.Role != null && 
